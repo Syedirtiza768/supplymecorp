@@ -1,0 +1,805 @@
+// Product Categories and Subcategories
+export const categories = [
+  {
+    id: "hardware",
+    name: "Hardware",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "fasteners", name: "Fasteners" },
+      { id: "door-hardware", name: "Door Hardware" },
+      { id: "cabinet-hardware", name: "Cabinet Hardware" },
+      { id: "chains-ropes", name: "Chains & Ropes" },
+      { id: "mailboxes", name: "Mailboxes" },
+    ],
+  },
+  {
+    id: "paint",
+    name: "Paint & Paint Sundries",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "interior-paint", name: "Interior Paint" },
+      { id: "exterior-paint", name: "Exterior Paint" },
+      { id: "primers", name: "Primers & Sealers" },
+      { id: "stains-varnishes", name: "Stains & Varnishes" },
+      { id: "paint-tools", name: "Paint Tools & Accessories" },
+    ],
+  },
+  {
+    id: "construction",
+    name: "Construction/Building Products",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "lumber", name: "Lumber & Composites" },
+      { id: "drywall", name: "Drywall & Accessories" },
+      { id: "insulation", name: "Insulation" },
+      { id: "roofing", name: "Roofing Materials" },
+      { id: "concrete", name: "Concrete & Masonry" },
+    ],
+  },
+  {
+    id: "electrical",
+    name: "Electrical Supplies",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "wire-cable", name: "Wire & Cable" },
+      { id: "switches-outlets", name: "Switches & Outlets" },
+      { id: "circuit-breakers", name: "Circuit Breakers & Panels" },
+      { id: "lighting", name: "Lighting & Ceiling Fans" },
+      { id: "electrical-tools", name: "Electrical Tools" },
+    ],
+  },
+  {
+    id: "plumbing",
+    name: "Plumbing Supplies",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "pipes-fittings", name: "Pipes & Fittings" },
+      { id: "faucets", name: "Faucets & Fixtures" },
+      { id: "water-heaters", name: "Water Heaters" },
+      { id: "pumps", name: "Pumps & Water Systems" },
+      { id: "plumbing-tools", name: "Plumbing Tools" },
+    ],
+  },
+  {
+    id: "janitorial",
+    name: "Janitorial Supplies",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "cleaning-chemicals", name: "Cleaning Chemicals" },
+      { id: "cleaning-tools", name: "Cleaning Tools" },
+      { id: "paper-products", name: "Paper Products" },
+      { id: "trash-recycling", name: "Trash & Recycling" },
+      { id: "floor-care", name: "Floor Care" },
+    ],
+  },
+  {
+    id: "cabinets",
+    name: "Cabinets",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "kitchen-cabinets", name: "Kitchen Cabinets" },
+      { id: "bathroom-cabinets", name: "Bathroom Cabinets" },
+      { id: "cabinet-doors", name: "Cabinet Doors" },
+      { id: "cabinet-accessories", name: "Cabinet Accessories" },
+      { id: "countertops", name: "Countertops" },
+    ],
+  },
+  {
+    id: "tools",
+    name: "Hand Tools & Tools",
+    image: "/placeholder.svg?height=200&width=200",
+    subcategories: [
+      { id: "hand-tools", name: "Hand Tools" },
+      { id: "power-tools", name: "Power Tools" },
+      { id: "measuring-tools", name: "Measuring Tools" },
+      { id: "tool-storage", name: "Tool Storage" },
+      { id: "safety-equipment", name: "Safety Equipment" },
+    ],
+  },
+]
+
+// Mock Products Data
+export const products = [
+  // Hardware - Fasteners
+  {
+    id: "h-f-1",
+    name: "Premium Wood Screws - 100 Pack",
+    price: 12.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "fasteners",
+    rating: 4.5,
+    reviewCount: 28,
+    inStock: true,
+    description:
+      "High-quality wood screws perfect for furniture assembly and general woodworking projects. Made from durable steel with a corrosion-resistant coating.",
+    features: [
+      "100 screws per pack",
+      "Corrosion-resistant coating",
+      "Self-drilling tip",
+      "Phillips head",
+      'Size: #8 x 1-1/2"',
+    ],
+    specifications: {
+      Material: "Steel with zinc coating",
+      "Head Type": "Phillips",
+      Quantity: "100 pieces",
+      Size: '#8 x 1-1/2"',
+      Application: "Wood, MDF, plywood",
+      Finish: "Zinc-plated",
+    },
+  },
+  {
+    id: "h-f-2",
+    name: "Heavy-Duty Anchor Bolts - 25 Pack",
+    price: 18.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "fasteners",
+    rating: 4.8,
+    reviewCount: 42,
+    inStock: true,
+    description:
+      "Heavy-duty anchor bolts designed for securing heavy objects to concrete or masonry. Perfect for industrial applications and construction projects.",
+    features: [
+      "25 bolts per pack",
+      "Wedge-style design",
+      "High tensile strength",
+      "Corrosion-resistant",
+      'Size: 3/8" x 3"',
+    ],
+    specifications: {
+      Material: "Carbon steel",
+      Diameter: '3/8"',
+      Length: '3"',
+      Quantity: "25 pieces",
+      "Load Capacity": "Up to 1,000 lbs",
+      Application: "Concrete, masonry",
+    },
+  },
+  {
+    id: "h-f-3",
+    name: "Assorted Nails - 500 Pack",
+    price: 9.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "fasteners",
+    rating: 4.3,
+    reviewCount: 36,
+    inStock: true,
+    description:
+      "Comprehensive assortment of nails for various applications. Includes common, finishing, and brad nails in different sizes.",
+    features: [
+      "500 nails per pack",
+      "Multiple sizes and types",
+      "Organized compartments",
+      "Durable storage case",
+      "Rust-resistant coating",
+    ],
+    specifications: {
+      Material: "Steel",
+      Quantity: "500 pieces",
+      Types: "Common, finishing, brad",
+      Sizes: '3/4" to 3"',
+      Finish: "Bright zinc",
+      "Storage Case": "Included",
+    },
+  },
+
+  // Hardware - Door Hardware
+  {
+    id: "h-dh-1",
+    name: "Stainless Steel Door Hinges - 3 Pack",
+    price: 15.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "door-hardware",
+    rating: 4.7,
+    reviewCount: 36,
+    inStock: true,
+    description:
+      "Premium stainless steel door hinges with a brushed finish. Smooth operation and durable construction for residential and commercial doors.",
+    features: [
+      "3 hinges per pack",
+      "Brushed stainless steel finish",
+      "Ball bearing design",
+      "Removable pin",
+      'Size: 4" x 4"',
+    ],
+    specifications: {
+      Material: "304 Stainless Steel",
+      Size: '4" x 4"',
+      "Bearing Type": "Ball bearing",
+      Quantity: "3 pieces",
+      "Weight Capacity": "Up to 80 lbs per hinge",
+      Finish: "Brushed stainless",
+    },
+  },
+  {
+    id: "h-dh-2",
+    name: "Keyless Entry Door Lock",
+    price: 89.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "door-hardware",
+    rating: 4.6,
+    reviewCount: 52,
+    inStock: true,
+    isNew: true,
+    description:
+      "Modern keyless entry door lock with touchpad and traditional key backup. Features customizable access codes and auto-lock functionality.",
+    features: [
+      "Touchpad keyless entry",
+      "Traditional key backup",
+      "Auto-lock feature",
+      "Low battery indicator",
+      "Easy installation",
+      "Weather-resistant",
+    ],
+    specifications: {
+      Material: "Zinc alloy",
+      Finish: "Satin nickel",
+      "Power Source": "4 AA batteries (included)",
+      "Access Codes": "Up to 20 unique codes",
+      "Auto-Lock": "Programmable (30 sec to 3 min)",
+      "Operating Temperature": "-4°F to 140°F",
+    },
+  },
+  {
+    id: "h-dh-3",
+    name: "Heavy-Duty Door Closer",
+    price: 45.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "door-hardware",
+    rating: 4.4,
+    reviewCount: 29,
+    inStock: true,
+    description:
+      "Commercial-grade door closer with adjustable closing speed and backcheck. Suitable for high-traffic areas and exterior doors.",
+    features: [
+      "Adjustable closing speed",
+      "Backcheck feature",
+      "Hold-open option",
+      "Universal mounting",
+      "Grade 1 commercial rating",
+    ],
+    specifications: {
+      Material: "Cast aluminum body",
+      Finish: "Aluminum",
+      "Door Weight": "Up to 250 lbs",
+      "Door Width": 'Up to 48"',
+      "Mounting Options": "Regular, top jamb, parallel arm",
+      Certification: "ANSI/BHMA A156.4 Grade 1",
+    },
+  },
+
+  // Hardware - Cabinet Hardware
+  {
+    id: "h-ch-1",
+    name: "Modern Cabinet Pulls - 10 Pack",
+    price: 24.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "hardware",
+    subcategory: "cabinet-hardware",
+    rating: 4.8,
+    reviewCount: 64,
+    inStock: true,
+    description:
+      "Contemporary stainless steel cabinet pulls with a sleek design. Perfect for modernizing kitchen and bathroom cabinets.",
+    features: [
+      "10 pulls per pack",
+      "Brushed stainless steel finish",
+      "Modern design",
+      "Includes mounting hardware",
+      '5" center-to-center',
+    ],
+    specifications: {
+      Material: "304 Stainless Steel",
+      Finish: "Brushed nickel",
+      Length: '5.5"',
+      "Center-to-Center": '5"',
+      Projection: '1.25"',
+      "Mounting Hardware": "Included",
+    },
+  },
+
+  // Paint - Interior Paint
+  {
+    id: "p-ip-1",
+    name: "Premium Interior Latex Paint - 1 Gallon",
+    price: 32.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "paint",
+    subcategory: "interior-paint",
+    rating: 4.6,
+    reviewCount: 58,
+    inStock: true,
+    description:
+      "High-quality interior latex paint with excellent coverage and a smooth finish. Low VOC formula for better indoor air quality.",
+    features: [
+      "1 gallon coverage: 350-400 sq ft",
+      "Low VOC formula",
+      "Washable finish",
+      "Mildew resistant",
+      "Quick drying",
+    ],
+    specifications: {
+      Type: "Latex",
+      Finish: "Eggshell",
+      Coverage: "350-400 sq ft per gallon",
+      "Dry Time": "1-2 hours to touch, 4 hours to recoat",
+      "VOC Content": "< 50 g/L",
+      Base: "Water",
+    },
+  },
+  {
+    id: "p-ip-2",
+    name: "Kitchen & Bath Interior Paint - 1 Gallon",
+    price: 38.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "paint",
+    subcategory: "interior-paint",
+    rating: 4.7,
+    reviewCount: 42,
+    inStock: true,
+    description:
+      "Specialized interior paint formulated for kitchens and bathrooms. Features enhanced moisture and mildew resistance with a scrubbable finish.",
+    features: [
+      "Moisture resistant formula",
+      "Enhanced mildew protection",
+      "Scrubbable finish",
+      "Steam resistant",
+      "Low odor",
+    ],
+    specifications: {
+      Type: "Acrylic latex",
+      Finish: "Semi-gloss",
+      Coverage: "300-350 sq ft per gallon",
+      "Dry Time": "1 hour to touch, 4 hours to recoat",
+      "VOC Content": "< 50 g/L",
+      Base: "Water",
+    },
+  },
+  {
+    id: "p-ip-3",
+    name: "Ceiling Paint - 1 Gallon",
+    price: 29.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "paint",
+    subcategory: "interior-paint",
+    rating: 4.5,
+    reviewCount: 36,
+    inStock: true,
+    description:
+      "Specially formulated paint for ceilings with a spatter-resistant formula. Dries to a bright white, flat finish that minimizes ceiling imperfections.",
+    features: [
+      "Spatter-resistant formula",
+      "Bright white finish",
+      "Hides imperfections",
+      "Self-priming on most surfaces",
+      "Low odor",
+    ],
+    specifications: {
+      Type: "Acrylic latex",
+      Finish: "Flat",
+      Coverage: "350-400 sq ft per gallon",
+      "Dry Time": "1 hour to touch, 2 hours to recoat",
+      "VOC Content": "< 50 g/L",
+      Base: "Water",
+    },
+  },
+
+  // Paint - Exterior Paint
+  {
+    id: "p-ep-1",
+    name: "Weather-Shield Exterior Paint - 1 Gallon",
+    price: 42.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "paint",
+    subcategory: "exterior-paint",
+    rating: 4.8,
+    reviewCount: 47,
+    inStock: true,
+    description:
+      "Premium exterior paint with advanced weather protection. Resists fading, cracking, and peeling in harsh conditions.",
+    features: [
+      "All-weather protection",
+      "UV resistant",
+      "Mildew resistant formula",
+      "Fade resistant",
+      "Self-priming on most surfaces",
+    ],
+    specifications: {
+      Type: "100% acrylic latex",
+      Finish: "Satin",
+      Coverage: "300-400 sq ft per gallon",
+      "Dry Time": "1 hour to touch, 4 hours to recoat",
+      "VOC Content": "< 50 g/L",
+      "Temperature Range": "35°F to 90°F application",
+    },
+  },
+
+  // Paint - Paint Tools
+  {
+    id: "p-pt-1",
+    name: "Professional Paint Roller Set",
+    price: 24.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "paint",
+    subcategory: "paint-tools",
+    rating: 4.6,
+    reviewCount: 39,
+    inStock: true,
+    description:
+      "Complete professional-grade paint roller set for smooth and even application. Includes roller frame, covers, and tray.",
+    features: [
+      "9-piece set",
+      "Professional-grade components",
+      "Multiple roller nap sizes",
+      "Sturdy metal tray",
+      "Ergonomic handles",
+    ],
+    specifications: {
+      "Roller Frame": "9-inch professional grade",
+      "Roller Covers": "3 covers (3/8-inch, 1/2-inch, 3/4-inch nap)",
+      Tray: "Metal with ladder hooks",
+      "Mini Roller": "4-inch with frame",
+      "Mini Covers": "2 covers (3/8-inch nap)",
+      "Extension Pole": "Adjustable up to 48 inches",
+    },
+  },
+
+  // Tools - Power Tools
+  {
+    id: "t-pt-1",
+    name: "Professional Cordless Drill - 20V",
+    price: 149.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "power-tools",
+    rating: 4.9,
+    reviewCount: 124,
+    inStock: true,
+    isNew: true,
+    description:
+      "Professional-grade 20V cordless drill with brushless motor for longer runtime and extended durability. Includes two batteries, charger, and carrying case.",
+    features: [
+      "Brushless motor technology",
+      "Variable speed control",
+      "LED work light",
+      "Ergonomic grip",
+      "2-speed gearbox",
+      "20V lithium-ion battery",
+    ],
+    specifications: {
+      "Power Source": "20V Lithium-ion battery",
+      "Chuck Size": "1/2 inch",
+      Speed: "0-600/0-2000 RPM",
+      Torque: "530 in-lbs",
+      Weight: "3.5 lbs",
+      Includes: "Drill, 2 batteries, charger, carrying case",
+    },
+  },
+  {
+    id: "t-pt-2",
+    name: 'Circular Saw - 7-1/4"',
+    price: 129.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "power-tools",
+    rating: 4.7,
+    reviewCount: 86,
+    inStock: true,
+    description:
+      "Powerful circular saw with 15-amp motor for cutting through various materials. Features bevel capacity up to 56 degrees and a built-in dust blower.",
+    features: [
+      "15-amp motor",
+      '7-1/4" blade diameter',
+      "5800 RPM",
+      "56° bevel capacity",
+      "Electric brake",
+      "Built-in dust blower",
+    ],
+    specifications: {
+      Power: "15 Amp",
+      "Blade Diameter": '7-1/4"',
+      Speed: "5800 RPM",
+      "Bevel Capacity": "56°",
+      "Cutting Depth at 90°": '2-7/16"',
+      Weight: "10.5 lbs",
+    },
+  },
+  {
+    id: "t-pt-3",
+    name: "Cordless Impact Driver Kit - 20V",
+    price: 139.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "power-tools",
+    rating: 4.8,
+    reviewCount: 92,
+    inStock: true,
+    description:
+      "Powerful 20V cordless impact driver with 1,800 in-lbs of torque. Compact design for working in tight spaces with 3-speed settings for versatile applications.",
+    features: [
+      "1,800 in-lbs of torque",
+      "3-speed settings",
+      "1/4-inch quick-release chuck",
+      "LED work light",
+      "Compact design",
+      "Brushless motor",
+    ],
+    specifications: {
+      "Power Source": "20V Lithium-ion battery",
+      Torque: "1,800 in-lbs",
+      Speed: "0-1,000/0-2,800/0-3,250 RPM",
+      "Impact Rate": "0-3,600 IPM",
+      Weight: "2.1 lbs (tool only)",
+      Includes: "Impact driver, battery, charger, belt hook, carrying case",
+    },
+  },
+  {
+    id: "t-pt-4",
+    name: "Oscillating Multi-Tool Kit",
+    price: 119.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "power-tools",
+    rating: 4.6,
+    reviewCount: 78,
+    inStock: true,
+    description:
+      "Versatile oscillating multi-tool for cutting, sanding, scraping, and grinding. Features tool-free blade change system and variable speed control.",
+    features: [
+      "Tool-free blade change",
+      "Variable speed control",
+      "3.5° oscillation angle",
+      "Ergonomic grip",
+      "Universal accessory adapter",
+      "LED work light",
+    ],
+    specifications: {
+      Power: "4.0 Amp",
+      "Speed Range": "10,000-20,000 OPM",
+      "Oscillation Angle": "3.5°",
+      Weight: "3.3 lbs",
+      "Cord Length": "10 ft",
+      Includes: "Multi-tool, 32-piece accessory kit, carrying case",
+    },
+  },
+
+  // Tools - Hand Tools
+  {
+    id: "t-ht-1",
+    name: "Premium Hammer - 16 oz",
+    price: 29.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "hand-tools",
+    rating: 4.8,
+    reviewCount: 72,
+    inStock: true,
+    description:
+      "Professional-grade 16 oz hammer with fiberglass handle for reduced vibration. Perfect for general construction and DIY projects.",
+    features: ["16 oz head weight", "Fiberglass handle", "Rubber grip", "Curved claw", "Magnetic nail starter"],
+    specifications: {
+      "Head Weight": "16 oz",
+      "Handle Material": "Fiberglass with rubber grip",
+      "Overall Length": '13.5"',
+      "Head Type": "Curved claw",
+      Application: "General construction, DIY",
+      Features: "Magnetic nail starter",
+    },
+  },
+  {
+    id: "t-ht-2",
+    name: "Screwdriver Set - 12 Piece",
+    price: 34.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "hand-tools",
+    rating: 4.7,
+    reviewCount: 65,
+    inStock: true,
+    description:
+      "Comprehensive 12-piece screwdriver set with magnetic tips and ergonomic handles. Includes Phillips, flathead, and specialty drivers.",
+    features: [
+      "12-piece set",
+      "Magnetic tips",
+      "Ergonomic handles",
+      "Chrome vanadium steel shafts",
+      "Color-coded handles",
+    ],
+    specifications: {
+      "Number of Pieces": "12",
+      "Handle Material": "Bi-material ergonomic grip",
+      "Shaft Material": "Chrome vanadium steel",
+      Types: "Phillips, flathead, Torx, precision",
+      "Storage Case": "Included",
+      "Tip Type": "Magnetic",
+    },
+  },
+  {
+    id: "t-ht-3",
+    name: "Adjustable Wrench Set - 3 Piece",
+    price: 39.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "tools",
+    subcategory: "hand-tools",
+    rating: 4.6,
+    reviewCount: 58,
+    inStock: true,
+    description:
+      "Set of three adjustable wrenches in different sizes for versatile use. Features precise jaw adjustment and comfortable grip handles.",
+    features: [
+      '3-piece set (6", 8", 10")',
+      "Chrome vanadium steel",
+      "Precise jaw adjustment",
+      "Laser-etched measurement scale",
+      "Ergonomic handles",
+    ],
+    specifications: {
+      "Number of Pieces": "3",
+      Sizes: '6", 8", 10"',
+      Material: "Chrome vanadium steel",
+      Finish: "Chrome plated",
+      "Jaw Capacity": 'Up to 1-3/8"',
+      "Handle Type": "Ergonomic bi-material",
+    },
+  },
+
+  // Plumbing - Pipes & Fittings
+  {
+    id: "pl-pf-1",
+    name: "PVC Pipe - 2\" x 10'",
+    price: 12.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "plumbing",
+    subcategory: "pipes-fittings",
+    rating: 4.5,
+    reviewCount: 48,
+    inStock: true,
+    description:
+      "Schedule 40 PVC pipe for drainage and low-pressure applications. Durable and easy to cut and install.",
+    features: ["Schedule 40 PVC", '2" diameter', "10' length", "White color", "Lightweight and durable"],
+    specifications: {
+      Material: "PVC",
+      Diameter: '2"',
+      Length: "10'",
+      Schedule: "40",
+      "Pressure Rating": "280 PSI",
+      Application: "Drainage, low-pressure water",
+    },
+  },
+  {
+    id: "pl-pf-2",
+    name: "Copper Pipe - 3/4\" x 10'",
+    price: 29.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "plumbing",
+    subcategory: "pipes-fittings",
+    rating: 4.7,
+    reviewCount: 42,
+    inStock: true,
+    description:
+      "Type L copper pipe for residential and commercial water supply applications. Durable, corrosion-resistant, and suitable for potable water.",
+    features: ["Type L copper", '3/4" diameter', "10' length", "Corrosion resistant", "Approved for potable water"],
+    specifications: {
+      Material: "Copper",
+      Type: "L",
+      Diameter: '3/4"',
+      Length: "10'",
+      "Wall Thickness": '0.045"',
+      Application: "Potable water, heating systems",
+    },
+  },
+  {
+    id: "pl-pf-3",
+    name: 'PVC Elbow Fitting - 90° - 2"',
+    price: 2.49,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "plumbing",
+    subcategory: "pipes-fittings",
+    rating: 4.6,
+    reviewCount: 36,
+    inStock: true,
+    description:
+      "Schedule 40 PVC 90-degree elbow fitting for creating right-angle turns in drainage and low-pressure water systems.",
+    features: ["Schedule 40 PVC", '2" diameter', "90° angle", "Slip connection", "White color"],
+    specifications: {
+      Material: "PVC",
+      Diameter: '2"',
+      Angle: "90°",
+      "Connection Type": "Slip",
+      Schedule: "40",
+      Application: "Drainage, low-pressure water",
+    },
+  },
+
+  // Electrical - Lighting
+  {
+    id: "e-l-1",
+    name: 'LED Recessed Ceiling Light - 6"',
+    price: 19.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "electrical",
+    subcategory: "lighting",
+    rating: 4.8,
+    reviewCount: 86,
+    inStock: true,
+    description:
+      "Energy-efficient 6-inch LED recessed ceiling light with adjustable color temperature. Easy installation and long lifespan.",
+    features: [
+      "15W LED",
+      "Adjustable color temperature (3000K-5000K)",
+      "Dimmable",
+      "IC rated",
+      "Wet location rated",
+      "50,000 hour lifespan",
+    ],
+    specifications: {
+      Wattage: "15W",
+      "Lumen Output": "1100 lumens",
+      "Color Temperature": "Adjustable (3000K-5000K)",
+      "Cutout Size": '6"',
+      Dimmable: "Yes (10-100%)",
+      "Rated Life": "50,000 hours",
+    },
+  },
+  {
+    id: "e-l-2",
+    name: "LED Shop Light - 4ft",
+    price: 39.99,
+    image: "/placeholder.svg?height=300&width=300",
+    category: "electrical",
+    subcategory: "lighting",
+    rating: 4.7,
+    reviewCount: 72,
+    inStock: true,
+    description:
+      "High-output 4-foot LED shop light for garages, workshops, and utility spaces. Linkable design allows connecting multiple fixtures.",
+    features: [
+      "40W LED",
+      "4000 lumens",
+      "5000K daylight",
+      "Linkable (up to 4 fixtures)",
+      "Pull chain switch",
+      "Hanging hardware included",
+    ],
+    specifications: {
+      Wattage: "40W",
+      "Lumen Output": "4000 lumens",
+      "Color Temperature": "5000K (daylight)",
+      Length: "48 inches",
+      "Mounting Options": "Hanging chains or surface mount",
+      "Rated Life": "50,000 hours",
+    },
+  },
+]
+
+// Helper function to get products by category and subcategory
+export function getProductsByCategory(categoryId: string) {
+  return products.filter((product) => product.category === categoryId)
+}
+
+export function getProductsBySubcategory(categoryId: string, subcategoryId: string) {
+  return products.filter((product) => product.category === categoryId && product.subcategory === subcategoryId)
+}
+
+export function getProductById(productId: string) {
+  return products.find((product) => product.id === productId)
+}
+
+export function getRelatedProducts(product: any, limit = 4) {
+  return products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, limit)
+}
+
+export function getCategoryById(categoryId: string) {
+  return categories.find((category) => category.id === categoryId)
+}
+
+export function getSubcategoryById(categoryId: string, subcategoryId: string) {
+  const category = getCategoryById(categoryId)
+  return category?.subcategories.find((subcategory) => subcategory.id === subcategoryId)
+}
