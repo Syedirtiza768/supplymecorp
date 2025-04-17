@@ -1,9 +1,15 @@
-import { Mail, MapPin, Phone } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { Mail, MapPin, Phone } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function ContactPage() {
   return (
@@ -12,8 +18,9 @@ export default function ContactPage() {
         <div>
           <h1 className="text-3xl font-bold md:text-4xl">Contact Us</h1>
           <p className="mt-4 text-muted-foreground">
-            Have questions about our products or services? We're here to help. Fill out the form or use the contact
-            information below to get in touch with our team.
+            Have questions about our products or services? We're here to help.
+            Fill out the form or use the contact information below to get in
+            touch with our team.
           </p>
 
           <div className="mt-8 grid gap-6">
@@ -25,9 +32,8 @@ export default function ContactPage() {
                 <div>
                   <CardTitle className="text-lg">Our Location</CardTitle>
                   <CardDescription className="mt-1">
-                    1260 Oak Point Avenue
-                    <br />
-                    Bronx, NY 10474
+                    18-07 Astoria Blvd <br />
+                    Long Island City, NY 11102
                   </CardDescription>
                 </div>
               </CardContent>
@@ -55,7 +61,10 @@ export default function ContactPage() {
                 <div>
                   <CardTitle className="text-lg">Email Address</CardTitle>
                   <CardDescription className="mt-1">
-                    <a href="mailto:info@rrgeneralsupply.com" className="hover:text-primary">
+                    <a
+                      href="mailto:info@rrgeneralsupply.com"
+                      className="hover:text-primary"
+                    >
                       info@rrgeneralsupply.com
                     </a>
                   </CardDescription>
@@ -81,7 +90,10 @@ export default function ContactPage() {
           <Card>
             <CardHeader>
               <CardTitle>Send Us a Message</CardTitle>
-              <CardDescription>Fill out the form below and we'll get back to you as soon as possible.</CardDescription>
+              <CardDescription>
+                Fill out the form below and we'll get back to you as soon as
+                possible.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form className="grid gap-4">
@@ -91,11 +103,19 @@ export default function ContactPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="Your email address" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Your email address"
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="phone">Phone</Label>
-                  <Input id="phone" type="tel" placeholder="Your phone number" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="Your phone number"
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="subject">Subject</Label>
@@ -103,7 +123,11 @@ export default function ContactPage() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="message">Message</Label>
-                  <Textarea id="message" placeholder="How can we help you?" className="min-h-[150px]" />
+                  <Textarea
+                    id="message"
+                    placeholder="How can we help you?"
+                    className="min-h-[150px]"
+                  />
                 </div>
                 <Button type="submit" className="mt-2">
                   Send Message
@@ -129,5 +153,5 @@ export default function ContactPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

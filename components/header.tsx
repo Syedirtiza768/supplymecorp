@@ -1,16 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { usePathname } from "next/navigation"
-import { ChevronDown, ChevronRight, MapPin, Menu, ShoppingCart } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { cn } from "@/lib/utils"
-import { categories } from "@/lib/data"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import {
+  ChevronDown,
+  ChevronRight,
+  MapPin,
+  Menu,
+  ShoppingCart,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { categories } from "@/lib/data";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const mainNavItems = [
   { name: "HOME", href: "/" },
@@ -18,14 +29,14 @@ const mainNavItems = [
   { name: "NEED A SPECIAL ITEM?", href: "/special-item" },
   { name: "MY ACCOUNT", href: "/account" },
   { name: "ABOUT US", href: "/about" },
-]
+];
 
 export default function Header() {
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const pathname = usePathname()
-  const [cartCount, setCartCount] = useState(0)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [showCategoriesMenu, setShowCategoriesMenu] = useState(false)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const pathname = usePathname();
+  const [cartCount, setCartCount] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showCategoriesMenu, setShowCategoriesMenu] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -34,7 +45,7 @@ export default function Header() {
         <div className="container flex items-center justify-between">
           <div className="flex items-center text-sm">
             <MapPin className="mr-1 h-4 w-4" />
-            <span>1260 Oak Point Avenue, Bronx NY 10474</span>
+            <span>18-07 Astoria Blvd, Long Island City, NY 11102</span>
           </div>
           <div className="text-sm">
             <Link href="/account" className="hover:underline">
@@ -73,7 +84,9 @@ export default function Header() {
                         href={item.href}
                         className={cn(
                           "text-lg font-medium transition-colors hover:text-primary",
-                          pathname === item.href ? "text-primary" : "text-muted-foreground",
+                          pathname === item.href
+                            ? "text-primary"
+                            : "text-muted-foreground"
                         )}
                       >
                         {item.name}
@@ -81,7 +94,9 @@ export default function Header() {
                     ))}
                   </div>
                   <div className="flex flex-col gap-2">
-                    <h3 className="font-heading text-xl font-bold">Categories</h3>
+                    <h3 className="font-heading text-xl font-bold">
+                      Categories
+                    </h3>
                     <div className="grid grid-cols-1 gap-2">
                       {categories.map((category) => (
                         <div key={category.id} className="space-y-1">
@@ -109,7 +124,10 @@ export default function Header() {
                   <div className="mt-auto">
                     <p className="text-sm text-muted-foreground">
                       Call us:{" "}
-                      <a href="tel:7185427322" className="font-medium text-foreground hover:text-primary">
+                      <a
+                        href="tel:7185427322"
+                        className="font-medium text-foreground hover:text-primary"
+                      >
                         718.542.7322
                       </a>
                     </p>
@@ -127,7 +145,9 @@ export default function Header() {
               />
               <div>
                 <h1 className="text-2xl font-bold">RR GENERAL SUPPLY</h1>
-                <p className="text-sm text-muted-foreground">Industry Leaders For Over 80 Years!</p>
+                <p className="text-sm text-muted-foreground">
+                  Industry Leaders For Over 80 Years!
+                </p>
               </div>
             </Link>
           </div>
@@ -158,7 +178,10 @@ export default function Header() {
                   placeholder="Search Keyword or Item Number"
                   className="rounded-r-none border-r-0"
                 />
-                <Button type="submit" className="rounded-l-none bg-primary hover:bg-primary-700">
+                <Button
+                  type="submit"
+                  className="rounded-l-none bg-primary hover:bg-primary-700"
+                >
                   SEARCH
                 </Button>
               </form>
@@ -191,10 +214,18 @@ export default function Header() {
                         <ChevronRight className="h-4 w-4" />
                       </Link>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="start" className="w-56">
+                    <DropdownMenuContent
+                      side="right"
+                      align="start"
+                      className="w-56"
+                    >
                       {category.subcategories.map((subcategory) => (
                         <DropdownMenuItem key={subcategory.id} asChild>
-                          <Link href={`/category/${category.id}/${subcategory.id}`}>{subcategory.name}</Link>
+                          <Link
+                            href={`/category/${category.id}/${subcategory.id}`}
+                          >
+                            {subcategory.name}
+                          </Link>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -210,7 +241,7 @@ export default function Header() {
                 href={item.href}
                 className={cn(
                   "flex h-12 items-center px-4 hover:bg-primary",
-                  pathname === item.href ? "bg-primary" : "",
+                  pathname === item.href ? "bg-primary" : ""
                 )}
               >
                 {item.name}
@@ -220,5 +251,5 @@ export default function Header() {
         </div>
       </div>
     </header>
-  )
+  );
 }

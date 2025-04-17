@@ -1,8 +1,8 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
+import Link from "next/link";
+import Image from "next/image";
+import { Facebook, Instagram, Linkedin, Twitter } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 const categories = [
   { name: "Hardware", href: "/category/hardware" },
@@ -11,7 +11,7 @@ const categories = [
   { name: "Electrical Supplies", href: "/category/electrical" },
   { name: "Plumbing Supplies", href: "/category/plumbing" },
   { name: "Janitorial Supplies", href: "/category/janitorial" },
-]
+];
 
 const quickLinks = [
   { name: "About Us", href: "/about" },
@@ -20,7 +20,7 @@ const quickLinks = [
   { name: "Contact", href: "/contact" },
   { name: "Privacy Policy", href: "/privacy" },
   { name: "Terms of Service", href: "/terms" },
-]
+];
 
 export default function Footer() {
   return (
@@ -38,27 +38,43 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm text-gray-300">
-              Providing quality hardware and building maintenance supplies since 1926. Serving contractors, building
-              managers, and DIY customers.
+              Providing quality hardware and building maintenance supplies since
+              1926. Serving contractors, building managers, and DIY customers.
             </p>
             <div className="flex space-x-4">
               <Link href="#" aria-label="Facebook">
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-300 hover:text-white">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-gray-300 hover:text-white"
+                >
                   <Facebook className="h-5 w-5" />
                 </Button>
               </Link>
               <Link href="#" aria-label="Twitter">
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-300 hover:text-white">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-gray-300 hover:text-white"
+                >
                   <Twitter className="h-5 w-5" />
                 </Button>
               </Link>
               <Link href="#" aria-label="Instagram">
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-300 hover:text-white">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-gray-300 hover:text-white"
+                >
                   <Instagram className="h-5 w-5" />
                 </Button>
               </Link>
               <Link href="#" aria-label="LinkedIn">
-                <Button size="icon" variant="ghost" className="h-8 w-8 text-gray-300 hover:text-white">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 text-gray-300 hover:text-white"
+                >
                   <Linkedin className="h-5 w-5" />
                 </Button>
               </Link>
@@ -69,13 +85,19 @@ export default function Footer() {
             <ul className="space-y-2">
               {categories.map((category) => (
                 <li key={category.href}>
-                  <Link href={category.href} className="text-sm text-gray-300 hover:text-white hover:underline">
+                  <Link
+                    href={category.href}
+                    className="text-sm text-gray-300 hover:text-white hover:underline"
+                  >
                     {category.name}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link href="/shop" className="text-sm font-medium text-primary hover:underline">
+                <Link
+                  href="/shop"
+                  className="text-sm font-medium text-primary hover:underline"
+                >
                   View All Categories
                 </Link>
               </li>
@@ -86,7 +108,10 @@ export default function Footer() {
             <ul className="space-y-2">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-gray-300 hover:text-white hover:underline">
+                  <Link
+                    href={link.href}
+                    className="text-sm text-gray-300 hover:text-white hover:underline"
+                  >
                     {link.name}
                   </Link>
                 </li>
@@ -96,24 +121,38 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-bold">Newsletter</h3>
             <p className="mb-4 text-sm text-gray-300">
-              Subscribe to our newsletter for the latest products, promotions, and updates.
+              Subscribe to our newsletter for the latest products, promotions,
+              and updates.
             </p>
             <form className="space-y-2">
-              <Input type="email" placeholder="Your email address" className="bg-gray-800 border-gray-700 text-white" />
-              <Button className="w-full bg-primary hover:bg-primary-700">Subscribe</Button>
+              <Input
+                type="email"
+                placeholder="Your email address"
+                className="bg-gray-800 border-gray-700 text-white"
+              />
+              <Button className="w-full bg-primary hover:bg-primary-700">
+                Subscribe
+              </Button>
             </form>
             <div className="mt-6">
               <h4 className="mb-2 text-base font-bold">Contact Us</h4>
               <address className="not-italic text-sm text-gray-300">
-                <p>1260 Oak Point Avenue</p>
-                <p>Bronx, NY 10474</p>
+                <p>18-07 Astoria Blvd</p>
+                <p>Long Island City, NY 11102</p>
                 <p className="mt-2">
-                  <a href="tel:7185427322" className="hover:text-white hover:underline">
-                    Phone: 718.542.7322
+                  <a
+                    href="tel:7185427322"
+                    className="hover:text-white hover:underline"
+                  >
+                    Phone: (718) 278-8480
                   </a>
                 </p>
                 <p className="mt-2">
-                  <span>Hours: 8 a.m. – 5 p.m. EST</span>
+                  <span>Hours:</span>
+                  <div>8 a.m. – 5 p.m. EST</div>
+                  <div>(Monday - Friday)</div>
+                  <div>9 a.m. – 2 p.m. EST</div>
+                  <div>(Saturday)</div>
                 </p>
               </address>
             </div>
@@ -123,10 +162,11 @@ export default function Footer() {
       <div className="border-t border-gray-800 py-6">
         <div className="container">
           <p className="text-center text-sm text-gray-400">
-            © {new Date().getFullYear()} RR General Supply. All rights reserved. Est. 1926
+            © {new Date().getFullYear()} RR General Supply. All rights reserved.
+            Est. 1926
           </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
