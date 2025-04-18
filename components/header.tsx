@@ -155,7 +155,7 @@ export default function Header() {
           <div className="flex items-center gap-4">
             <div className="hidden text-right md:block">
               <div className="text-xs text-muted-foreground">HELP LINE</div>
-              <div className="text-lg font-bold">718.542.7322</div>
+              <div className="text-lg font-bold">(718) 278-8480</div>
             </div>
 
             <Link href="/cart" className="flex items-center gap-2">
