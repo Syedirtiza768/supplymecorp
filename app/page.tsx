@@ -12,7 +12,6 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { categories } from "@/lib/data";
-import MyFlipBook from "../components/custom/MyFlipBook";
 // import MyFlipBook from "../components/custom/MyFlipBook";
 
 export default function Home() {
@@ -82,7 +81,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold">
             2025 Catalog: <span className="text-primary">Spring & Summer</span>
           </h2>
-          <MyFlipBook />
+          {/* <MyFlipBook /> */}
         </div>
       </section>
 
