@@ -3,20 +3,19 @@
 
 import dynamic from "next/dynamic";
 import { useRef } from "react";
-// import type HTMLFlipBookType from "react-pageflip";
 
-// Dynamically import the flipbook (disable SSR)
 const HTMLFlipBook = dynamic(() => import("react-pageflip"), { ssr: false });
 
 export default function MyFlipBook() {
   const bookRef = useRef(null);
 
+  // Replace these with real image URLs or use local public images
   const pages = [
-    "Welcome to the Flipbook!",
-    "This is page 2.",
-    "Here's page 3.",
-    "Almost done on page 4.",
-    "Thanks for flipping!",
+    "/images/flipbook/book1.jpg",
+    "/images/flipbook/book2.jpg",
+    "/images/flipbook/book3.jpg",
+    "/images/flipbook/book4.jpg",
+    "/images/flipbook/book5.jpg",
   ];
 
   return (
@@ -36,12 +35,13 @@ export default function MyFlipBook() {
         className="shadow-xl"
         ref={bookRef}
       >
-        {pages.map((text, index) => (
-          <div
-            key={index}
-            className="flex items-center justify-center text-xl font-medium bg-white border border-gray-300 p-4"
-          >
-            {text}
+        {pages.map((src, index) => (
+          <div key={index} className="w-full h-full overflow-hidden">
+            <img
+              src={src}
+              alt={`Page ${index + 1}`}
+              className="w-full h-full object-contain"
+            />
           </div>
         ))}
       </HTMLFlipBook>
