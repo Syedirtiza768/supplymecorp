@@ -1,11 +1,19 @@
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
-import Image from "next/image"
-import { ArrowRight, Building, Clock, Package, Truck } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel"
-import { categories } from "@/lib/data"
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, Building, Clock, Package, Truck } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import { categories } from "@/lib/data";
+import MyFlipBook from "../components/custom/MyFlipBook";
+// import MyFlipBook from "../components/custom/MyFlipBook";
 
 export default function Home() {
   return (
@@ -15,9 +23,15 @@ export default function Home() {
         <div className="relative overflow-hidden rounded-lg bg-primary">
           <div className="grid md:grid-cols-2">
             <div className="p-6 md:p-10">
-              <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">SPRING SAVINGS</h1>
-              <h2 className="mt-2 text-xl font-bold text-white">UP TO 30% OFF SELECT ITEMS</h2>
-              <h3 className="mt-1 text-xl font-bold text-white">LIMITED TIME ONLY</h3>
+              <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">
+                SPRING SAVINGS
+              </h1>
+              <h2 className="mt-2 text-xl font-bold text-white">
+                UP TO 30% OFF SELECT ITEMS
+              </h2>
+              <h3 className="mt-1 text-xl font-bold text-white">
+                LIMITED TIME ONLY
+              </h3>
 
               <div className="mt-6 space-y-4">
                 <div className="flex items-center gap-3">
@@ -41,7 +55,10 @@ export default function Home() {
               </div>
 
               <div className="mt-8">
-                <Button size="lg" className="bg-white text-primary hover:bg-gray-100">
+                <Button
+                  size="lg"
+                  className="bg-white text-primary hover:bg-gray-100"
+                >
                   SHOP NOW
                 </Button>
               </div>
@@ -65,22 +82,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold">
             2025 Catalog: <span className="text-primary">Spring & Summer</span>
           </h2>
-          <div className="rounded-lg border bg-card p-4 shadow-sm">
-            <div className="aspect-video w-full overflow-hidden">
-              <Image
-                src="/placeholder.svg?height=600&width=1200&text=2025 Spring & Summer Catalog"
-                alt="2025 Spring & Summer Catalog"
-                width={1200}
-                height={600}
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="mt-4 flex justify-center">
-              <Button size="lg" asChild className="bg-primary hover:bg-primary-700">
-                <Link href="/catalog">VIEW CATALOG</Link>
-              </Button>
-            </div>
-          </div>
+          <MyFlipBook />
         </div>
       </section>
 
@@ -88,8 +90,13 @@ export default function Home() {
       <section className="container">
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold sm:text-3xl">Featured Categories</h2>
-            <Link href="/shop" className="flex items-center gap-1 text-primary hover:underline">
+            <h2 className="text-2xl font-bold sm:text-3xl">
+              Featured Categories
+            </h2>
+            <Link
+              href="/shop"
+              className="flex items-center gap-1 text-primary hover:underline"
+            >
               View All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -105,7 +112,9 @@ export default function Home() {
                     className="aspect-square w-full object-cover"
                   />
                   <CardContent className="p-3">
-                    <h3 className="text-center text-sm font-medium">{category.name}</h3>
+                    <h3 className="text-center text-sm font-medium">
+                      {category.name}
+                    </h3>
                   </CardContent>
                 </Card>
               </Link>
@@ -117,7 +126,9 @@ export default function Home() {
       {/* Seasonal Promotions */}
       <section className="bg-muted py-8">
         <div className="container">
-          <h2 className="mb-6 text-center text-2xl font-bold sm:text-3xl">Seasonal Promotions</h2>
+          <h2 className="mb-6 text-center text-2xl font-bold sm:text-3xl">
+            Seasonal Promotions
+          </h2>
           <Carousel className="mx-auto max-w-5xl">
             <CarouselContent>
               {[1, 2, 3].map((item) => (
@@ -129,7 +140,9 @@ export default function Home() {
                           <Package className="h-8 w-8 text-primary" />
                         </div>
                         <h3 className="mb-2 text-xl font-bold">Spring Sale</h3>
-                        <p className="mb-4 text-sm text-muted-foreground">Up to 25% off selected items</p>
+                        <p className="mb-4 text-sm text-muted-foreground">
+                          Up to 25% off selected items
+                        </p>
                         <Button size="sm">Shop Now</Button>
                       </div>
                     </CardContent>
@@ -161,14 +174,18 @@ export default function Home() {
                 <Truck className="h-8 w-8 text-primary" />
               </div>
               <h3 className="mb-2 text-lg font-bold">Fast Delivery</h3>
-              <p className="text-sm text-muted-foreground">Quick and reliable shipping to your job site or home</p>
+              <p className="text-sm text-muted-foreground">
+                Quick and reliable shipping to your job site or home
+              </p>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="mb-4 rounded-full bg-primary/10 p-4">
                 <Package className="h-8 w-8 text-primary" />
               </div>
               <h3 className="mb-2 text-lg font-bold">Quality Products</h3>
-              <p className="text-sm text-muted-foreground">Curated selection of professional-grade supplies</p>
+              <p className="text-sm text-muted-foreground">
+                Curated selection of professional-grade supplies
+              </p>
             </div>
             <div className="flex flex-col items-center text-center">
               <div className="mb-4 rounded-full bg-primary/10 p-4">
@@ -189,15 +206,20 @@ export default function Home() {
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-bold sm:text-3xl">Stay Updated</h2>
             <p className="mt-2 text-muted-foreground">
-              Subscribe to our newsletter for the latest products, promotions, and industry news.
+              Subscribe to our newsletter for the latest products, promotions,
+              and industry news.
             </p>
             <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:gap-3">
-              <Input type="email" placeholder="Enter your email" className="flex-1 bg-background" />
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="flex-1 bg-background"
+              />
               <Button>Subscribe</Button>
             </div>
           </div>
         </div>
       </section>
     </div>
-  )
+  );
 }

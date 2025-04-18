@@ -148,11 +148,14 @@ export default function Footer() {
                   </a>
                 </p>
                 <p className="mt-2">
-                  <span>Hours:</span>
-                  <div>8 a.m. – 5 p.m. EST</div>
-                  <div>(Monday - Friday)</div>
-                  <div>9 a.m. – 2 p.m. EST</div>
-                  <div>(Saturday)</div>
+                  <span>Hours:</span> <br />
+                  <span>8 a.m. – 5 p.m. EST</span>
+                  <br />
+                  <span>(Monday - Friday)</span>
+                  <br />
+                  <span>9 a.m. – 2 p.m. EST</span>
+                  <br />
+                  <span>(Saturday)</span>
                 </p>
               </address>
             </div>
