@@ -47,7 +47,7 @@ export default function ContactPage() {
                   <CardTitle className="text-lg">Phone Number</CardTitle>
                   <CardDescription className="mt-1">
                     <a href="tel:7185427322" className="hover:text-primary">
-                      718.542.7322
+                      (718) 278-8480
                     </a>
                   </CardDescription>
                 </div>

@@ -128,7 +128,7 @@ export default function Header() {
                         href="tel:7185427322"
                         className="font-medium text-foreground hover:text-primary"
                       >
-                        718.542.7322
+                        (718) 278-8480
                       </a>
                     </p>
                   </div>

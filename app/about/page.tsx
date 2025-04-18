@@ -151,7 +151,7 @@ export default function AboutPage() {
                   href="tel:7185427322"
                   className="text-primary hover:underline"
                 >
-                  718.542.7322
+                  (718) 278-8480
                 </a>
               </p>
               <p className="text-muted-foreground">
