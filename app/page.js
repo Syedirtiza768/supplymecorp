@@ -10,9 +10,9 @@ import ServicesItem from "@/components/custom/home/ServicesItem";
 
 export default function Home() {
   return (
-    <div className="w-full min-h-screen mb-[150px]">
+    <div className="w-full min-h-screen ">
       {/* Hero Section */}
-      <div className="h-[500px] flex items-center justify-center w-full bg-[url('/images/home/hero.png')] bg-cover bg-top">
+      <div className="h-[350px] flex items-center justify-center w-full bg-[url('/images/home/hero.png')] bg-cover bg-top">
         <div className="w-[60%] flex flex-col gap-5 ">
           <h3 className=" text-3xl md:text-5xl font-bold text-white">
             Explore Top{" "}
@@ -25,7 +25,7 @@ export default function Home() {
           </p>
           <Link
             href={"#"}
-            className="py-3 px-8 rounded-md bg-first text-white hover:bg-second self-start"
+            className="py-3 px-8 rounded-md bg-primary text-white hover:bg-second self-start"
           >
             Shop Now
           </Link>
@@ -256,7 +256,7 @@ export default function Home() {
       </section>
 
       {/* Partners Section */}
-      <section className="min-h-[300px] mt-[50px] p-10 flex">
+      <section className="  p-10 flex">
         <div className="w-[80%] grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 items-center justify-center mx-auto">
           <img
             src="/images/home/partners/partner1.PNG"

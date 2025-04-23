@@ -18,16 +18,16 @@ const Navbar = () => {
 
   return (
     <div
-      className={` w-full bg-black  text-white flex flex-col items-center justify-start
+      className={` w-full bg-black  text-white flex flex-col items-center justify-start 
                     ${mobileNavbar && "h-screen fixed z-50"} `}
     >
       {/* Navbar Header */}
       <div
-        className={`w-[95%] mx-auto h-[120px] flex items-center justify-center 
+        className={`w-[95%] mx-auto min-h-[120px] flex items-center justify-center 
                         lg:w-[80%]
                         `}
       >
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full  pt-2">
           <Logo />
           <SearchBar />
           <RightItems />

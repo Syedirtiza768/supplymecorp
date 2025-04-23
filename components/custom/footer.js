@@ -30,11 +30,11 @@ export default function Footer() {
           <div className="space-y-4">
             <Link href="/" className="inline-block">
               <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/General%20Supply%28gold%29_jpg.jpg-qnYVHNdcxTwCNZkLQyXPuhxAMKNMHA.jpeg"
+                src="/images/logo.png"
                 alt="RR General Supply Logo"
-                width={180}
-                height={90}
-                className="h-auto bg-white p-2 rounded"
+                width={200}
+                height={140}
+                className="h-auto "
               />
             </Link>
             <p className="text-sm text-gray-300">

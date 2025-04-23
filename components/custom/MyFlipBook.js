@@ -29,7 +29,7 @@ export default function MyFlipBook() {
         minHeight={400}
         maxHeight={1536}
         maxShadowOpacity={0.5}
-        showCover={true}
+        showCover={false}
         className="shadow-xl"
         ref={bookRef}
       >
