@@ -1,13 +1,12 @@
 import Link from "next/link";
 import Container1 from "@/components/custom/Container1";
-import ProductSlider1 from "@/components/custom/sliders/ProductsSlider1";
 import ProductItem1 from "@/components/custom/home/ProductItem1";
 import Card1Item from "@/components/custom/home/Card1Item";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
 import MyFlipBook from "@/components/custom/MyFlipBook";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import ServicesItem from "@/components/custom/home/ServicesItem";
-
+import ProductsByCategorySection from "@/components/custom/home/ProductsByCategorySection";
 export default function Home() {
   return (
     <div className="w-full min-h-screen ">
@@ -42,50 +41,7 @@ export default function Home() {
         </div>
       </section>
       {/* PRoducts By Category Section */}
-      <section className="mt-[50px]">
-        <Container1 headingTitle={"Products By Category"}>
-          <ProductSlider1
-            data={[
-              {
-                title: "Building Materials",
-                img: "/images/home/categories/category1.png",
-                quantity: "120",
-                link: "#",
-              },
-              {
-                title: "Tools & Hardware",
-                img: "/images/home/categories/category2.png",
-                quantity: "20",
-                link: "#",
-              },
-              {
-                title: "Plumbing",
-                img: "/images/home/categories/category3.png",
-                quantity: "28",
-                link: "#",
-              },
-              {
-                title: "Electrical",
-                img: "/images/home/categories/category4.png",
-                quantity: "20",
-                link: "#",
-              },
-              {
-                title: "Flooring",
-                img: "/images/home/categories/category5.png",
-                quantity: "8",
-                link: "#",
-              },
-              {
-                title: "Roofing & Gutters",
-                img: "/images/home/categories/category6.png",
-                quantity: "22",
-                link: "#",
-              },
-            ]}
-          />
-        </Container1>
-      </section>
+      <ProductsByCategorySection />
 
       {/* Most Viewed Products Section */}
       <section className="mt-[50px]">

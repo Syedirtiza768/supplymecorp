@@ -42,7 +42,7 @@ export default function ProductSlider1({ data }) {
       >
         {data.map((item) => (
           <SwiperSlide key={item.title}>
-            <Link href={"#"}>
+            <Link href={item.link}>
               <div className="h-[70%] w-full bg-[#f2f2f2] p-5">
                 <img
                   src={item.img}
