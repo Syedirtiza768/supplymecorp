@@ -1,15 +1,32 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import Container2 from "@/components/custom/Container2";
 import Sidebar from "@/components/custom/sidebar/Sidebar";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
 import Link from "next/link";
 import ProductItem3 from "@/components/custom/home/ProductItem3";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-const Shop = () => {
+// Loading component for Suspense fallback
+const ShopLoading = () => (
+  <div className="flex justify-center items-center min-h-[500px]">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+  </div>
+);
+
+// Shop content component that uses useSearchParams
+const ShopContent = () => {
   // Define grid state at the top with other state variables
   const [grid, setGrid] = useState(true);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
+  // Import the hook inside the component
+  const { useSearchParams } = require("next/navigation");
+  const { useRouter } = require("next/navigation");
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -19,12 +36,6 @@ const Shop = () => {
   const limit = parseInt(searchParams.get("limit") || "10");
   const sortBy = searchParams.get("sortBy") || "id";
   const sortOrder = searchParams.get("sortOrder") || "DESC";
-
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -174,11 +185,7 @@ const Shop = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-[500px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <ShopLoading />;
   }
 
   if (error) {
@@ -310,6 +317,15 @@ const Shop = () => {
         </div>
       </Container2>
     </div>
+  );
+};
+
+// Main Shop component with Suspense
+const Shop = () => {
+  return (
+    <Suspense fallback={<ShopLoading />}>
+      <ShopContent />
+    </Suspense>
   );
 };
 

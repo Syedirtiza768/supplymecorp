@@ -10,11 +10,10 @@ async function getCategoryProductCounts() {
     const apiUrl =
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
-    // Explicitly include credentials and disable cache
     const response = await fetch(
       `${apiUrl}/products/filters/specific-categories/counts`,
       {
-        cache: "no-store", // Important: Disable Next.js cache completely
+        next: { revalidate: 60 }, // Revalidate every 60 seconds
         headers: {
           Accept: "application/json",
         },
