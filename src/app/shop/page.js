@@ -48,8 +48,6 @@ const Shop = () => {
           apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         }
 
-        console.log("Fetching from API URL:", apiUrl);
-
         const response = await fetch(apiUrl);
 
         if (!response.ok) {
@@ -57,7 +55,6 @@ const Shop = () => {
         }
 
         const data = await response.json();
-        console.log("API Response:", data);
         setProducts(data.items || []);
 
         // Set pagination data

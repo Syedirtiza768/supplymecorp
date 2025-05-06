@@ -29,28 +29,30 @@ const MobileSearch = () => {
       ) : (
         <div className="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-md rounded-lg p-4">
-            <form onSubmit={handleSearch} className="flex gap-2">
+            <form onSubmit={handleSearch} className="flex flex-col gap-3">
               <input
                 type="text"
                 placeholder="Search Products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
-                className="flex-1 py-2 px-5 outline-none border-2 border-gray1 focus:border-first rounded"
+                className="w-full py-2 px-5 outline-none text-black border-2 border-gray1 focus:border-first rounded"
               />
-              <button
-                type="submit"
-                className="bg-second px-5 text-white rounded hover:bg-first"
-              >
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="bg-gray-200 px-3 rounded hover:bg-gray-300"
-              >
-                Cancel
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  className="flex-1 bg-secondary py-2 px-4 text-white rounded hover:bg-secondary/80"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  className="flex-1 bg-primary py-2 px-4 rounded hover:bg-primary/80"
+                >
+                  Cancel
+                </button>
+              </div>
             </form>
           </div>
         </div>

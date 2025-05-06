@@ -9,7 +9,6 @@ async function getCategoryProductCounts() {
     // Make sure API URL is correct
     const apiUrl =
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-    console.log("Using API URL:", apiUrl);
 
     // Explicitly include credentials and disable cache
     const response = await fetch(
@@ -35,7 +34,6 @@ async function getCategoryProductCounts() {
 
     // Parse response
     const data = await response.json();
-    console.log("Raw API response:", JSON.stringify(data, null, 2));
     return data;
   } catch (error) {
     console.error("Error fetching category counts:", error);
@@ -47,15 +45,9 @@ async function getCategoryProductCounts() {
 async function ProductsByCategorySection() {
   // Fetch the category counts from the API
   const categoryCounts = await getCategoryProductCounts();
-  console.log("Category counts from API:", categoryCounts);
 
   // Use the helper function from data.js to merge static data with API counts
   const sliderData = mergeCategoryWithCounts(categoryCounts);
-
-  console.log(
-    "Final slider data:",
-    sliderData.map((item) => `${item.title}: ${item.quantity}`)
-  );
 
   return (
     <section className="mt-[50px]">

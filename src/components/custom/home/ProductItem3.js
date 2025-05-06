@@ -39,15 +39,6 @@ const ProductItem3 = ({
         <img src={img} alt="" className="w-full object-contain" />
       </div>
       <div className="mt-5 w-full">
-        <div className="flex">
-          {stars.map((item) =>
-            item <= rating ? (
-              <AiFillStar key={item} className="text-golden" />
-            ) : (
-              <AiOutlineStar key={item} className="text-golden" />
-            )
-          )}
-        </div>
         <h3 className="text-gray2">{title}</h3>
         {/* <div className='space-x-3'>
                 { oldPrice && <span className='text-red line-through'>${oldPrice.toFixed(2)}</span> }                
