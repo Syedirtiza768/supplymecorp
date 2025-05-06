@@ -3,6 +3,7 @@
 // This component is used in for showing products a single product in the row style
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const ProductItem3 = ({
   id,
@@ -18,9 +19,10 @@ const ProductItem3 = ({
   const stars = [1, 2, 3, 4, 5];
 
   return (
-    <div
+    <Link
+      href={"/shop/" + id}
       className="relative w-full min-h-max p-5 flex items-center border border-gray1 gap-10 cursor-pointer"
-      onClick={() => router.push("/shop/" + id)}
+      // onClick={() => router.push("/shop/" + id)}
     >
       {discount && (
         <div className="absolute top-0 left-0">
@@ -53,7 +55,7 @@ const ProductItem3 = ({
             </div> */}
         <p className="text-gray2 py-5">{description}</p>
       </div>
-    </div>
+    </Link>
   );
 };
 

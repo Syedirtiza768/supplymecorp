@@ -186,7 +186,7 @@ const Shop = () => {
           Home <span className="tracking-[-2px]">&gt;&gt;</span> Shop{" "}
           {category && (
             <>
-              <span className="tracking-[-2px]">&gt;&gt;</span> {category}
+              <span className="tracking-[-2px]">&gt;&gt;</span> {category}{" "}
             </>
           )}
         </p>
@@ -228,6 +228,7 @@ const Shop = () => {
                     {products.map((product) => (
                       <ProductItem2
                         key={product.id || product.sku}
+                        id={product.id || product.sku}
                         img={
                           product.itemImage2 ||
                           product.itemImage1 ||
