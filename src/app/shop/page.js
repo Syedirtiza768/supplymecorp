@@ -251,6 +251,7 @@ const Shop = () => {
                     {products.map((product) => (
                       <ProductItem3
                         key={product.id || product.sku}
+                        id={product.id || product.sku}
                         img={
                           product.itemImage2 ||
                           product.itemImage1 ||

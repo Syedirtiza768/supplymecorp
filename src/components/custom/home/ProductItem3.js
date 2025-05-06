@@ -5,6 +5,7 @@ import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 
 const ProductItem3 = ({
+  id,
   title,
   oldPrice,
   rating,
@@ -19,7 +20,7 @@ const ProductItem3 = ({
   return (
     <div
       className="relative w-full min-h-max p-5 flex items-center border border-gray1 gap-10 cursor-pointer"
-      onClick={() => router.push("/shop/" + "1")}
+      onClick={() => router.push("/shop/" + id)}
     >
       {discount && (
         <div className="absolute top-0 left-0">
