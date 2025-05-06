@@ -1,6 +1,7 @@
 import React from "react";
 import Container1 from "@/components/custom/Container1";
 import ProductSlider1 from "@/components/custom/sliders/ProductsSlider1";
+import { selectedStaticCategories, mergeCategoryWithCounts } from "@/data"; // Import from data.js
 
 // Function to fetch category counts directly from the API
 async function getCategoryProductCounts() {
@@ -48,125 +49,8 @@ async function ProductsByCategorySection() {
   const categoryCounts = await getCategoryProductCounts();
   console.log("Category counts from API:", categoryCounts);
 
-  // Define your static categories data structure
-  const staticData = [
-    {
-      title: "Building",
-      img: "/images/home/categories/building.png",
-      quantity: "120",
-      link: "/products?category=Building",
-    },
-    {
-      title: "Materials",
-      img: "/images/home/categories/materials.jpg",
-      quantity: "120",
-      link: "/products?category=Materials",
-    },
-    {
-      title: "Tools",
-      img: "/images/home/categories/tools.png",
-      quantity: "20",
-      link: "/products?category=Tools",
-    },
-    {
-      title: "Hardware",
-      img: "/images/home/categories/hardware.jpg",
-      quantity: "20",
-      link: "/products?category=Hardware",
-    },
-    {
-      title: "Plumbing",
-      img: "/images/home/categories/plumbing.png",
-      quantity: "28",
-      link: "/products?category=Plumbing",
-    },
-    {
-      title: "Electrical",
-      img: "/images/home/categories/electrical.png",
-      quantity: "20",
-      link: "/products?category=Electrical",
-    },
-    {
-      title: "Flooring",
-      img: "/images/home/categories/flooring.png",
-      quantity: "8",
-      link: "/products?category=Flooring",
-    },
-    {
-      title: "Roofing",
-      img: "/images/home/categories/roofing.png",
-      quantity: "22",
-      link: "/products?category=Roofing",
-    },
-    {
-      title: "Gutters",
-      img: "/images/home/categories/gutters.jpg",
-      quantity: "22",
-      link: "/products?category=Gutters",
-    },
-    {
-      title: "Paint",
-      img: "/images/home/categories/paint.jpg",
-      quantity: "22",
-      link: "/products?category=Paint",
-    },
-    {
-      title: "Decor",
-      img: "/images/home/categories/decor.jpg",
-      quantity: "22",
-      link: "/products?category=Decor",
-    },
-    {
-      title: "Safety",
-      img: "/images/home/categories/safety.jpg",
-      quantity: "22",
-      link: "/products?category=Safety",
-    },
-    {
-      title: "Workwear",
-      img: "/images/home/categories/work-wear.jpg",
-      quantity: "22",
-      link: "/products?category=Workwear",
-    },
-    {
-      title: "Landscaping",
-      img: "/images/home/categories/landscape.jpg",
-      quantity: "22",
-      link: "/products?category=Landscaping",
-    },
-    {
-      title: "Outdoor",
-      img: "/images/home/categories/outdoor.jpg",
-      quantity: "22",
-      link: "/products?category=Outdoor",
-    },
-    {
-      title: "HVAC",
-      img: "/images/home/categories/hvac.jpg",
-      quantity: "22",
-      link: "/products?category=HVAC",
-    },
-  ];
-
-  // Update the slider data with the counts from the API
-  let sliderData;
-  if (categoryCounts) {
-    sliderData = staticData.map((category) => {
-      // Get the count from the API response
-      const count = categoryCounts[category.title];
-
-      // Log each mapping for debugging
-      console.log(`Category: ${category.title}, API Count: ${count}`);
-
-      return {
-        ...category,
-        quantity: count !== undefined ? count.toString() : "0",
-      };
-    });
-  } else {
-    // Fallback to static data if API call failed
-    sliderData = staticData;
-  }
+  // Use the helper function from data.js to merge static data with API counts
+  const sliderData = mergeCategoryWithCounts(categoryCounts);
 
   console.log(
     "Final slider data:",
