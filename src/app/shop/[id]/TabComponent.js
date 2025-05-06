@@ -112,9 +112,7 @@ const TabComponent = ({ product }) => {
           <TabComponentItem content={generateSpecifications()} isHTML={true} />
         </Tab.Panel>
         <Tab.Panel>
-          <TabComponentItem
-            content={"No reviews yet. Be the first to review this product!"}
-          />
+          <TabComponentItem content={"No reviews yet."} />
         </Tab.Panel>
       </Tab.Panels>
     </Tab.Group>

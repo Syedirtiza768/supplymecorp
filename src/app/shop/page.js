@@ -14,6 +14,7 @@ const Shop = () => {
   const router = useRouter();
 
   const category = searchParams.get("category");
+  const query = searchParams.get("query");
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
   const sortBy = searchParams.get("sortBy") || "id";
@@ -28,31 +29,41 @@ const Shop = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        if (category) {
-          setLoading(true);
-          // Construct API URL using the parameters from the URL
-          const apiUrl = `http://localhost:3001/api/products/filters/by-category/${category}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        setLoading(true);
+        // Construct API URL - now supports both category and search queries
+        let apiUrl;
 
-          console.log("Fetching from API URL:", apiUrl);
-
-          const response = await fetch(apiUrl);
-
-          if (!response.ok) {
-            throw new Error(`Failed to fetch products: ${response.status}`);
-          }
-
-          const data = await response.json();
-          console.log("API Response:", data);
-          console.log("Products:", data.items);
-          setProducts(data.items || []);
-
-          // Set pagination data
-          if (data.meta) {
-            setTotalItems(data.meta.totalItems || 0);
-            setTotalPages(data.meta.totalPages || 1);
-          }
+        if (query) {
+          // Search mode: use the search API endpoint
+          apiUrl = `${
+            process.env.NEXT_PUBLIC_API_URL
+          }/products/search?query=${encodeURIComponent(
+            query
+          )}&page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        } else if (category) {
+          // Category mode: use the category filter endpoint
+          apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${category}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         } else {
-          setLoading(false);
+          // Default: fetch all products
+          apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+        }
+
+        console.log("Fetching from API URL:", apiUrl);
+
+        const response = await fetch(apiUrl);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch products: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("API Response:", data);
+        setProducts(data.items || []);
+
+        // Set pagination data
+        if (data.meta) {
+          setTotalItems(data.meta.totalItems || 0);
+          setTotalPages(data.meta.totalPages || 1);
         }
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -63,7 +74,7 @@ const Shop = () => {
     };
 
     fetchProducts();
-  }, [category, page, limit, sortBy, sortOrder]);
+  }, [category, query, page, limit, sortBy, sortOrder]);
 
   // Function to handle page change
   const handlePageChange = (newPage) => {
@@ -189,12 +200,19 @@ const Shop = () => {
               <span className="tracking-[-2px]">&gt;&gt;</span> {category}{" "}
             </>
           )}
+          {query && (
+            <>
+              <span className="tracking-[-2px]">&gt;&gt;</span> Search: {query}{" "}
+            </>
+          )}
         </p>
       </div>
 
       {/* Product Categories Section */}
       <Container2
-        headingTitle={"Product Categories"}
+        headingTitle={
+          query ? `Search Results for "${query}"` : "Product Categories"
+        }
         gridView={grid}
         setGridView={setGrid}
       >
@@ -207,10 +225,14 @@ const Shop = () => {
               <div className="flex justify-center items-center h-96">
                 <div className="text-center">
                   <p className="text-xl text-gray-500 mb-4">
-                    No products found
+                    {query
+                      ? `No products found matching "${query}"`
+                      : "No products found"}
                   </p>
                   <p className="text-gray-400">
-                    Try selecting a different category or check back later
+                    {query
+                      ? "Try using different search terms or check back later"
+                      : "Try selecting a different category or check back later"}
                   </p>
                 </div>
               </div>
@@ -243,7 +265,7 @@ const Shop = () => {
                         rating={4}
                         discount={product.discount}
                         oldPrice={product.oldPrice}
-                        url={`/product/${product.id || product.sku}`}
+                        url={`/shop/${product.id || product.sku}`}
                       />
                     ))}
                   </div>
@@ -268,7 +290,7 @@ const Shop = () => {
                           product.onlineLongDescription ||
                           "No description available."
                         }
-                        url={`/product/${product.id || product.sku}`}
+                        url={`/shop/${product.id || product.sku}`}
                       />
                     ))}
                   </div>

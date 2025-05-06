@@ -30,7 +30,7 @@ const Shop = ({ params }) => {
 
         // Fetch product data from API
         const response = await fetch(
-          `http://localhost:3001/api/products/${productId}`
+          `${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`
         );
 
         if (!response.ok) {
@@ -52,7 +52,7 @@ const Shop = ({ params }) => {
         // Fetch related products (same category)
         if (data.categoryCode) {
           const relatedResponse = await fetch(
-            `http://localhost:3001/api/products/filters/by-category/${data.categoryTitleDescription}?limit=4`
+            `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${data.categoryTitleDescription}?limit=4`
           );
 
           if (relatedResponse.ok) {
@@ -167,12 +167,6 @@ const Shop = ({ params }) => {
         <div className="text-center">
           <h2 className="font-bold text-xl mb-2">Error Loading Product</h2>
           <p className="text-red-500">{error}</p>
-          <Link
-            href="/shop"
-            className="mt-4 inline-block px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Return to Shop
-          </Link>
         </div>
       </div>
     );

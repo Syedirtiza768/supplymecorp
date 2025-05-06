@@ -120,7 +120,7 @@ export const constructApiUrl = (
   sortBy = "id",
   sortOrder = "DESC"
 ) => {
-  return `http://localhost:3001/api/products/filters/by-category/${category}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+  return `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${category}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
 };
 
 // Helper function to merge static data with dynamic counts from API
