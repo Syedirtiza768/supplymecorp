@@ -39,8 +39,8 @@ export default function ProductSlider2({ data, setSliderImg }) {
         modules={[Navigation]}
         className="h-full w-full bg-transparent z-10 "
       >
-        {data.map((item) => (
-          <SwiperSlide key={item.title}>
+        {data.map((item, index) => (
+          <SwiperSlide key={`product-slide-${index}`}>
             <div
               className="h-full w-full bg-[#f2f2f2] cursor-pointer"
               onClick={() => setSliderImg(item.img)}

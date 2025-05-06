@@ -14,6 +14,7 @@ const Shop = ({ params }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   params = use(params);
 
   useEffect(() => {
@@ -47,6 +48,25 @@ const Shop = ({ params }) => {
         } else {
           setSliderImg("/images/products/product1.jpg"); // Fallback image
         }
+
+        // Fetch related products (same category)
+        if (data.categoryCode) {
+          const relatedResponse = await fetch(
+            `http://localhost:3001/api/products/filters/by-category/${data.categoryTitleDescription}?limit=4`
+          );
+
+          if (relatedResponse.ok) {
+            const relatedData = await relatedResponse.json();
+            // Filter out the current product
+            const filteredProducts = relatedData.items
+              ? relatedData.items.filter(
+                  (item) => item.id !== data.id && item.sku !== data.sku
+                )
+              : [];
+            // Limit to 4 products
+            setRelatedProducts(filteredProducts.slice(0, 4));
+          }
+        }
       } catch (err) {
         console.error("Error fetching product:", err);
         setError(err.message);
@@ -63,10 +83,10 @@ const Shop = ({ params }) => {
     const images = [];
 
     if (product) {
-      // Add all available product images to the slider
+      // Add all available product images to the slider with unique identifiers
       if (product.itemImage1) {
         images.push({
-          title: product.brandName || "Product Image 1",
+          title: `${product.brandName || "Product"}-image-1`,
           img: product.itemImage1,
           quantity: "1",
           link: "#",
@@ -75,7 +95,7 @@ const Shop = ({ params }) => {
 
       if (product.itemImage2) {
         images.push({
-          title: product.brandName || "Product Image 2",
+          title: `${product.brandName || "Product"}-image-2`,
           img: product.itemImage2,
           quantity: "1",
           link: "#",
@@ -84,7 +104,7 @@ const Shop = ({ params }) => {
 
       if (product.itemImage3) {
         images.push({
-          title: product.brandName || "Product Image 3",
+          title: `${product.brandName || "Product"}-image-3`,
           img: product.itemImage3,
           quantity: "1",
           link: "#",
@@ -93,7 +113,7 @@ const Shop = ({ params }) => {
 
       if (product.itemImage4) {
         images.push({
-          title: product.brandName || "Product Image 4",
+          title: `${product.brandName || "Product"}-image-4`,
           img: product.itemImage4,
           quantity: "1",
           link: "#",
@@ -101,23 +121,23 @@ const Shop = ({ params }) => {
       }
     }
 
-    // If no images are available, use default images
+    // If no images are available, use default images with unique titles
     if (images.length === 0) {
       return [
         {
-          title: "Default Product 1",
+          title: "Default-Product-1",
           img: "/images/products/product1.jpg",
           quantity: "1",
           link: "#",
         },
         {
-          title: "Default Product 2",
+          title: "Default-Product-2",
           img: "/images/products/product2.jpg",
           quantity: "1",
           link: "#",
         },
         {
-          title: "Default Product 3",
+          title: "Default-Product-3",
           img: "/images/products/product3.jpg",
           quantity: "1",
           link: "#",
@@ -202,41 +222,50 @@ const Shop = ({ params }) => {
             </div>
 
             {/* Related Products section */}
-            <div className="my-10 lg:my-20">
-              <h3 className="text-xl font-bold text-black border-b border-gray1 pb-3">
-                RELATED PRODUCTS
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-5 gap-5">
-                <ProductItem2
-                  img={product?.itemImage1 || "/images/products/product1.jpg"}
-                  price={"95.00"}
-                  title={product?.onlineTitleDescription || "Related Product"}
-                  rating={5}
-                  url="#"
-                />
-                <ProductItem2
-                  img={"/images/products/product1.jpg"}
-                  price={"95.00"}
-                  title={"Cordless Drill"}
-                  rating={5}
-                  url="#"
-                />
-                <ProductItem2
-                  img={"/images/products/product1.jpg"}
-                  price={"95.00"}
-                  title={"Cordless Drill"}
-                  rating={5}
-                  url="#"
-                />
-                <ProductItem2
-                  img={"/images/products/product1.jpg"}
-                  price={"95.00"}
-                  title={"Cordless Drill"}
-                  rating={5}
-                  url="#"
-                />
+            {relatedProducts.length > 0 && (
+              <div className="my-10 lg:my-20">
+                <h3 className="text-xl font-bold text-black border-b border-gray1 pb-3">
+                  RELATED PRODUCTS
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-5 gap-5">
+                  {relatedProducts.map((relatedProduct, index) => (
+                    <ProductItem2
+                      key={`related-${
+                        relatedProduct.id || relatedProduct.sku || index
+                      }`}
+                      id={relatedProduct.id || relatedProduct.sku}
+                      img={
+                        relatedProduct.itemImage2 ||
+                        relatedProduct.itemImage1 ||
+                        "/images/products/product1.jpg"
+                      }
+                      price={relatedProduct.price || "Contact for price"}
+                      title={
+                        relatedProduct.onlineTitleDescription ||
+                        relatedProduct.brandName ||
+                        "Related Product"
+                      }
+                      rating={4}
+                      url={`/shop/${relatedProduct.id || relatedProduct.sku}`}
+                    />
+                  ))}
+                  {/* Fill with placeholder products if we don't have enough related products */}
+                  {/* {relatedProducts.length < 4 &&
+                    Array(4 - relatedProducts.length)
+                      .fill(null)
+                      .map((_, index) => (
+                        <ProductItem2
+                          key={`placeholder-${index}`}
+                          img={"/images/products/product1.jpg"}
+                          price={"Contact for price"}
+                          title={"Similar Product"}
+                          rating={5}
+                          url="#"
+                        />
+                      ))} */}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </Container1>
