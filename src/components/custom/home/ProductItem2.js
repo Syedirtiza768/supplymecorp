@@ -4,6 +4,7 @@
 import { useRouter } from "next/navigation";
 import Rating from "../Rating";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const ProductItem2 = ({
   title,
@@ -42,6 +43,7 @@ const ProductItem2 = ({
                 <span className='text-red font-semibold'>${price}</span>
             </div>
             <Rating rating={rating} />             */}
+        <Button className="mt-3">Add To Cart</Button>
       </div>
     </Link>
   );

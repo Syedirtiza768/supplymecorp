@@ -4,6 +4,7 @@
 import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const ProductItem3 = ({
   id,
@@ -45,6 +46,7 @@ const ProductItem3 = ({
                 <span className='text-red font-semibold'>${price}</span>
             </div> */}
         <p className="text-gray2 py-5">{description}</p>
+        <Button>Add To Cart</Button>
       </div>
     </Link>
   );
