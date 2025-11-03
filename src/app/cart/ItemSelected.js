@@ -1,8 +1,25 @@
 import Link from "next/link";
 import TableRow from "./TableRow";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { useCart } from "@/context/CartContext";
 
-const ItemSelected = () => {
+const ItemSelected = ({ cartItems }) => {
+  const { removeFromCart } = useCart();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // No need to fetch product details, use cartItems directly
+  useEffect(() => {
+    setProducts(cartItems || []);
+  }, [cartItems]);
+
+  // Calculate subtotal
+  const subtotal = products.reduce((sum, product) => {
+    const qty = product.qty || 1;
+    const price = parseFloat(product.priceSnapshot) || 0;
+    return sum + price * qty;
+  }, 0);
+
   return (
     <div className="w-[100%] min-h-[450px] flex flex-col lg:flex-row">
       <div className="w-full h-full lg:w-[65%] overflow-x-auto">
@@ -10,46 +27,26 @@ const ItemSelected = () => {
           <thead>
             <tr>
               <td className=" border border-gray1 text-center font-semibold"></td>
-              <td className="py-2 px-3 border border-gray1 text-center font-semibold">
-                Product
-              </td>
-              <td className="py-2 px-3 border border-gray1 text-center font-semibold">
-                Price
-              </td>
-              <td className="py-2 px-3 border border-gray1 text-center font-semibold">
-                Quantity
-              </td>
-              <td className="py-2 px-3 border border-gray1 text-center font-semibold">
-                Total
-              </td>
+              <td className="py-2 px-3 border border-gray1 text-center font-semibold">Product</td>
+              <td className="py-2 px-3 border border-gray1 text-center font-semibold">Price</td>
+              <td className="py-2 px-3 border border-gray1 text-center font-semibold">Quantity</td>
+              <td className="py-2 px-3 border border-gray1 text-center font-semibold">Total</td>
               <td className="py-2 px-3 border border-gray1 text-center font-semibold"></td>
             </tr>
           </thead>
           <tbody className="text-gray2">
-            <TableRow
-              productTitle="Impact Wrench"
-              color="red"
-              price={99}
-              quantity={1}
-            />
-            <TableRow
-              productTitle="Impact Wrench"
-              color="red"
-              price={99}
-              quantity={2}
-            />
-            {/* <tr>
-                        <td className=' text-center p-2 border border-gray1' colSpan={6}>
-                            <button 
-                                className='bg-black text-white py-1 px-5 rounded-sm mr-3 hover:opacity-80'
-                                onClick={() => {}}
-                            >UPDATE</button>
-                            <button 
-                                className='bg-black text-white py-1 px-5 rounded-sm hover:opacity-80'
-                                onClick={() => {}}
-                            >CONTINUE SHOPPING</button>
-                        </td>
-                    </tr> */}
+            {loading ? (
+              <tr><td colSpan={6} className="text-center">Loading...</td></tr>
+            ) : (
+              products.map((product, idx) => (
+                <TableRow
+                  key={product.productId || product.sku || product.id || idx}
+                  product={product}
+                  quantity={product.qty || 1}
+                  onRemove={() => removeFromCart(product.productId || product.sku || product.id)}
+                />
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -63,7 +60,7 @@ const ItemSelected = () => {
           />
           <div className="flex w-full items-center justify-between mt-5">
             <p className="font-semibold">Subtotal</p>
-            <p className="text-gray2 text-sm">$99.00</p>
+            <p className="text-gray2 text-sm">${subtotal.toFixed(2)}</p>
           </div>
           <div className="flex w-full items-center justify-between mt-5 gap-10">
             <p className="font-semibold">Shipping</p>

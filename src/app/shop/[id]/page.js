@@ -8,6 +8,7 @@ import TabComponent from "./TabComponent";
 import Container1 from "@/components/custom/Container1";
 import Sidebar from "@/components/custom/sidebar/Sidebar";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
+import { Button } from "@/components/ui/button";
 
 const Shop = ({ params }) => {
   const [sliderImg, setSliderImg] = useState("");
@@ -28,43 +29,73 @@ const Shop = ({ params }) => {
           throw new Error("Product ID not found in URL parameters");
         }
 
-        // Fetch product data from API
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`
-        );
+        // Fetch both endpoints in parallel
+        const [standardRes, mergedRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}/merged`)
+        ]);
 
-        if (!response.ok) {
-          throw new Error(`Failed to fetch product: ${response.status}`);
+        if (!standardRes.ok) {
+          throw new Error(`Failed to fetch product: ${standardRes.status}`);
+        }
+        if (!mergedRes.ok) {
+          throw new Error(`Failed to fetch price: ${mergedRes.status}`);
         }
 
-        const data = await response.json();
-        setProduct(data);
+        const standardText = await standardRes.text();
+        const mergedText = await mergedRes.text();
+        if (!standardText) throw new Error('No product data returned');
+        if (!mergedText) throw new Error('No price data returned');
 
-        // Set the default slider image to the first product image
-        if (data.itemImage2) {
-          setSliderImg(data.itemImage2);
-        } else if (data.itemImage1) {
-          setSliderImg(data.itemImage1);
+        let standardData, mergedData;
+        try {
+          standardData = JSON.parse(standardText);
+        } catch (e) {
+          throw new Error('Invalid product data received');
+        }
+        try {
+          mergedData = JSON.parse(mergedText);
+        } catch (e) {
+          throw new Error('Invalid price data received');
+        }
+
+  // Use price from merged, fallback to standard if needed
+  const finalPrice = mergedData.price != null ? mergedData.price : standardData.price;
+  setProduct({ ...standardData, price: finalPrice });
+
+        // Set the default slider image to the first product image (if available)
+        if (standardData.itemImage2) {
+          setSliderImg(standardData.itemImage2);
+        } else if (standardData.itemImage1) {
+          setSliderImg(standardData.itemImage1);
         } else {
           setSliderImg("/images/products/product1.jpg"); // Fallback image
         }
 
-        // Fetch related products (same category)
-        if (data.categoryCode) {
+        // Fetch related products (same categoryCode)
+        if (standardData.categoryCode) {
           const relatedResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${data.categoryTitleDescription}?limit=4`
+            `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${standardData.categoryCode}?limit=4`
           );
 
           if (relatedResponse.ok) {
             const relatedData = await relatedResponse.json();
             // Filter out the current product
-            const filteredProducts = relatedData.items
+            let filteredProducts = relatedData.items
               ? relatedData.items.filter(
-                  (item) => item.id !== data.id && item.sku !== data.sku
+                  (item) => item.id !== standardData.id && item.sku !== standardData.sku
                 )
               : [];
-            // Limit to 4 products
-            setRelatedProducts(filteredProducts.slice(0, 4));
+            // Remove duplicates by SKU or ID
+            const seen = new Set();
+            filteredProducts = filteredProducts.filter((item) => {
+              const key = item.sku || item.id;
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+            // Limit to 3 products
+            setRelatedProducts(filteredProducts.slice(0, 3));
           }
         }
       } catch (err) {
@@ -208,6 +239,11 @@ const Shop = ({ params }) => {
               {/* Item description section */}
               <div className="w-full pl-10 lg:w-[70%]">
                 <ProductDataItem product={product} />
+                {/* Display the price or 'Contact for pricing' if price is null */}
+                <p className="py-3 font-bold text-red text-lg">
+                  {product && product.price != null ? `$${product.price}` : 'Contact for pricing'}
+                </p>
+
               </div>
             </div>
             {/* Tab section */}
@@ -221,42 +257,34 @@ const Shop = ({ params }) => {
                 <h3 className="text-xl font-bold text-black border-b border-gray1 pb-3">
                   RELATED PRODUCTS
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mt-5 gap-5">
+                <div className="flex flex-row gap-5 mt-5 pb-2 w-full justify-center">
                   {relatedProducts.map((relatedProduct, index) => (
-                    <ProductItem2
-                      key={`related-${
-                        relatedProduct.id || relatedProduct.sku || index
-                      }`}
-                      id={relatedProduct.id || relatedProduct.sku}
-                      img={
-                        relatedProduct.itemImage2 ||
-                        relatedProduct.itemImage1 ||
-                        "/images/products/product1.jpg"
-                      }
-                      price={relatedProduct.price || "Contact for price"}
-                      title={
-                        relatedProduct.onlineTitleDescription ||
-                        relatedProduct.brandName ||
-                        "Related Product"
-                      }
-                      rating={4}
-                      url={`/shop/${relatedProduct.id || relatedProduct.sku}`}
-                    />
+                    <div key={`related-${relatedProduct.id || relatedProduct.sku}-${index}`} className="w-[300px] min-h-[auto] flex flex-col items-center justify-between bg-white rounded-lg shadow-sm" style={{border: 'none', boxSizing: 'border-box'}}>
+                      <ProductItem2
+                        id={relatedProduct.id || relatedProduct.sku}
+                        img={
+                          relatedProduct.itemImage2 ||
+                          relatedProduct.itemImage1 ||
+                          "/images/products/product1.jpg"
+                        }
+                        price={relatedProduct.price || "Contact for price"}
+                        title={
+                          relatedProduct.onlineTitleDescription ||
+                          relatedProduct.brandName ||
+                          "Related Product"
+                        }
+                        rating={4}
+                        url={`/shop/${relatedProduct.id || relatedProduct.sku}`}
+                        hideButton={true}
+                      />
+                      <a
+                        href={`/shop/${relatedProduct.id || relatedProduct.sku}`}
+                        className="w-full flex justify-center mt-3"
+                      >
+                        <button className="w-full bg-primary text-white py-2 rounded hover:bg-primary/90 transition-all">View Details</button>
+                      </a>
+                    </div>
                   ))}
-                  {/* Fill with placeholder products if we don't have enough related products */}
-                  {/* {relatedProducts.length < 4 &&
-                    Array(4 - relatedProducts.length)
-                      .fill(null)
-                      .map((_, index) => (
-                        <ProductItem2
-                          key={`placeholder-${index}`}
-                          img={"/images/products/product1.jpg"}
-                          price={"Contact for price"}
-                          title={"Similar Product"}
-                          rating={5}
-                          url="#"
-                        />
-                      ))} */}
                 </div>
               </div>
             )}

@@ -251,9 +251,9 @@ const ShopContent = () => {
                 {/* List style 3 items in row */}
                 {grid === true ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ">
-                    {products.map((product) => (
+                    {products.map((product, idx) => (
                       <ProductItem2
-                        key={product.id || product.sku}
+                        key={`${product.id || product.sku}-${idx}`}
                         id={product.id || product.sku}
                         img={
                           product.itemImage2 ||

@@ -1,5 +1,9 @@
+'use client';
 import Link from 'next/link'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 import { MdOutlineLocalShipping } from 'react-icons/md';
 import { GiCardPickup } from 'react-icons/gi';
@@ -8,21 +12,131 @@ import { RiArrowLeftSLine } from 'react-icons/ri';
 
 import SelectList from './SelectList';
 
-const CustomFormCheckout = () => {
+const CustomFormCheckout = ({ submitting, setSubmitting }) => {
+  const router = useRouter();
+  const { cartItems, clearCart } = useCart();
+  const { user, isLoggedIn } = useAuth();
+  
   const [country, setCountry] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState("ship");
+  const [formData, setFormData] = useState({
+    email: user?.email || '',
+    firstName: user?.firstName || '',
+    lastName: user?.lastName || '',
+    company: '',
+    address: user?.address || '',
+    apartment: '',
+    city: user?.city || '',
+    province: user?.state || '',
+    postalCode: user?.zip || '',
+    phone: user?.phone || '',
+    specialInstructions: ''
+  });
+  const [error, setError] = useState(null);
+
+  const handleInputChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmitOrder = async (e) => {
+    e.preventDefault();
+    
+    if (!isLoggedIn) {
+      setError('Please log in to place an order');
+      return;
+    }
+
+    if (cartItems.length === 0) {
+      setError('Your cart is empty');
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      const orderPayload = {
+        customer: {
+          custNo: user.custNo,
+          email: formData.email || user.email,
+          firstName: formData.firstName || user.firstName,
+          lastName: formData.lastName || user.lastName,
+          address: formData.address || user.address,
+          city: formData.city || user.city,
+          state: formData.province || user.state,
+          zip: formData.postalCode || user.zip,
+          phone: formData.phone || user.phone
+        },
+        cartItems: cartItems,
+        shippingAddress: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          address1: formData.address,
+          address2: formData.apartment,
+          city: formData.city,
+          state: formData.province,
+          zip: formData.postalCode,
+          phone: formData.phone
+        },
+        specialInstructions: formData.specialInstructions,
+        deliveryMethod: deliveryMethod
+      };
+
+      const response = await fetch('/api/orders/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderPayload)
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        // Clear the cart
+        await clearCart();
+        
+        // Redirect to confirmation page
+        router.push(`/checkout/confirmation?orderId=${result.orderId}&orderNumber=${result.orderNumber}`);
+      } else {
+        setError(result.error || result.message || 'Failed to submit order');
+      }
+    } catch (err) {
+      console.error('Checkout error:', err);
+      setError('Unable to submit order. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
-    <div className='flex flex-col w-full '>      
+    <form onSubmit={handleSubmitOrder} className='flex flex-col w-full '>
+      {error && (
+        <div className='bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-5'>
+          {error}
+        </div>
+      )}
+      
       {/* Contact Information  */}
       <div className='flex flex-col gap-5'>
         <div className='flex items-center justify-between'>
           <h3 className='font-semibold text-xl'>Contact Information</h3>
-          <div className='flex items-center justify-center gap-3'>
-            <p className='text-sm text-gray2'>Already have an account?</p>
-            <Link href={"#"} className='text-first font-semibold'>Log in</Link>
-          </div>
+          {!isLoggedIn && (
+            <div className='flex items-center justify-center gap-3'>
+              <p className='text-sm text-gray2'>Already have an account?</p>
+              <Link href={"/auth/login"} className='text-first font-semibold'>Log in</Link>
+            </div>
+          )}
         </div>
         <input 
-          type="email"  
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleInputChange}
+          required
+          disabled={submitting}
           className='outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md'
           placeholder='Email'
         />
@@ -40,7 +154,10 @@ const CustomFormCheckout = () => {
             type="radio" 
             name='delivery_method' 
             value={"ship"} 
-            id='ship' 
+            id='ship'
+            checked={deliveryMethod === "ship"}
+            onChange={(e) => setDeliveryMethod(e.target.value)}
+            disabled={submitting}
             className='h-5 w-5 accent-second' />
           
           <MdOutlineLocalShipping size={23} />
@@ -51,7 +168,10 @@ const CustomFormCheckout = () => {
             type="radio" 
             name='delivery_method' 
             value={"pickup"} 
-            id='pickup' 
+            id='pickup'
+            checked={deliveryMethod === "pickup"}
+            onChange={(e) => setDeliveryMethod(e.target.value)}
+            disabled={submitting}
             className='h-5 w-5 accent-second' />
           
           <GiCardPickup size={23} />
@@ -70,56 +190,111 @@ const CustomFormCheckout = () => {
 
           <div className='flex flex-col  gap-5 mt-5 md:flex-row'>
             <input 
-              type="text"  
+              type="text"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleInputChange}
+              required
+              disabled={submitting}
               className=' outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
               placeholder='First Name'
             />
 
             <input 
-              type="text"  
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              required
+              disabled={submitting}
               className='outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
               placeholder='Last Name'
             />
           </div>
 
             <input 
-              type="text"  
+              type="text"
+              name="company"
+              value={formData.company}
+              onChange={handleInputChange}
+              disabled={submitting}
               className='mt-5 outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
               placeholder='Company (optional)'
             />
             <input 
-              type="text"  
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+              required
+              disabled={submitting}
               className='mt-5 outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
               placeholder='Address'
             />
             <input 
-              type="text"  
+              type="text"
+              name="apartment"
+              value={formData.apartment}
+              onChange={handleInputChange}
+              disabled={submitting}
               className='mt-5 outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
-              placeholder='Apartment, suite, stc. (optional)'
+              placeholder='Apartment, suite, etc. (optional)'
             />
 
             <div className='flex flex-col  gap-3 mt-5 md:flex-row'>
               <input 
-                type="text"  
+                type="text"
+                name="city"
+                value={formData.city}
+                onChange={handleInputChange}
+                required
+                disabled={submitting}
                 className=' outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
                 placeholder='City'
               />
 
-              <div className='w-full'>
-                <SelectList placeholder="Province" />
-              </div>
+              <input 
+                type="text"
+                name="province"
+                value={formData.province}
+                onChange={handleInputChange}
+                required
+                disabled={submitting}
+                className='outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
+                placeholder='State/Province'
+              />
 
               <input 
-                type="text"  
+                type="text"
+                name="postalCode"
+                value={formData.postalCode}
+                onChange={handleInputChange}
+                required
+                disabled={submitting}
                 className='outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
                 placeholder='Postal Code'
               />
             </div>
             
             <input 
-              type="number"  
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              required
+              disabled={submitting}
               className='mt-5 outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
               placeholder='Phone'
+            />
+            
+            <textarea
+              name="specialInstructions"
+              value={formData.specialInstructions}
+              onChange={handleInputChange}
+              disabled={submitting}
+              rows={3}
+              className='mt-5 outline-none border border-gray1 focus:border-second py-3 px-7 rounded-md w-full'
+              placeholder='Special instructions (optional)'
             />
 
             <div className='w-full flex flex-col items-center justify-between mt-5 md:flex-row'>
@@ -127,15 +302,19 @@ const CustomFormCheckout = () => {
                 <RiArrowLeftSLine size={30} />
                 Return to cart
               </Link>
-              <Link href='#' className='bg-second text-white font-semibold py-3 px-5 rounded-md hover:bg-opacity-80'>
-                Continue to shopping
-              </Link>
+              <button 
+                type='submit' 
+                disabled={submitting || !isLoggedIn}
+                className='bg-second text-white font-semibold py-3 px-5 rounded-md hover:bg-opacity-80 disabled:bg-gray-400 disabled:cursor-not-allowed'
+              >
+                {submitting ? 'Submitting Order...' : 'Place Order'}
+              </button>
             </div>
 
             <div className='mt-10'></div>
         </div>        
       </div>
-    </div>
+    </form>
   )
 }
 

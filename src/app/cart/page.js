@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import Container2 from "@/components/custom/Container2";
 import Sidebar from "@/components/custom/sidebar/Sidebar";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
@@ -9,9 +9,12 @@ import Container1 from "@/components/custom/Container1";
 import TableRow from "./TableRow";
 import ItemSelected from "./ItemSelected";
 import ItemNotSeleted from "./ItemNotSeleted";
+import { useCart } from "@/context/CartContext";
 
 const Shop = () => {
-  const [cartItems, setCartItems] = useState(true);
+  const { cartItems } = useCart();
+
+  const hasItems = cartItems && cartItems.length > 0;
 
   return (
     <div className="mb-20">
@@ -25,7 +28,7 @@ const Shop = () => {
 
       {/* Product Categories Section */}
       <Container1 headingTitle={"Your Shopping Cart"}>
-        {cartItems ? <ItemSelected /> : <ItemNotSeleted />}
+        {hasItems ? <ItemSelected cartItems={cartItems} /> : <ItemNotSeleted />}
       </Container1>
     </div>
   );

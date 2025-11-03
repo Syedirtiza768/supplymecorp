@@ -15,15 +15,12 @@ const ProductItem2 = ({
   discount,
   url,
   id,
+  hideButton,
 }) => {
   const router = useRouter();
 
   return (
-    <Link
-      href={"/shop/" + id}
-      className="relative w-full min-h-max p-5 flex items-center flex-col border border-gray1 cursor-pointer"
-      onClick={() => router.push("/shop/" + "1")}
-    >
+    <div className="relative w-full min-h-max p-5 flex items-center flex-col border border-gray1">
       {discount && (
         <div className="absolute top-0 left-0">
           <div className=" bg-red text-white pl-1   text-xs flex items-center justify-center">
@@ -36,16 +33,20 @@ const ProductItem2 = ({
         </div>
       )}
       <img src={img} alt="" className="h-[140px] object-contain" />
-      <div className="mt-5 w-full">
-        <h3 className="text-gray2 text-center mt-8">{title}</h3>
+      <div className="mt-5 w-full flex flex-col items-center">
+  <h3 className="text-gray2 text-center mt-8" style={{width: '230px', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', wordBreak: 'break-word'}}>{title}</h3>
         {/* <div className='space-x-3'>
                 { oldPrice && <span className='text-red line-through'>${oldPrice.toFixed(2)}</span> }                
                 <span className='text-red font-semibold'>${price}</span>
             </div>
             <Rating rating={rating} />             */}
-        <Button className="mt-3">Add To Cart</Button>
+        {hideButton !== true && (
+          <Link href={url || "/shop/" + id} className="w-full flex justify-center mt-3">
+            <Button className="w-full">View Details</Button>
+          </Link>
+        )}
       </div>
-    </Link>
+    </div>
   );
 };
 

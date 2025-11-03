@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/context/AuthContext";
 
 const mainNavItems = [
   { name: "HOME", href: "/" },
@@ -35,7 +36,7 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLoggedIn, user } = useAuth();
   const [showCategoriesMenu, setShowCategoriesMenu] = useState(false);
 
   return (
@@ -47,10 +48,19 @@ export default function Header() {
             <MapPin className="mr-1 h-4 w-4" />
             <span>18-07 Astoria Blvd, Long Island City, NY 11102</span>
           </div>
-          <div className="text-sm">
-            <Link href="/account" className="hover:underline">
-              HELLO, {isLoggedIn ? "USER" : "GUEST"} | MY ACCOUNT
+          <div className="text-sm flex items-center">
+            <Link href={isLoggedIn ? "/account" : "/auth/login"} className="hover:underline">
+              HELLO, {isLoggedIn ? (user?.name || user?.firstName || "USER") : "GUEST"} | MY ACCOUNT
             </Link>
+            {isLoggedIn && user?.name && (
+              <span
+                className="ml-4 w-full text-white font-bold text-lg px-4 py-1 rounded bg-black whitespace-nowrap"
+                style={{ maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', display: 'inline-block' }}
+                data-testid="customer-name-header"
+              >
+                {user.name}
+              </span>
+            )}
           </div>
         </div>
       </div>

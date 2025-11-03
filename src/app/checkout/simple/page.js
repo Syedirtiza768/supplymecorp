@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import Link from "next/link";
 import { ShoppingCart, User, MapPin, Phone, Mail, Loader2 } from "lucide-react";
 
-export default function CheckoutPage() {
+export default function SimpleCheckoutPage() {
   const router = useRouter();
   const { cartItems, clearCart, loading: cartLoading } = useCart();
   const { user, isLoggedIn } = useAuth();

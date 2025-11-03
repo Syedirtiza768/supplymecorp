@@ -17,18 +17,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Icons } from "@/components/custom/auth/icons";
+import { useAuth } from "@/context/AuthContext";
 
 const formSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
   }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
+  password: z.string().min(1, {
+    message: "Password is required.",
   }),
 });
 
 export function LoginForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -36,7 +38,7 @@ export function LoginForm() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
+      password: "testpwd1",
     },
   });
 
@@ -45,17 +47,18 @@ export function LoginForm() {
     setError(null);
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Call the login function from AuthContext
+      const result = await login(values.email, values.password);
 
-      // For demo purposes, let's pretend login was successful
-      // In a real app, you would call your authentication API here
-      console.log("Login values:", values);
-
-      // Redirect to dashboard after successful login
-      router.push("/dashboard");
+      if (result.success) {
+        // Redirect to home page after successful login
+        router.push("/");
+      } else {
+        setError(result.error || "Login failed. Please try again.");
+      }
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      setError("An unexpected error occurred. Please try again.");
+      console.error("Login error:", err);
     } finally {
       setIsLoading(false);
     }

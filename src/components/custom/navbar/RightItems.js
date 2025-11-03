@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { IoPersonOutline } from "react-icons/io5";
 import { AiOutlineHeart } from "react-icons/ai";
-import { AiOutlineShoppingCart } from "react-icons/ai";
-import LogoWithCircle from "./LogoWithCircle";
+import CartIcon from "./CartIcon";
 import Link from "next/link";
 import MobileSearch from "./MobileSearch";
+import { useAuth } from "@/context/AuthContext";
 
 import {
   DropdownMenu,
@@ -17,7 +17,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const RightItems = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // Replace this with real auth check
+  const { isLoggedIn, user, logout } = useAuth();
 
   return (
     <div className="cursor-pointer flex items-center justify-center gap-5 md:gap-10">
@@ -25,11 +25,9 @@ const RightItems = () => {
 
       <div className="flex items-center justify-center gap-5">
         <Link href="/wishlist">
-          <AiOutlineHeart size={30} />
+          <AiOutlineHeart size={30} color="#fff" />
         </Link>
-        <Link href="/cart">
-          <LogoWithCircle Logo={AiOutlineShoppingCart} />
-        </Link>
+        <CartIcon color="#fff" />
       </div>
 
       {!isLoggedIn ? (
@@ -44,15 +42,19 @@ const RightItems = () => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Avatar className="hidden md:flex cursor-pointer">
-              <AvatarFallback>U</AvatarFallback>
+              <AvatarFallback>
+                {user?.name ? user.name.charAt(0).toUpperCase() : user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
+              </AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={
-                () => setIsLoggedIn(false) // Replace with logout logic later
-              }
-            >
+            <DropdownMenuItem disabled className="font-semibold">
+              {user?.name || user?.firstName || 'User'}
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled className="text-xs text-gray-500">
+              {user?.email}
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={logout}>
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>
