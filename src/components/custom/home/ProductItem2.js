@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Rating from "../Rating";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import WishlistButton from "../WishlistButton";
 
 const ProductItem2 = ({
   title,
@@ -32,6 +33,9 @@ const ProductItem2 = ({
           </div>
         </div>
       )}
+      <div className="absolute top-2 right-2 z-10">
+        <WishlistButton productId={id} iconSize={20} />
+      </div>
       <img src={img} alt="" className="h-[140px] object-contain" />
       <div className="mt-5 w-full flex flex-col items-center">
   <h3 className="text-gray2 text-center mt-8" style={{width: '230px', display: 'flex', alignItems: 'center', justifyContent: 'center', whiteSpace: 'normal', wordBreak: 'break-word'}}>{title}</h3>

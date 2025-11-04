@@ -1,17 +1,13 @@
 "use client";
-import React, { useState } from "react";
-import Container2 from "@/components/custom/Container2";
-import Sidebar from "@/components/custom/sidebar/Sidebar";
-import ProductItem2 from "@/components/custom/home/ProductItem2";
-import Link from "next/link";
-import ProductItem3 from "@/components/custom/home/ProductItem3";
+import React from "react";
+import { useWishlist } from "@/context/WishlistContext";
 import Container1 from "@/components/custom/Container1";
-import TableRow from "./TableRow";
 import ItemSelected from "./ItemSelected";
 import ItemNotSeleted from "./ItemNotSeleted";
 
-const Shop = () => {
-  const [cartItems, setCartItems] = useState(true);
+const WishlistPage = () => {
+  const { wishlistItems, loading } = useWishlist();
+  const hasItems = wishlistItems && wishlistItems.length > 0;
 
   return (
     <div className="mb-20">
@@ -24,11 +20,19 @@ const Shop = () => {
       </div>
 
       {/* Product Categories Section */}
-      <Container1 headingTitle={"Favorites"}>
-        {cartItems ? <ItemSelected /> : <ItemNotSeleted />}
+      <Container1 headingTitle={`Favorites ${hasItems ? `(${wishlistItems.length})` : ''}`}>
+        {loading ? (
+          <div className="text-center py-10">
+            <p className="text-gray-500">Loading wishlist...</p>
+          </div>
+        ) : hasItems ? (
+          <ItemSelected items={wishlistItems} />
+        ) : (
+          <ItemNotSeleted />
+        )}
       </Container1>
     </div>
   );
 };
 
-export default Shop;
+export default WishlistPage;

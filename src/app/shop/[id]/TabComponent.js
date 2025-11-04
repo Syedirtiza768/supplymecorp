@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { Tab } from "@headlessui/react";
 import TabComponentItem from "./TabComponentItem";
+import ReviewList from "@/components/review-list";
 
 const TabComponent = ({ product }) => {
   // Generate product specification content as HTML string
@@ -112,7 +113,9 @@ const TabComponent = ({ product }) => {
           <TabComponentItem content={generateSpecifications()} isHTML={true} />
         </Tab.Panel>
         <Tab.Panel>
-          <TabComponentItem content={"No reviews yet."} />
+          <div className="py-4">
+            <ReviewList productId={product?.id || product?.sku} />
+          </div>
         </Tab.Panel>
       </Tab.Panels>
     </Tab.Group>

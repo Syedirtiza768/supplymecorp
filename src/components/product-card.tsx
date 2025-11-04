@@ -1,3 +1,4 @@
+"use client"
 import Link from "next/link"
 import Image from "next/image"
 import { ShoppingCart } from "lucide-react"
@@ -5,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getCategoryById, getSubcategoryById } from "@/lib/data"
+import WishlistButton from "@/components/custom/WishlistButton"
 
 interface ProductCardProps {
   id: string
@@ -57,6 +59,9 @@ export default function ProductCard({
             {isSale && <Badge className="bg-red-500">Sale</Badge>}
           </div>
         )}
+        <div className="absolute right-2 top-2 z-10">
+          <WishlistButton productId={id} iconSize={20} className="bg-white/80 hover:bg-white rounded-full p-2 shadow-md" />
+        </div>
         {!inStock && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60">
             <Badge variant="outline" className="border-white text-white">

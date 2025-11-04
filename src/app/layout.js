@@ -3,6 +3,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/custom/navbar/Navbar";
 import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { ReviewProvider } from "@/context/ReviewContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Header from "@/components/header";
 import Footer from "@/components/custom/footer";
@@ -29,12 +31,16 @@ export default function RootLayout({ children }) {
         >
           <AuthProvider>
             <CartProvider>
-              <div className="flex min-h-screen flex-col">
-                {/* <Header /> */}
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
+              <WishlistProvider>
+                <ReviewProvider>
+                  <div className="flex min-h-screen flex-col">
+                    {/* <Header /> */}
+                    <Navbar />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
+                  </div>
+                </ReviewProvider>
+              </WishlistProvider>
             </CartProvider>
           </AuthProvider>
         </ThemeProvider>

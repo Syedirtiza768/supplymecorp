@@ -9,6 +9,7 @@ import Container1 from "@/components/custom/Container1";
 import Sidebar from "@/components/custom/sidebar/Sidebar";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
 import { Button } from "@/components/ui/button";
+import ReviewList from "@/components/review-list";
 
 const Shop = ({ params }) => {
   const [sliderImg, setSliderImg] = useState("");

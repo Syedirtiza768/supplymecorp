@@ -4,6 +4,7 @@ import { useState } from "react";
 import { IoPersonOutline } from "react-icons/io5";
 import { AiOutlineHeart } from "react-icons/ai";
 import CartIcon from "./CartIcon";
+import WishlistIcon from "../WishlistIcon";
 import Link from "next/link";
 import MobileSearch from "./MobileSearch";
 import { useAuth } from "@/context/AuthContext";
@@ -24,9 +25,7 @@ const RightItems = () => {
       <MobileSearch />
 
       <div className="flex items-center justify-center gap-5">
-        <Link href="/wishlist">
-          <AiOutlineHeart size={30} color="#fff" />
-        </Link>
+        <WishlistIcon />
         <CartIcon color="#fff" />
       </div>
 

@@ -1,6 +1,8 @@
 import React from 'react'
+import { useCart } from '@/context/CartContext';
 
 const TableRow = ({ product, quantity, onRemove }) => {
+    const { updateQuantity } = useCart();
     // Show 'Not Available' if price is null/undefined/NaN
     const price = product.priceSnapshot !== undefined && product.priceSnapshot !== null && !isNaN(parseFloat(product.priceSnapshot))
         ? parseFloat(product.priceSnapshot)
@@ -9,6 +11,14 @@ const TableRow = ({ product, quantity, onRemove }) => {
     const imageSrc = (product.orgillImages && product.orgillImages.length > 0)
         ? product.orgillImages[0]
         : (product.imageUrl || "/images/products/product1.jpg");
+
+    const handleQtyChange = async (e) => {
+        let val = e.target.value.replace(/[^0-9]/g, '');
+        if (!val) val = '1';
+        const qty = Math.max(1, parseInt(val, 10));
+        await updateQuantity(product.productId || product.sku || product.id, qty);
+    };
+
     return (
         <tr>
             <td className='border border-gray1 text-center w-[120px] '>
@@ -23,7 +33,13 @@ const TableRow = ({ product, quantity, onRemove }) => {
                 {price !== null ? `$${price.toFixed(2)}` : <span className="text-gray-400">Not Available</span>}
             </td>
             <td className='py-2 border border-gray1 text-center '>
-                <input type="text" value={quantity} readOnly min={1} className='w-[50px] bg-white border border-gray1 text-center p-2 outline-none' />
+                <input 
+                    type="number" 
+                    value={quantity} 
+                    min={1} 
+                    className='w-[50px] bg-white border border-gray1 text-center p-2 outline-none' 
+                    onChange={handleQtyChange}
+                />
             </td>
             <td className='py-2 border border-gray1 text-center '>
                 {price !== null ? `$${(price * quantity).toFixed(2)}` : <span className="text-gray-400">Not Available</span>}

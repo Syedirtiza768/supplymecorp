@@ -293,10 +293,10 @@ export default function CheckoutPage() {
                 {submitting ? (
                   <span className="flex items-center justify-center">
                     <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                    Submitting to Counterpoint...
+                    Ordering...
                   </span>
                 ) : (
-                  "Send Order to Counterpoint"
+                  "Order"
                 )}
               </button>
 
@@ -309,8 +309,7 @@ export default function CheckoutPage() {
 
               <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                 <p className="text-xs text-gray-600">
-                  <strong>Note:</strong> Your order will be submitted to our NCR Counterpoint
-                  system. Payment and final processing will be handled by our team.
+                  <strong>Note:</strong> Your order will be submitted to our team. Payment and final processing will be handled by our staff.
                 </p>
               </div>
             </div>
