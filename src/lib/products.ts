@@ -1,3 +1,5 @@
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000';
+
 export async function fetchNewProductsByCategory(): Promise<Product[]> {
   const url = new URL(`${API_BASE}/api/products/new-by-category`);
   const response = await fetch(url.toString(), {
@@ -9,7 +11,6 @@ export async function fetchNewProductsByCategory(): Promise<Product[]> {
   }
   return response.json();
 }
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000';
 
 export interface Product {
   id: string;
