@@ -40,7 +40,7 @@ const RightItems = () => {
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="hidden md:flex cursor-pointer">
+            <Avatar className="hidden md:flex cursor-pointer text-black border-2 border-primary bg-white shadow-sm h-9 w-9">
               <AvatarFallback>
                 {user?.name ? user.name.charAt(0).toUpperCase() : user?.firstName ? user.firstName.charAt(0).toUpperCase() : 'U'}
               </AvatarFallback>

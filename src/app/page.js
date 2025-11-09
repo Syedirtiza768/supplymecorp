@@ -7,7 +7,16 @@ import MyFlipBook from "@/components/custom/MyFlipBook";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import ServicesItem from "@/components/custom/home/ServicesItem";
 import ProductsByCategorySection from "@/components/custom/home/ProductsByCategorySection";
-export default function Home() {
+import { fetchNewProductsByCategory, fetchMostViewed, fetchFeaturedProducts } from "@/lib/products";
+
+export default async function Home() {
+  // Fetch products from API
+  const [mostViewedProducts, newProducts, featuredProducts] = await Promise.all([
+    fetchMostViewed(6, 30).catch(() => []),
+    fetchNewProductsByCategory().catch(() => []),
+    fetchFeaturedProducts(6).catch(() => [])
+  ]);
+
   return (
     <div className="w-full min-h-screen ">
       {/* Hero Section */}
@@ -46,19 +55,50 @@ export default function Home() {
       {/* Most Viewed Products Section */}
       <section className="mt-[50px]">
         <Container1 headingTitle={"Most Viewed Products"}>
-          <div className="flex items-center justify-start gap-10 w-full overflow-x-auto">
-            <ProductItem1
-              img={"/images/home/deal1.png"}
-              title={"Cordless Drill"}
-            />
-            <ProductItem1
-              img={"/images/home/deal2.png"}
-              price={"280.00"}
-              oldPrice={"400.00"}
-              title={"Glue Gun"}
-              rating={5}
-              discount={"18"}
-            />
+          <div className="w-full flex">
+            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {mostViewedProducts.length > 0 ? (
+                mostViewedProducts.map((product) => (
+                  <ProductItem2
+                    key={product.id}
+                    img={product.itemImage1 || "/images/products/default.png"}
+                    price={product.price || "0.00"}
+                    title={product.onlineTitleDescription || product.brandName || "Product"}
+                    rating={4}
+                    link={`/shop/${product.id}`}
+                    id={product.id}
+                  />
+                ))
+              ) : (
+                <>
+                  <ProductItem2
+                    img={"/images/home/deal1.png"}
+                    price={"50.00"}
+                    title={"Cordless Drill"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/deal2.png"}
+                    price={"280.00"}
+                    oldPrice={"400.00"}
+                    title={"Glue Gun"}
+                    rating={5}
+                    discount={"18"}
+                  />
+                  <ProductItem2
+                    img={"/images/home/deal3.png"}
+                    price={"99.00"}
+                    title={"Hammer"}
+                    rating={4}
+                  />
+                </>
+              )}
+            </div>
+            <div className="hidden w-[25%] min-h-max bg-[url('/images/home/section-bg3.png')] bg-cover bg-center lg:flex lg:items-end justify-center py-20 px-5">
+              <h2 className="text-white font-semibold text-3xl leading-normal ">
+                Automatic Digital Equipment
+              </h2>
+            </div>
           </div>
         </Container1>
       </section>
@@ -79,47 +119,63 @@ export default function Home() {
       <section className="mt-[50px]">
         <Container1
           headingTitle={"New Products"}
-          HeadingButtonLink={"#"}
+          HeadingButtonLink={"/shop"}
           headingButtonTitle={"View More Products"}
         >
           <div className="w-full flex">
             <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <ProductItem2
-                img={"/images/home/new1.png"}
-                price={"50.00"}
-                title={"Cordless Drill"}
-                rating={4}
-              />
-              <ProductItem2
-                img={"/images/home/new2.png"}
-                price={"50.00"}
-                title={"Cordless Drill"}
-                rating={5}
-              />
-              <ProductItem2
-                img={"/images/home/new3.png"}
-                price={"50.00"}
-                title={"Usb Cable"}
-                rating={4}
-              />
-              <ProductItem2
-                img={"/images/home/new4.png"}
-                price={"50.00"}
-                title={"Construction Hat"}
-                rating={4}
-              />
-              <ProductItem2
-                img={"/images/home/new5.png"}
-                price={"50.00"}
-                title={"Door Lock"}
-                rating={4}
-              />
-              <ProductItem2
-                img={"/images/home/new6.png"}
-                price={"50.00"}
-                title={"Threaded Fasteners"}
-                rating={4}
-              />
+              {newProducts.length > 0 ? (
+                newProducts.map((product) => (
+                  <ProductItem2
+                    key={product.id}
+                    img={product.itemImage1 || "/images/products/default.png"}
+                    price={product.price || "0.00"}
+                    title={product.onlineTitleDescription || product.brandName || "Product"}
+                    rating={4}
+                    link={`/shop/${product.id}`}
+                    id={product.id}
+                  />
+                ))
+              ) : (
+                <>
+                  <ProductItem2
+                    img={"/images/home/new1.png"}
+                    price={"50.00"}
+                    title={"Cordless Drill"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/new2.png"}
+                    price={"50.00"}
+                    title={"Cordless Drill"}
+                    rating={5}
+                  />
+                  <ProductItem2
+                    img={"/images/home/new3.png"}
+                    price={"50.00"}
+                    title={"Usb Cable"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/new4.png"}
+                    price={"50.00"}
+                    title={"Construction Hat"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/new5.png"}
+                    price={"50.00"}
+                    title={"Door Lock"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/new6.png"}
+                    price={"50.00"}
+                    title={"Threaded Fasteners"}
+                    rating={4}
+                  />
+                </>
+              )}
             </div>
             <div className="hidden w-[25%] min-h-max bg-[url('/images/home/section-bg3.png')] bg-cover bg-center lg:flex lg:items-end justify-center py-20 px-5">
               <h2 className="text-white font-semibold text-3xl leading-normal ">
@@ -160,7 +216,7 @@ export default function Home() {
       <section className="mt-[50px]">
         <Container1
           headingTitle={"Featured Products"}
-          HeadingButtonLink={"#"}
+          HeadingButtonLink={"/shop"}
           headingButtonTitle={"View More Products"}
         >
           <div className="w-full flex">
@@ -170,42 +226,58 @@ export default function Home() {
               </h2>
             </div>
             <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              <ProductItem2
-                img={"/images/home/featured1.png"}
-                price={"50.00"}
-                title={"Drill Drivers"}
-                rating={5}
-              />
-              <ProductItem2
-                img={"/images/home/featured2.png"}
-                price={"50.00"}
-                title={"Poundland Hammer"}
-                rating={4}
-              />
-              <ProductItem2
-                img={"/images/home/featured3.png"}
-                price={"50.00"}
-                title={"Painting Brush"}
-                rating={4}
-              />
-              <ProductItem2
-                img={"/images/home/featured4.png"}
-                price={"50.00"}
-                title={"Glue Gun"}
-                rating={5}
-              />
-              <ProductItem2
-                img={"/images/home/featured5.png"}
-                price={"50.00"}
-                title={"Screw"}
-                rating={5}
-              />
-              <ProductItem2
-                img={"/images/home/featured6.png"}
-                price={"50.00"}
-                title={"Mop"}
-                rating={4}
-              />
+              {featuredProducts.length > 0 ? (
+                featuredProducts.map((product) => (
+                  <ProductItem2
+                    key={product.id}
+                    img={product.itemImage1 || "/images/products/default.png"}
+                    price={product.price || "0.00"}
+                    title={product.onlineTitleDescription || product.brandName || "Product"}
+                    rating={5}
+                    link={`/shop/${product.id}`}
+                    id={product.id}
+                  />
+                ))
+              ) : (
+                <>
+                  <ProductItem2
+                    img={"/images/home/featured1.png"}
+                    price={"50.00"}
+                    title={"Drill Drivers"}
+                    rating={5}
+                  />
+                  <ProductItem2
+                    img={"/images/home/featured2.png"}
+                    price={"50.00"}
+                    title={"Poundland Hammer"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/featured3.png"}
+                    price={"50.00"}
+                    title={"Painting Brush"}
+                    rating={4}
+                  />
+                  <ProductItem2
+                    img={"/images/home/featured4.png"}
+                    price={"50.00"}
+                    title={"Glue Gun"}
+                    rating={5}
+                  />
+                  <ProductItem2
+                    img={"/images/home/featured5.png"}
+                    price={"50.00"}
+                    title={"Screw"}
+                    rating={5}
+                  />
+                  <ProductItem2
+                    img={"/images/home/featured6.png"}
+                    price={"50.00"}
+                    title={"Mop"}
+                    rating={4}
+                  />
+                </>
+              )}
             </div>
           </div>
         </Container1>

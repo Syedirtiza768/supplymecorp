@@ -14,6 +14,7 @@ const ProductItem2 = ({
   rating,
   img,
   discount,
+  link,
   url,
   id,
   hideButton,
@@ -44,8 +45,8 @@ const ProductItem2 = ({
                 <span className='text-red font-semibold'>${price}</span>
             </div>
             <Rating rating={rating} />             */}
-        {hideButton !== true && (
-          <Link href={url || "/shop/" + id} className="w-full flex justify-center mt-3">
+        {hideButton !== true && (link || url) && (
+          <Link href={link || url} className="w-full flex justify-center mt-3">
             <Button className="w-full">View Details</Button>
           </Link>
         )}
