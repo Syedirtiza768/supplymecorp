@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const categories = [
-  { name: "Hardware", href: "/category/hardware" },
-  { name: "Paint & Paint Sundries", href: "/category/paint" },
-  { name: "Construction/Building Products", href: "/category/construction" },
-  { name: "Electrical Supplies", href: "/category/electrical" },
-  { name: "Plumbing Supplies", href: "/category/plumbing" },
-  { name: "Janitorial Supplies", href: "/category/janitorial" },
+  { name: "Hardware" },
+  { name: "Paint & Paint Sundries" },
+  { name: "Construction/Building Products" },
+  { name: "Electrical Supplies" },
+  { name: "Plumbing Supplies" },
+  { name: "Janitorial Supplies" },
 ];
 
 const quickLinks = [
@@ -83,16 +83,20 @@ export default function Footer() {
           <div>
             <h3 className="mb-4 text-lg font-bold">Categories</h3>
             <ul className="space-y-2">
-              {categories.map((category) => (
-                <li key={category.href}>
-                  <Link
-                    href={category.href}
-                    className="text-sm text-gray-300 hover:text-white hover:underline"
-                  >
-                    {category.name}
-                  </Link>
-                </li>
-              ))}
+              {categories.map((category) => {
+                // Encode category name for URL
+                const url = `/shop?category=${encodeURIComponent(category.name)}&page=1&limit=10&sortBy=id&sortOrder=DESC`;
+                return (
+                  <li key={category.name}>
+                    <Link
+                      href={url}
+                      className="text-sm text-gray-300 hover:text-white hover:underline"
+                    >
+                      {category.name}
+                    </Link>
+                  </li>
+                );
+              })}
               <li>
                 <Link
                   href="/shop"
