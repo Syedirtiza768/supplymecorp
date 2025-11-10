@@ -105,7 +105,7 @@ const TabComponent = ({ product }) => {
         <Tab.Panel>
           <TabComponentItem
             content={
-              product?.onlineLongDescription || "No description available."
+              product?.longDescription || product?.onlineLongDescription || product?.shortDescription || "No description available."
             }
           />
         </Tab.Panel>

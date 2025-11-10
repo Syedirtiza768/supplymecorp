@@ -23,71 +23,50 @@ const Shop = ({ params }) => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
-        // Get the product id from params
         const productId = params.id || params.sku;
-
-        if (!productId) {
-          throw new Error("Product ID not found in URL parameters");
-        }
-
+        if (!productId) throw new Error("Product ID not found in URL parameters");
         // Fetch both endpoints in parallel
         const [standardRes, mergedRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`),
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}/merged`)
         ]);
-
-        if (!standardRes.ok) {
-          throw new Error(`Failed to fetch product: ${standardRes.status}`);
-        }
-        if (!mergedRes.ok) {
-          throw new Error(`Failed to fetch price: ${mergedRes.status}`);
-        }
-
+        if (!standardRes.ok) throw new Error(`Failed to fetch product: ${standardRes.status}`);
+        if (!mergedRes.ok) throw new Error(`Failed to fetch price: ${mergedRes.status}`);
         const standardText = await standardRes.text();
         const mergedText = await mergedRes.text();
         if (!standardText) throw new Error('No product data returned');
         if (!mergedText) throw new Error('No price data returned');
-
         let standardData, mergedData;
-        try {
-          standardData = JSON.parse(standardText);
-        } catch (e) {
-          throw new Error('Invalid product data received');
-        }
-        try {
-          mergedData = JSON.parse(mergedText);
-        } catch (e) {
-          throw new Error('Invalid price data received');
-        }
-
-  // Use price from merged, fallback to standard if needed
-  const finalPrice = mergedData.price != null ? mergedData.price : standardData.price;
-  setProduct({ ...standardData, price: finalPrice });
-
-        // Set the default slider image to the first product image (if available)
-        if (standardData.itemImage2) {
+        try { standardData = JSON.parse(standardText); } catch (e) { throw new Error('Invalid product data received'); }
+        try { mergedData = JSON.parse(mergedText); } catch (e) { throw new Error('Invalid price data received'); }
+        // Use merged data for name, description, images, price, fallback to standard if needed
+        setProduct({
+          ...standardData,
+          ...mergedData,
+          price: mergedData.price != null ? mergedData.price : standardData.price,
+        });
+        // Set the default slider image to the first merged image if available
+        if (mergedData.images && mergedData.images.length > 0) {
+          setSliderImg(mergedData.images[0]);
+        } else if (standardData.itemImage2) {
           setSliderImg(standardData.itemImage2);
         } else if (standardData.itemImage1) {
           setSliderImg(standardData.itemImage1);
         } else {
-          setSliderImg("/images/products/product1.jpg"); // Fallback image
+          setSliderImg("/images/products/product1.jpg");
         }
-
         // Fetch related products (same categoryCode)
         if (standardData.categoryCode) {
           const relatedResponse = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${standardData.categoryCode}?limit=4`
           );
-
           if (relatedResponse.ok) {
             const relatedData = await relatedResponse.json();
-            // Filter out the current product
             let filteredProducts = relatedData.items
               ? relatedData.items.filter(
                   (item) => item.id !== standardData.id && item.sku !== standardData.sku
                 )
               : [];
-            // Remove duplicates by SKU or ID
             const seen = new Set();
             filteredProducts = filteredProducts.filter((item) => {
               const key = item.sku || item.id;
@@ -95,7 +74,6 @@ const Shop = ({ params }) => {
               seen.add(key);
               return true;
             });
-            // Limit to 3 products
             setRelatedProducts(filteredProducts.slice(0, 3));
           }
         }
@@ -106,16 +84,22 @@ const Shop = ({ params }) => {
         setLoading(false);
       }
     };
-
     fetchProduct();
   }, [params.id, params.sku]);
 
   // Generate product images array for the slider
   const getProductImages = () => {
+    if (product && product.images && product.images.length > 0) {
+      return product.images.map((img, idx) => ({
+        title: `${product.brandName || product.brand || "Product"}-image-${idx + 1}`,
+        img,
+        quantity: "1",
+        link: "#",
+      }));
+    }
+    // Fallback to old logic if no merged images
     const images = [];
-
     if (product) {
-      // Add all available product images to the slider with unique identifiers
       if (product.itemImage1) {
         images.push({
           title: `${product.brandName || "Product"}-image-1`,
@@ -124,7 +108,6 @@ const Shop = ({ params }) => {
           link: "#",
         });
       }
-
       if (product.itemImage2) {
         images.push({
           title: `${product.brandName || "Product"}-image-2`,
@@ -133,7 +116,6 @@ const Shop = ({ params }) => {
           link: "#",
         });
       }
-
       if (product.itemImage3) {
         images.push({
           title: `${product.brandName || "Product"}-image-3`,
@@ -142,7 +124,6 @@ const Shop = ({ params }) => {
           link: "#",
         });
       }
-
       if (product.itemImage4) {
         images.push({
           title: `${product.brandName || "Product"}-image-4`,
@@ -152,8 +133,6 @@ const Shop = ({ params }) => {
         });
       }
     }
-
-    // If no images are available, use default images with unique titles
     if (images.length === 0) {
       return [
         {
@@ -176,7 +155,6 @@ const Shop = ({ params }) => {
         },
       ];
     }
-
     return images;
   };
 

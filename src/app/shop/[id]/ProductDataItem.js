@@ -11,64 +11,73 @@ const ProductDataItem = ({ product }) => {
   const { addToCart, loading } = useCart();
   if (!product) return <div>Loading product information...</div>;
 
+  // Collect all attributes
+  const attributes = [];
+  for (let i = 1; i <= 50; i++) {
+    const name = product[`attribute_name_${i}`];
+    const value = product[`attribute_value_${i}`];
+    const uom = product[`attribute_value_uom_${i}`];
+    if (name && value) {
+      attributes.push({
+        name,
+        value: value + (uom ? ` ${uom}` : ""),
+      });
+    }
+  }
+
+  // Collect all feature bullets
+  const featureBullets = [];
+  for (let i = 1; i <= 10; i++) {
+    const bullet = product[`onlineFeatureBullet${i}`] || product[`online_feature_bullet_${i}`];
+    if (bullet) featureBullets.push(bullet);
+  }
+
   return (
     <div className="flex flex-col gap-2 w-full">
       <h2 className="text-xl font-semibold text-gray2">
-        {product.onlineTitleDescription || "Product Name"}
+        {product.onlineTitleDescription || product.title || "Product Name"}
       </h2>
-      {/* <div className="flex items-center gap-3 border-b border-gray1 pb-3">
-        <Rating rating={4} />
-        <p className="text-sm text-gray2">1 reviews</p>
-      </div> */}
-
       <p className="mt-3 text-sm">
-        Brand:{" "}
-        <span className="text-gray2 font-semibold">
-          {product.brandName || "N/A"}
-        </span>
+        Brand: <span className="text-gray2 font-semibold">{product.brandName || product.brand || "N/A"}</span>
       </p>
       <p className="text-sm">
-        Product Code:{" "}
-        <span className="text-gray2 font-semibold">
-          {product.sku || product.id || "N/A"}
-        </span>
+        Model: <span className="text-gray2 font-semibold">{product.modelNumber || product.model || "N/A"}</span>
       </p>
-
-      {/* Add product attributes if available */}
-      {product.attribute_name_1 && product.attribute_value_1 && (
-        <p className="text-sm">
-          {product.attribute_name_1}:{" "}
-          <span className="text-gray2 font-semibold">
-            {product.attribute_value_1}
-          </span>
-          {product.attribute_value_uom_1 && ` ${product.attribute_value_uom_1}`}
-        </p>
+      <p className="text-sm">
+        UPC: <span className="text-gray2 font-semibold">{product.upcCode || product.upc || "N/A"}</span>
+      </p>
+      <p className="text-sm">
+        Product Code: <span className="text-gray2 font-semibold">{product.sku || product.id || "N/A"}</span>
+      </p>
+      {product.application && (
+        <p className="text-sm">Application: <span className="text-gray2 font-semibold">{product.application}</span></p>
       )}
-
-      {product.attribute_name_2 && product.attribute_value_2 && (
-        <p className="text-sm">
-          {product.attribute_name_2}:{" "}
-          <span className="text-gray2 font-semibold">
-            {product.attribute_value_2}
-          </span>
-          {product.attribute_value_uom_2 && ` ${product.attribute_value_uom_2}`}
-        </p>
+      {product.warranty && (
+        <p className="text-sm">Warranty: <span className="text-gray2 font-semibold">{product.warranty}</span></p>
       )}
-
-      {product.attribute_name_3 && product.attribute_value_3 && (
-        <p className="text-sm">
-          {product.attribute_name_3}:{" "}
-          <span className="text-gray2 font-semibold">
-            {product.attribute_value_3}
-          </span>
-          {product.attribute_value_uom_3 && ` ${product.attribute_value_uom_3}`}
-        </p>
+      {featureBullets.length > 0 && (
+        <div className="text-sm mt-2">
+          <span className="font-semibold">Features:</span>
+          <ul className="list-disc ml-6">
+            {featureBullets.map((b, i) => (
+              <li key={i}>{b}</li>
+            ))}
+          </ul>
+        </div>
       )}
-
+      {attributes.length > 0 && (
+        <div className="text-sm mt-2">
+          <span className="font-semibold">Specifications:</span>
+          <ul className="list-disc ml-6">
+            {attributes.map((attr, i) => (
+              <li key={i}><span className="font-medium">{attr.name}:</span> {attr.value}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <p className="text-sm">
         Availability: <span className="text-gray2 font-semibold">In Stock</span>
       </p>
-
       {/* Quantity selector and Add to Cart button */}
       <div className="flex flex-col items-start mt-4">
         <div className="rounded-sm text-gray2 overflow-hidden border border-gray1 cursor-pointer flex mb-2">
