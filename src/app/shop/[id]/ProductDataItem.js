@@ -11,20 +11,6 @@ const ProductDataItem = ({ product }) => {
   const { addToCart, loading } = useCart();
   if (!product) return <div>Loading product information...</div>;
 
-  // Collect all attributes
-  const attributes = [];
-  for (let i = 1; i <= 50; i++) {
-    const name = product[`attribute_name_${i}`];
-    const value = product[`attribute_value_${i}`];
-    const uom = product[`attribute_value_uom_${i}`];
-    if (name && value) {
-      attributes.push({
-        name,
-        value: value + (uom ? ` ${uom}` : ""),
-      });
-    }
-  }
-
   // Collect all feature bullets
   const featureBullets = [];
   for (let i = 1; i <= 10; i++) {
@@ -61,16 +47,6 @@ const ProductDataItem = ({ product }) => {
           <ul className="list-disc ml-6">
             {featureBullets.map((b, i) => (
               <li key={i}>{b}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {attributes.length > 0 && (
-        <div className="text-sm mt-2">
-          <span className="font-semibold">Specifications:</span>
-          <ul className="list-disc ml-6">
-            {attributes.map((attr, i) => (
-              <li key={i}><span className="font-medium">{attr.name}:</span> {attr.value}</li>
             ))}
           </ul>
         </div>
