@@ -21,6 +21,7 @@ const quickLinks = [
   { name: "Privacy Policy", href: "/privacy" },
   { name: "Terms of Service", href: "/terms" },
 ];
+  import { selectedStaticCategories } from "@/data";
 
 export default function Footer() {
   return (
@@ -82,30 +83,40 @@ export default function Footer() {
           </div>
           <div>
             <h3 className="mb-4 text-lg font-bold">Categories</h3>
-            <ul className="space-y-2">
-              {categories.map((category) => {
-                // Encode category name for URL
-                const url = `/shop?category=${encodeURIComponent(category.name)}&page=1&limit=10&sortBy=id&sortOrder=DESC`;
-                return (
-                  <li key={category.name}>
+            <div className="grid grid-cols-2 gap-4">
+              <ul className="space-y-2">
+                {selectedStaticCategories.slice(0, Math.ceil(selectedStaticCategories.length / 2)).map((category) => (
+                  <li key={category.title}>
                     <Link
-                      href={url}
+                      href={category.link}
                       className="text-sm text-gray-300 hover:text-white hover:underline"
                     >
-                      {category.name}
+                      {category.title}
                     </Link>
                   </li>
-                );
-              })}
-              <li>
-                <Link
-                  href="/shop"
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  View All Categories
-                </Link>
-              </li>
-            </ul>
+                ))}
+              </ul>
+              <ul className="space-y-2">
+                {selectedStaticCategories.slice(Math.ceil(selectedStaticCategories.length / 2)).map((category) => (
+                  <li key={category.title}>
+                    <Link
+                      href={category.link}
+                      className="text-sm text-gray-300 hover:text-white hover:underline"
+                    >
+                      {category.title}
+                    </Link>
+                  </li>
+                ))}
+                <li>
+                  <Link
+                    href="/shop"
+                    className="text-sm font-medium text-primary hover:underline"
+                  >
+                    View All Categories
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
           <div>
             <h3 className="mb-4 text-lg font-bold">Quick Links</h3>

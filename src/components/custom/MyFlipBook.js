@@ -1,25 +1,53 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 
 const HTMLFlipBook = dynamic(() => import("react-pageflip"), { ssr: false });
 
 export default function MyFlipBook() {
   const bookRef = useRef(null);
 
-  const pages = [
-    "/images/flipbook/book1.jpg",
-    "/images/flipbook/book2.jpg",
-    "/images/flipbook/book3.jpg",
-    "/images/flipbook/book4.jpg",
-    "/images/flipbook/book5.jpg",
-  ];
+  const [pages, setPages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    async function fetchImages() {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/flipbook/images");
+        if (!res.ok) throw new Error("Failed to fetch images");
+        let files = await res.json();
+        // Sort files numerically by page number (e.g., 1.jpg, 2.jpg, 10.jpg)
+        files = files.sort((a, b) => {
+          const getNum = (name) => {
+            const match = name.match(/^(\d+)/);
+            return match ? parseInt(match[1], 10) : 0;
+          };
+          return getNum(a) - getNum(b);
+        });
+        setPages(files.map((filename) => `/images/flipbook/${filename}`));
+      } catch (err) {
+        setError("Failed to load flipbook images");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchImages();
+  }, []);
+
+  if (loading) {
+    return <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">Loading flipbook...</div>;
+  }
+  if (error) {
+    return <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 text-red-600">{error}</div>;
+  }
+  if (!pages.length) {
+    return <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">No flipbook images found.</div>;
+  }
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4 ">
-      {/* <h1 className="text-3xl font-bold mb-6">My Flipbook</h1> */}
-
       <HTMLFlipBook
         width={350}
         height={500}
@@ -34,11 +62,16 @@ export default function MyFlipBook() {
         ref={bookRef}
       >
         {pages.map((src, index) => (
-          <div key={index} className="w-full h-full overflow-hidden">
+          <div
+            key={index}
+            className="flex items-center justify-center w-full h-full bg-white"
+            style={{ minHeight: 0, minWidth: 0 }}
+          >
             <img
               src={src}
               alt={`Page ${index + 1}`}
-              className="w-full h-full object-contain"
+              className="max-w-full max-h-full object-contain rounded-lg shadow"
+              style={{ width: '100%', height: '100%', display: 'block', margin: 'auto' }}
             />
           </div>
         ))}
