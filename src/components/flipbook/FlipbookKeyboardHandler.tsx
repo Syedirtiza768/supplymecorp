@@ -1,3 +1,5 @@
+
+"use client";
 /**
  * FlipbookKeyboardHandler Component
  * Handles keyboard navigation for the flipbook
