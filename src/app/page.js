@@ -40,15 +40,7 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* FlipBook */}
-      <section className="container mt-[50px]">
-        <div className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold text-center">
-            2025 Catalog: <span className="text-primary">Spring & Summer</span>
-          </h2>
-          <MyFlipBookEnhanced />
-        </div>
-      </section>
+      {/* FlipBook section removed as requested. Component remains available for use elsewhere. */}
       {/* PRoducts By Category Section */}
       <ProductsByCategorySection />
 
