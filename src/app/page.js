@@ -3,7 +3,7 @@ import Container1 from "@/components/custom/Container1";
 import ProductItem1 from "@/components/custom/home/ProductItem1";
 import Card1Item from "@/components/custom/home/Card1Item";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
-import MyFlipBook from "@/components/custom/MyFlipBook";
+import MyFlipBookEnhanced from "@/components/custom/MyFlipBookEnhanced";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import ServicesItem from "@/components/custom/home/ServicesItem";
 import ProductsByCategorySection from "@/components/custom/home/ProductsByCategorySection";
@@ -46,7 +46,7 @@ export default async function Home() {
           <h2 className="text-3xl font-bold text-center">
             2025 Catalog: <span className="text-primary">Spring & Summer</span>
           </h2>
-          <MyFlipBook />
+          <MyFlipBookEnhanced />
         </div>
       </section>
       {/* PRoducts By Category Section */}
