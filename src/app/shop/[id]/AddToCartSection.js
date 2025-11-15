@@ -27,7 +27,14 @@ const AddToCartSection = ({ product }) => {
         </p>
       </div>
       {(!product.price || product.price === 0 || product.price === "0.00" || product.price === "0") ? (
-        <button disabled className="w-full bg-gray-300 text-gray-600 cursor-not-allowed mt-3 rounded-md h-10 px-4 py-2">Get a Quote</button>
+        <button
+          disabled
+          className={
+            `inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-3 transition-all duration-300`
+          }
+        >
+          Get a Quote
+        </button>
       ) : (
         <button
           type="button"
