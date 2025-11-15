@@ -10,6 +10,7 @@ import Sidebar from "@/components/custom/sidebar/Sidebar";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
 import { Button } from "@/components/ui/button";
 import ReviewList from "@/components/review-list";
+import AddToCartSection from './AddToCartSection';
 
 const Shop = ({ params }) => {
   const [sliderImg, setSliderImg] = useState("");
@@ -159,16 +160,7 @@ const Shop = ({ params }) => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <h2 className="font-bold text-xl mb-2">Loading...</h2>
-          <p className="text-gray2">
-            Please wait while we fetch product details.
-          </p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (error) {
@@ -217,11 +209,14 @@ const Shop = ({ params }) => {
               </div>
               {/* Item description section */}
               <div className="w-full pl-10 lg:w-[70%]">
+                {/* Product details */}
                 <ProductDataItem product={product} />
                 {/* Display the price or 'Contact for pricing' if price is null */}
                 <p className="py-3 font-bold text-red text-lg">
                   {product && product.price != null ? `$${product.price}` : 'Contact for pricing'}
                 </p>
+                {/* Add to Cart button below price */}
+                <AddToCartSection product={product} />
 
               </div>
             </div>

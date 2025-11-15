@@ -46,7 +46,11 @@ const ProductItem3 = ({
                 <span className='text-red font-semibold'>${price}</span>
             </div> */}
         <p className="text-gray2 py-5">{description}</p>
-        <Button>Add To Cart</Button>
+        {(!price || price === 0 || price === "0.00" || price === "0") ? (
+          <Button disabled className="w-full bg-gray-300 text-gray-600 cursor-not-allowed">Get a Quote</Button>
+        ) : (
+          <Button>Add To Cart</Button>
+        )}
       </div>
     </Link>
   );
