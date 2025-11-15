@@ -1,5 +1,6 @@
 import React from 'react'
 import { useCart } from '@/context/CartContext';
+import { MdDelete } from 'react-icons/md';
 
 const TableRow = ({ product, quantity, onRemove }) => {
     const { updateQuantity } = useCart();
@@ -46,9 +47,12 @@ const TableRow = ({ product, quantity, onRemove }) => {
             </td>
             <td className='py-2 border border-gray1 text-center '>
                 <button
-                    className='bg-black text-white py-1 px-5 rounded-sm hover:opacity-80'
+                    className='p-2 rounded-full hover:bg-red-100 focus:outline-none'
                     onClick={onRemove}
-                >REMOVE</button>
+                    title="Remove from cart"
+                >
+                    <MdDelete className="text-red-600" size={24} />
+                </button>
             </td>
         </tr>
     );
