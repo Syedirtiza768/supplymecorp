@@ -17,6 +17,11 @@ export default async function Home() {
     fetchFeaturedProducts(6).catch(() => [])
   ]);
 
+  // DEBUG: Log newProducts and fallback selection
+  if (typeof window !== 'undefined') {
+    // Only runs on client, but this is a server component. So, use a debug div below.
+  }
+
   return (
     <div className="w-full min-h-screen ">
       {/* Hero Section */}
@@ -40,7 +45,15 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* FlipBook section removed as requested. Component remains available for use elsewhere. */}
+      {/* FlipBook */}
+      <section className="container mt-[50px]">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-3xl font-bold text-center">
+            2025 Catalog: <span className="text-primary">Spring & Summer</span>
+          </h2>
+          <MyFlipBookEnhanced />
+        </div>
+      </section>
       {/* PRoducts By Category Section */}
       <ProductsByCategorySection />
 
@@ -218,8 +231,59 @@ export default async function Home() {
               </h2>
             </div>
             <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {featuredProducts.length > 0 ? (
-                featuredProducts.map((product) => (
+              {/* Show actual featured products, fallback to 6 from 6 categories with price > 0 */}
+              {(() => {
+                let displayProducts = featuredProducts && featuredProducts.length > 0
+                  ? featuredProducts.slice(0, 6)
+                  : (() => {
+                      // Exclude newProducts from featured selection
+                      const newProductIds = new Set(newProducts.map(p => p.id));
+                      // Only use products not in newProducts
+                      const all = [...mostViewedProducts, ...newProducts].filter(p => !newProductIds.has(p.id));
+                      // Group by categoryTitleDescription
+                      const categoryMap = new Map();
+                      for (const p of all) {
+                        if (!p.categoryTitleDescription) continue;
+                        if (!categoryMap.has(p.categoryTitleDescription)) {
+                          categoryMap.set(p.categoryTitleDescription, []);
+                        }
+                        categoryMap.get(p.categoryTitleDescription).push(p);
+                      }
+                      // Take product with minimum ID from each unique category (up to 6)
+                      const selected = [];
+                      for (const products of categoryMap.values()) {
+                        if (selected.length >= 6) break;
+                        // Sort by ID and take the one with minimum ID
+                        const sorted = products.sort((a, b) => {
+                          const aId = parseInt(a.id, 10) || 0;
+                          const bId = parseInt(b.id, 10) || 0;
+                          return aId - bId;
+                        });
+                        selected.push(sorted[0]);
+                      }
+                      // If less than 6, fill with any remaining products (unique by id), ensuring NO newProducts are included
+                      const usedIds = new Set(selected.map(p => p.id));
+                      for (const p of all) {
+                        if (selected.length >= 6) break;
+                        // Only add if not already used and not in newProducts
+                        if (!usedIds.has(p.id) && !newProductIds.has(p.id)) {
+                          selected.push(p);
+                          usedIds.add(p.id);
+                        }
+                      }
+                      // If still less than 6, fill with any remaining mostViewedProducts (not in newProducts)
+                      if (selected.length < 6) {
+                        for (const p of mostViewedProducts) {
+                          if (selected.length >= 6) break;
+                          if (!newProductIds.has(p.id) && !usedIds.has(p.id)) {
+                            selected.push(p);
+                            usedIds.add(p.id);
+                          }
+                        }
+                      }
+                      return selected.slice(0, 6);
+                    })();
+                return displayProducts.map((product) => (
                   <ProductItem2
                     key={product.id}
                     img={product.itemImage1 || "/images/products/default.png"}
@@ -229,47 +293,8 @@ export default async function Home() {
                     link={`/shop/${product.id}`}
                     id={product.id}
                   />
-                ))
-              ) : (
-                <>
-                  <ProductItem2
-                    img={"/images/home/featured1.png"}
-                    price={"50.00"}
-                    title={"Drill Drivers"}
-                    rating={5}
-                  />
-                  <ProductItem2
-                    img={"/images/home/featured2.png"}
-                    price={"50.00"}
-                    title={"Poundland Hammer"}
-                    rating={4}
-                  />
-                  <ProductItem2
-                    img={"/images/home/featured3.png"}
-                    price={"50.00"}
-                    title={"Painting Brush"}
-                    rating={4}
-                  />
-                  <ProductItem2
-                    img={"/images/home/featured4.png"}
-                    price={"50.00"}
-                    title={"Glue Gun"}
-                    rating={5}
-                  />
-                  <ProductItem2
-                    img={"/images/home/featured5.png"}
-                    price={"50.00"}
-                    title={"Screw"}
-                    rating={5}
-                  />
-                  <ProductItem2
-                    img={"/images/home/featured6.png"}
-                    price={"50.00"}
-                    title={"Mop"}
-                    rating={4}
-                  />
-                </>
-              )}
+                ));
+              })()}
             </div>
           </div>
         </Container1>
