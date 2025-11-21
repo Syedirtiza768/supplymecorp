@@ -28,10 +28,8 @@ interface FlipbookToolbarProps {
   showThumbnailsToggle?: boolean;
   showTOCToggle?: boolean;
   showDownload?: boolean;
-  showPrint?: boolean;
   showShare?: boolean;
   onDownload?: () => void;
-  onPrint?: () => void;
   onShare?: () => void;
   className?: string;
 }
@@ -42,10 +40,8 @@ export function FlipbookToolbar({
   showThumbnailsToggle = true,
   showTOCToggle = true,
   showDownload = true,
-  showPrint = true,
   showShare = true,
   onDownload,
-  onPrint,
   onShare,
   className = '',
 }: FlipbookToolbarProps) {
@@ -162,17 +158,7 @@ export function FlipbookToolbar({
 
       {/* Action Controls */}
       <div className="flex items-center gap-1">
-        {showPrint && (
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onPrint}
-            aria-label="Print catalog"
-            title="Print"
-          >
-            <Printer className="h-4 w-4" />
-          </Button>
-        )}
+        {/* Print button removed */}
         
         {showDownload && (
           <Button

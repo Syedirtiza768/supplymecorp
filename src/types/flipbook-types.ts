@@ -13,6 +13,18 @@ export interface FlipbookPage {
   thumbnailSrc?: string;
   /** Whether the page has been loaded */
   loaded?: boolean;
+  /** Optional hotspots for interactive areas */
+  hotspots?: Array<{
+    id: string;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    label?: string;
+    productSku?: string;
+    linkUrl?: string;
+    zIndex?: number;
+  }>;
 }
 
 export interface TOCEntry {

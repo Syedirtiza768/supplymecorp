@@ -18,6 +18,7 @@
 import React, { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 import dynamic from 'next/dynamic';
 import { useFlipbookState } from '@/hooks/useFlipbookState';
+import { downloadFlipbookPDF } from '@/lib/flipbooks';
 import { FlipbookToolbar } from './FlipbookToolbar';
 import { FlipbookZoomControls, usePanAndZoom } from './FlipbookZoomControls';
 import { FlipbookThumbnails } from './FlipbookThumbnails';
@@ -66,7 +67,7 @@ const defaultConfig: FlipbookConfig = {
   preloadPages: 3,
 };
 
-export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps>(
+export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & { flipbookId?: string }>(
   (
     {
       pages = [],
@@ -79,6 +80,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps>(
       loadingComponent,
       errorComponent,
       className = '',
+      flipbookId,
     },
     ref
   ) => {
@@ -174,15 +176,13 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps>(
 
     // Download handler
     const handleDownload = useCallback(() => {
-      // This is a placeholder - implement actual download logic
-      console.log('Download functionality would be implemented here');
-      alert('Download feature - implement based on your requirements');
-    }, []);
+      if (!pages || pages.length === 0) return;
+      const id = flipbookId || 'flipbook';
+      downloadFlipbookPDF(id, `${id}.pdf`).catch((err) => {
+        alert('Failed to download PDF: ' + err.message);
+      });
+    }, [pages, flipbookId]);
 
-    // Print handler
-    const handlePrint = useCallback(() => {
-      window.print();
-    }, []);
 
     // Share handler
     const handleShare = useCallback(async () => {
@@ -261,7 +261,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps>(
               showThumbnailsToggle={config.showThumbnails}
               showTOCToggle={config.showTOC && toc.length > 0}
               onDownload={handleDownload}
-              onPrint={handlePrint}
+              // onPrint removed
               onShare={handleShare}
             />
           </div>
@@ -377,22 +377,96 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
       }
     }, [index, currentPage, preloadPages]);
 
+    const handleHotspotClick = (hotspot: any) => {
+      console.log('Hotspot clicked:', hotspot);
+      if (hotspot.linkUrl) {
+        if (hotspot.linkUrl.startsWith('http')) {
+          window.open(hotspot.linkUrl, '_blank');
+        } else {
+          window.location.href = hotspot.linkUrl;
+        }
+      } else if (hotspot.productSku) {
+        window.location.href = `/shop?search=${encodeURIComponent(hotspot.productSku)}`;
+      }
+    };
+
+    // Log hotspots for this page in development
+    useEffect(() => {
+      if (process.env.NODE_ENV === 'development' && hasLoaded && page.hotspots) {
+        console.log(`Page ${index + 1} has ${page.hotspots.length} hotspot(s)`, page.hotspots);
+      }
+    }, [hasLoaded, page.hotspots, index]);
+
     return (
       <div 
         ref={ref}
-        className="flex items-center justify-center w-full h-full bg-white"
+        className="flex items-center justify-center w-full h-full bg-white relative"
         style={{ minHeight: 0, minWidth: 0 }}
       >
         {shouldLoad ? (
-          <img
-            src={page.src}
-            alt={page.alt || `Page ${index + 1}`}
-            className={`max-w-full max-h-full object-contain rounded-lg shadow transition-opacity duration-300 ${
-              hasLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            style={{ width: '100%', height: '100%', display: 'block', margin: 'auto' }}
-            onLoad={() => setHasLoaded(true)}
-          />
+          <>
+            <img
+              src={page.src}
+              alt={page.alt || `Page ${index + 1}`}
+              className={`max-w-full max-h-full object-contain rounded-lg shadow transition-opacity duration-300 ${
+                hasLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ width: '100%', height: '100%', display: 'block', margin: 'auto', pointerEvents: 'none' }}
+              onLoad={() => setHasLoaded(true)}
+            />
+            {/* Hotspots overlay: invisible by default, highlight on hover, open links in new tab, skip empty */}
+            {hasLoaded && Array.isArray(page.hotspots) && page.hotspots.length > 0 && (
+              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 100 }}>
+                <div className="relative w-full h-full">
+                  {page.hotspots.filter(h => (h.linkUrl || h.productSku)).map((hotspot) => (
+                    <button
+                      key={hotspot.id}
+                      type="button"
+                      className="absolute group pointer-events-auto cursor-pointer"
+                      style={{
+                        left: `${hotspot.x}%`,
+                        top: `${hotspot.y}%`,
+                        width: `${hotspot.width}%`,
+                        height: `${hotspot.height}%`,
+                        zIndex: (hotspot.zIndex ?? 0) + 1000,
+                        border: 'none',
+                        background: 'transparent',
+                        padding: 0,
+                      }}
+                      onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
+                        if (hotspot.linkUrl) {
+                          window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
+                        } else if (hotspot.productSku) {
+                          window.open(`/shop?search=${encodeURIComponent(hotspot.productSku)}`, '_blank', 'noopener,noreferrer');
+                        }
+                        return false;
+                      }}
+                      onMouseDown={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      onMouseUp={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                      title={hotspot.label || hotspot.productSku || 'Interactive area'}
+                    >
+                      <div className="absolute inset-0 group-hover:bg-blue-500/30 transition-colors rounded-sm" style={{background: 'transparent'}} />
+                      {(hotspot.label || hotspot.productSku) && (
+                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg">
+                          {hotspot.label || hotspot.productSku}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+                        </div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex items-center justify-center w-full h-full">
             <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />

@@ -4,6 +4,7 @@ import ProductItem1 from "@/components/custom/home/ProductItem1";
 import Card1Item from "@/components/custom/home/Card1Item";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
 import MyFlipBookEnhanced from "@/components/custom/MyFlipBookEnhanced";
+import { FeaturedFlipbook } from "@/components/FeaturedFlipbook";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import ServicesItem from "@/components/custom/home/ServicesItem";
 import ProductsByCategorySection from "@/components/custom/home/ProductsByCategorySection";
@@ -48,10 +49,9 @@ export default async function Home() {
       {/* FlipBook */}
       <section className="container mt-[50px]">
         <div className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold text-center">
-            2025 Catalog: <span className="text-primary">Spring & Summer</span>
-          </h2>
-          <MyFlipBookEnhanced />
+          {/* Removed 2025 Catalog heading as requested */}
+          {/* Show the featured flipbook on the homepage */}
+          <FeaturedFlipbook />
         </div>
       </section>
       {/* PRoducts By Category Section */}
