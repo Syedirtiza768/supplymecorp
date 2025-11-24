@@ -250,11 +250,12 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
           actions={actions}
           enabled={config.enableKeyboard ?? true}
           isFocused={state.isFocused}
+          state={state}
         />
 
         <div className={`flex flex-col h-full ${state.isFullscreen ? 'p-4' : ''}`}>
-          {/* Toolbar */}
-          <div className={`mb-4 ${state.isFullscreen ? 'text-foreground' : ''}`}>
+          {/* Toolbar - always on top */}
+          <div className={`mb-4 ${state.isFullscreen ? 'text-foreground' : ''} relative z-[100]`}>
             <FlipbookToolbar
               state={state}
               actions={actions}
@@ -286,6 +287,34 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
               <div
                 ref={contentRef}
                 className="relative flex items-center justify-center w-full flex-1"
+                onClick={(e) => {
+                  // Automatically consume first click after returning to stabilize flipbook
+                  if (state.needsStabilization) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    actions.stabilize();
+                    return;
+                  }
+                }}
+                onMouseDown={(e) => {
+                  // Consume mousedown to prevent drag start when stabilizing
+                  if (state.needsStabilization) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                  }
+                  // Handle pan and zoom when zoomed in
+                  if (state.zoomLevel > 1) {
+                    panAndZoom.handleMouseDown(e);
+                  }
+                }}
+                onTouchStart={(e) => {
+                  // Handle pan and zoom when zoomed in
+                  if (state.zoomLevel > 1) {
+                    panAndZoom.handleTouchStart(e);
+                  }
+                }}
+                style={state.zoomLevel > 1 ? { cursor: panAndZoom.cursor } : undefined}
               >
                 {isClient && (
                   // @ts-ignore - react-pageflip has complex typing
@@ -298,6 +327,8 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     minHeight={config.minHeight ?? 400}
                     maxHeight={config.maxHeight ?? 1536}
                     maxShadowOpacity={config.maxShadowOpacity ?? 0.5}
+                    flippingTime={800} // Adjust flipping time for smoother transitions
+                    disableFlipByClick={state.needsStabilization} // Disable click flipping when stabilizing
                     showCover={config.showCover ?? false}
                     usePortrait={isMobile}
                     mobileScrollSupport={isMobile}
@@ -315,7 +346,8 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                       />
                     ))}
                   </HTMLFlipBook>
-                )}
+                )
+                }
 
                 {/* Page indicator overlay */}
                 {config.showPageNumbers && (
@@ -416,7 +448,7 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
             />
             {/* Hotspots overlay: invisible by default, highlight on hover, open links in new tab, skip empty */}
             {hasLoaded && Array.isArray(page.hotspots) && page.hotspots.length > 0 && (
-              <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 100 }}>
+              <div className="absolute inset-0 pointer-events-none z-[99999]">
                 <div className="relative w-full h-full">
                   {page.hotspots.filter(h => (h.linkUrl || h.productSku)).map((hotspot) => (
                     <button
@@ -433,6 +465,7 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                         background: 'transparent',
                         padding: 0,
                       }}
+                      title={hotspot.label || hotspot.productSku || ''}
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -447,20 +480,28 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                       onMouseDown={e => {
                         e.preventDefault();
                         e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
                       }}
                       onMouseUp={e => {
                         e.preventDefault();
                         e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
                       }}
-                      title={hotspot.label || hotspot.productSku || 'Interactive area'}
+                      onMouseMove={e => {
+                        e.stopPropagation();
+                        e.nativeEvent.stopImmediatePropagation();
+                      }}
+                      onTouchStart={e => {
+                        e.stopPropagation();
+                      }}
+                      onTouchMove={e => {
+                        e.stopPropagation();
+                      }}
+                      onTouchEnd={e => {
+                        e.stopPropagation();
+                      }}
                     >
-                      <div className="absolute inset-0 group-hover:bg-blue-500/30 transition-colors rounded-sm" style={{background: 'transparent'}} />
-                      {(hotspot.label || hotspot.productSku) && (
-                        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-gray-900 text-white text-sm rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20 shadow-lg">
-                          {hotspot.label || hotspot.productSku}
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
-                        </div>
-                      )}
+                      {/* No custom tooltip, just default browser tooltip */}
                     </button>
                   ))}
                 </div>

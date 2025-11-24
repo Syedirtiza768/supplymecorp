@@ -104,6 +104,8 @@ export interface FlipbookState {
   error: string | null;
   /** Whether the flipbook is focused (for keyboard nav) */
   isFocused: boolean;
+  /** Whether the flipbook needs stabilization (first click will be consumed) */
+  needsStabilization: boolean;
 }
 
 export interface FlipbookActions {
@@ -137,6 +139,8 @@ export interface FlipbookActions {
   toggleTOC: () => void;
   /** Set focus state */
   setFocused: (focused: boolean) => void;
+  /** Mark flipbook as stabilized (consume first click) */
+  stabilize: () => void;
 }
 
 export interface EnhancedFlipBookProps {

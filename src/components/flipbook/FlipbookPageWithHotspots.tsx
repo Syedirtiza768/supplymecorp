@@ -34,7 +34,7 @@ export function FlipbookPageWithHotspots({
 
         if (res.ok) {
           const data = await res.json();
-          setHotspots(data.hotspots || []);
+          setHotspots((data.hotspots || []).sort((a, b) => a.pageNumber - b.pageNumber));
         }
       } catch (error) {
         console.error('Failed to load hotspots:', error);
@@ -102,9 +102,8 @@ export function FlipbookPageWithHotspots({
             
             {/* Label tooltip on hover */}
             {hotspot.label && (
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-black/90 text-white text-xs rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1.5 bg-black/90 text-white text-xs rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-[99999]">
                 {hotspot.label}
-                <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1 border-4 border-transparent border-t-black/90" />
               </div>
             )}
             

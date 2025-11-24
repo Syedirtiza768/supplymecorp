@@ -6,21 +6,23 @@
  */
 
 import { useEffect } from 'react';
-import type { FlipbookActions } from '@/types/flipbook-types';
+import type { FlipbookActions, FlipbookState } from '@/types/flipbook-types';
 
 interface FlipbookKeyboardHandlerProps {
   actions: FlipbookActions;
   enabled: boolean;
   isFocused: boolean;
+  state: FlipbookState;
 }
 
 export function FlipbookKeyboardHandler({
   actions,
   enabled,
   isFocused,
+  state,
 }: FlipbookKeyboardHandlerProps) {
   useEffect(() => {
-    if (!enabled || !isFocused) return;
+    if (!enabled || !isFocused || state.needsStabilization) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       // Don't handle keyboard events if user is typing in an input
@@ -118,7 +120,7 @@ export function FlipbookKeyboardHandler({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [enabled, isFocused, actions]);
+  }, [enabled, isFocused, state.needsStabilization, actions]);
 
   // This component doesn't render anything
   return null;

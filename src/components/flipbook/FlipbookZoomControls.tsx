@@ -91,7 +91,7 @@ export function usePanAndZoom({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
-      if (zoomLevel > 1) {
+      if (zoomLevel > 1 && !e.defaultPrevented) {
         setIsDragging(true);
         setDragStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
         e.preventDefault();
@@ -181,6 +181,27 @@ export function usePanAndZoom({
       setPanOffset({ x: 0, y: 0 });
     }
   }, [zoomLevel, setPanOffset]);
+
+  // Reset dragging state when user navigates away (e.g., clicking hotspot)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsDragging(false);
+      }
+    };
+
+    const handleBlur = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
 
   return {
     handleMouseDown,

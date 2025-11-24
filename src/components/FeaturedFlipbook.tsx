@@ -58,14 +58,16 @@ export function FeaturedFlipbook() {
   }
 
   // Map API pages to EnhancedFlipBook format with hotspots
-  const pages: FlipbookPage[] = flipbook.pages.map((page) => ({
-    id: page.id,
-    src: page.imageUrl,
-    alt: `Page ${page.pageNumber}`,
-    hotspots: page.hotspots || [],
-    // Optionally add thumbnailSrc if available
-    // thumbnailSrc: page.thumbnailUrl,
-  }));
+  const pages: FlipbookPage[] = flipbook.pages
+    .sort((a: FlipbookPage, b: FlipbookPage) => a.pageNumber - b.pageNumber) // Ensure pages are sorted by pageNumber
+    .map((page: FlipbookPage) => ({
+      id: page.id,
+      src: page.imageUrl,
+      alt: `Page ${page.pageNumber}`,
+      hotspots: page.hotspots || [],
+      // Optionally add thumbnailSrc if available
+      // thumbnailSrc: page.thumbnailUrl,
+    }));
 
   // Optionally, build a TOC if your API provides it or you want to hardcode
   const toc: TOCEntry[] = [

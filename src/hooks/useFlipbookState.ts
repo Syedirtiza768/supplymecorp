@@ -53,6 +53,7 @@ export function useFlipbookState({
     isLoading: false,
     error: null,
     isFocused: false,
+    needsStabilization: false,
   });
 
   // Update URL when page changes (if enableURLSync is true)
@@ -119,6 +120,29 @@ export function useFlipbookState({
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // Mark flipbook for stabilization when user leaves page (e.g., clicking hotspot link)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        // User left the page - mark for stabilization on return
+        setState((prev) => ({ ...prev, needsStabilization: true }));
+      }
+    };
+
+    const handleBlur = () => {
+      // Window lost focus - mark for stabilization
+      setState((prev) => ({ ...prev, needsStabilization: true }));
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('blur', handleBlur);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('blur', handleBlur);
     };
   }, []);
 
@@ -215,6 +239,10 @@ export function useFlipbookState({
 
     setFocused: useCallback((focused: boolean) => {
       setState((prev) => ({ ...prev, isFocused: focused }));
+    }, []),
+
+    stabilize: useCallback(() => {
+      setState((prev) => ({ ...prev, needsStabilization: false }));
     }, []),
   };
 

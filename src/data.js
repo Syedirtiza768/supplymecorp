@@ -84,6 +84,7 @@ export const selectedStaticCategories = [
     link: "/shop?category=HVAC&page=1&limit=10&sortBy=id&sortOrder=DESC",
   },
 ];
+// ...existing code...
 
 // Define category groups for sidebar navigation
 export const categoryGroups = {
