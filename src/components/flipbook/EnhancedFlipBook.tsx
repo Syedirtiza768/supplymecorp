@@ -439,20 +439,31 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
         style={{ minHeight: 0, minWidth: 0 }}
       >
         {isTitlePage ? (
-          // Title page - centered content
-          <div className="text-center px-8 py-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
-              {page.title}
-            </h1>
-            {page.alt && (
-              <p className="text-lg md:text-xl text-white/90 mb-2">
-                {page.alt}
-              </p>
+          // Title page - uploaded image with centered text overlay
+          <>
+            <img
+              src={page.src}
+              alt={page.alt || page.title}
+              className={`max-w-full max-h-full object-contain rounded-lg shadow transition-opacity duration-300 ${
+                hasLoaded ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{ width: '100%', height: '100%', display: 'block', margin: 'auto', pointerEvents: 'none' }}
+              onLoad={() => setHasLoaded(true)}
+            />
+            {/* Centered title overlay */}
+            {hasLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center text-center px-8 py-12 pointer-events-none">
+                <div className="bg-black/40 backdrop-blur-sm rounded-lg p-8">
+                  <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-2xl">
+                    {page.title}
+                  </h1>
+                  <p className="text-sm md:text-base text-white/90 drop-shadow-lg">
+                    Flip to begin
+                  </p>
+                </div>
+              </div>
             )}
-            <p className="text-sm md:text-base text-white/80">
-              Flip to begin
-            </p>
-          </div>
+          </>
         ) : shouldLoad ? (
           <>
             <img
