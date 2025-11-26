@@ -77,13 +77,7 @@ export function FeaturedFlipbook() {
   ];
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[600px] bg-gray-100 p-4">
-      <h2 className="text-3xl font-bold mb-2">{flipbook.title}</h2>
-      {flipbook.description && (
-        <p className="text-muted-foreground max-w-2xl mx-auto mb-4">
-          {flipbook.description}
-        </p>
-      )}
+    <div className="flipbook-canvas-container">
       <EnhancedFlipBook
         pages={pages}
         toc={toc}
