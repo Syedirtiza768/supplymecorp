@@ -443,10 +443,15 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
             <img
               src={page.src}
               alt={page.alt || `Page ${index + 1}`}
-              className={`w-full h-full object-contain transition-opacity duration-300 ${
-                hasLoaded ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ display: 'block', margin: 'auto', pointerEvents: 'none', objectFit: 'contain' }}
+              className="w-auto h-auto transition-opacity duration-300"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
+                display: 'block',
+                margin: 'auto',
+                pointerEvents: 'none'
+              }}
               onLoad={() => setHasLoaded(true)}
             />
             {/* Page number badge */}

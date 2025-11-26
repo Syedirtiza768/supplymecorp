@@ -83,12 +83,12 @@ export function FeaturedFlipbook() {
         toc={toc}
         flipbookId={flipbook.id}
         config={{
-          width: 450,
-          height: 600,
-          minWidth: 300,
-          maxWidth: 1200,
-          minHeight: 400,
-          maxHeight: 1600,
+          width: 600,
+          height: 800,
+          minWidth: 315,
+          maxWidth: 1000,
+          minHeight: 420,
+          maxHeight: 1333,
           size: 'stretch',
           maxShadowOpacity: 0.5,
           showCover: true,
