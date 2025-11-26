@@ -240,7 +240,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       <div
         id="flipbook-container"
         ref={containerRef}
-        className={`flipbook-enhanced flipbook-canvas-texture ${state.isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}
+        className={`flipbook-enhanced flipbook-canvas-texture w-full h-full ${state.isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}
         onFocus={() => actions.setFocused(true)}
         onBlur={() => actions.setFocused(false)}
         tabIndex={0}
