@@ -9,6 +9,8 @@ export interface FlipbookPage {
   src: string;
   /** Alt text for accessibility */
   alt?: string;
+  /** Optional title for cover/title pages */
+  title?: string;
   /** Optional thumbnail source (lower resolution) */
   thumbnailSrc?: string;
   /** Whether the page has been loaded */

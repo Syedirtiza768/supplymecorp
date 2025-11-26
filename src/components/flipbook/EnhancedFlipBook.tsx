@@ -240,7 +240,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       <div
         id="flipbook-container"
         ref={containerRef}
-        className={`flipbook-enhanced ${state.isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}
+        className={`flipbook-enhanced flipbook-canvas-texture ${state.isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}
         onFocus={() => actions.setFocused(true)}
         onBlur={() => actions.setFocused(false)}
         tabIndex={0}
@@ -429,13 +429,31 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
       }
     }, [hasLoaded, page.hotspots, index]);
 
+    // Check if this is the title page (first page)
+    const isTitlePage = index === 0 && page.title;
+
     return (
       <div 
         ref={ref}
-        className="flex items-center justify-center w-full h-full bg-white relative"
+        className={`flex items-center justify-center w-full h-full relative flipbook-page ${isTitlePage ? 'flipbook-title-page' : 'bg-white'}`}
         style={{ minHeight: 0, minWidth: 0 }}
       >
-        {shouldLoad ? (
+        {isTitlePage ? (
+          // Title page - centered content
+          <div className="text-center px-8 py-12">
+            <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 drop-shadow-lg">
+              {page.title}
+            </h1>
+            {page.alt && (
+              <p className="text-lg md:text-xl text-white/90 mb-2">
+                {page.alt}
+              </p>
+            )}
+            <p className="text-sm md:text-base text-white/80">
+              Flip to begin
+            </p>
+          </div>
+        ) : shouldLoad ? (
           <>
             <img
               src={page.src}
@@ -446,6 +464,12 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
               style={{ width: '100%', height: '100%', display: 'block', margin: 'auto', pointerEvents: 'none' }}
               onLoad={() => setHasLoaded(true)}
             />
+            {/* Page number badge */}
+            {hasLoaded && (
+              <div className="flipbook-page-number">
+                {index + 1}
+              </div>
+            )}
             {/* Hotspots overlay: invisible by default, highlight on hover, open links in new tab, skip empty */}
             {hasLoaded && Array.isArray(page.hotspots) && page.hotspots.length > 0 && (
               <div className="absolute inset-0 pointer-events-none z-[99999]">

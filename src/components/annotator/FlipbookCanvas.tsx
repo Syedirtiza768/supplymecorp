@@ -127,86 +127,88 @@ export function FlipbookCanvas({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className="relative inline-block select-none"
-      style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
-      <Image
-        src={imageUrl}
-        alt="Flipbook page"
-        width={1200}
-        height={1600}
-        className="max-w-full h-auto pointer-events-none"
-        onLoad={(e) => {
-          const img = e.target as HTMLImageElement;
-          setImageDimensions({ width: img.clientWidth, height: img.clientHeight });
-        }}
-      />
-
-      {!previewMode && hotspots.map((hotspot) => {
-        const isSelected = hotspot.id === selectedId;
-        return (
-          <Rnd
-            key={hotspot.id}
-            className={cn(
-              "rnd-hotspot border-2 box-border cursor-move",
-              isSelected ? "border-blue-500 bg-blue-500/20" : "border-amber-500 bg-amber-500/10"
-            )}
-            position={{
-              x: percentToPx(hotspot.x, imageDimensions.width),
-              y: percentToPx(hotspot.y, imageDimensions.height),
-            }}
-            size={{
-              width: percentToPx(hotspot.width, imageDimensions.width),
-              height: percentToPx(hotspot.height, imageDimensions.height),
-            }}
-            onDragStop={(e, d) => {
-              handleHotspotUpdate(
-                hotspot.id!,
-                d.x,
-                d.y,
-                percentToPx(hotspot.width, imageDimensions.width),
-                percentToPx(hotspot.height, imageDimensions.height)
-              );
-            }}
-            onResizeStop={(e, direction, ref, delta, position) => {
-              handleHotspotUpdate(
-                hotspot.id!,
-                position.x,
-                position.y,
-                ref.offsetWidth,
-                ref.offsetHeight
-              );
-            }}
-            bounds="parent"
-            onClick={(e: React.MouseEvent) => {
-              e.stopPropagation();
-              onSelectHotspot(hotspot.id!);
-            }}
-          >
-            <div className="w-full h-full flex items-center justify-center text-xs font-mono text-white">
-              {hotspot.label || hotspot.productSku || "New"}
-            </div>
-          </Rnd>
-        );
-      })}
-
-      {drawRect && (
-        <div
-          className="absolute border-2 border-emerald-500 bg-emerald-500/20 pointer-events-none"
-          style={{
-            left: drawRect.x,
-            top: drawRect.y,
-            width: drawRect.width,
-            height: drawRect.height,
+    <div className="flipbook-annotator-canvas p-4 rounded-lg">
+      <div
+        ref={containerRef}
+        className="relative inline-block select-none bg-white rounded-lg shadow-2xl overflow-hidden flipbook-page"
+        style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
+        <Image
+          src={imageUrl}
+          alt="Flipbook page"
+          width={1200}
+          height={1600}
+          className="max-w-full h-auto pointer-events-none"
+          onLoad={(e) => {
+            const img = e.target as HTMLImageElement;
+            setImageDimensions({ width: img.clientWidth, height: img.clientHeight });
           }}
         />
-      )}
+
+        {!previewMode && hotspots.map((hotspot) => {
+          const isSelected = hotspot.id === selectedId;
+          return (
+            <Rnd
+              key={hotspot.id}
+              className={cn(
+                "rnd-hotspot flipbook-hotspot border-2 box-border cursor-move",
+                isSelected ? "selected border-blue-500 bg-blue-500/20" : "border-amber-500 bg-amber-500/10"
+              )}
+              position={{
+                x: percentToPx(hotspot.x, imageDimensions.width),
+                y: percentToPx(hotspot.y, imageDimensions.height),
+              }}
+              size={{
+                width: percentToPx(hotspot.width, imageDimensions.width),
+                height: percentToPx(hotspot.height, imageDimensions.height),
+              }}
+              onDragStop={(e, d) => {
+                handleHotspotUpdate(
+                  hotspot.id!,
+                  d.x,
+                  d.y,
+                  percentToPx(hotspot.width, imageDimensions.width),
+                  percentToPx(hotspot.height, imageDimensions.height)
+                );
+              }}
+              onResizeStop={(e, direction, ref, delta, position) => {
+                handleHotspotUpdate(
+                  hotspot.id!,
+                  position.x,
+                  position.y,
+                  ref.offsetWidth,
+                  ref.offsetHeight
+                );
+              }}
+              bounds="parent"
+              onClick={(e: React.MouseEvent) => {
+                e.stopPropagation();
+                onSelectHotspot(hotspot.id!);
+              }}
+            >
+              <div className="w-full h-full flex items-center justify-center text-xs font-mono text-white bg-black/30 backdrop-blur-sm">
+                {hotspot.label || hotspot.productSku || "New"}
+              </div>
+            </Rnd>
+          );
+        })}
+
+        {drawRect && (
+          <div
+            className="absolute border-2 border-dashed border-emerald-500 bg-emerald-500/20 pointer-events-none flipbook-hotspot drawing"
+            style={{
+              left: drawRect.x,
+              top: drawRect.y,
+              width: drawRect.width,
+              height: drawRect.height,
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 }
