@@ -255,7 +255,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
 
         <div className={`flex flex-col h-full ${state.isFullscreen ? 'p-4' : ''}`}>
           {/* Toolbar - always on top */}
-          <div className={`mb-4 ${state.isFullscreen ? 'text-foreground' : ''} relative z-[100]`}>
+          <div className={`mb-2 ${state.isFullscreen ? 'text-foreground' : ''} relative z-[100]`}>
             <FlipbookToolbar
               state={state}
               actions={actions}
@@ -268,7 +268,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
           </div>
 
           {/* Main content area */}
-          <div className="flex-1 flex gap-4 min-h-0">
+          <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
             {/* TOC Sidebar */}
             {state.showTOC && toc.length > 0 && (
               <div className="w-64 flex-shrink-0 overflow-hidden">

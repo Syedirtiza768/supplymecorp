@@ -55,6 +55,13 @@
   align-items: center;
   justify-content: center;
   padding: 0;
+  height: 100%;
+}
+
+.flipbook-page img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 /* Paper texture overlay on pages */
