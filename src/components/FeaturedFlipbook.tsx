@@ -59,11 +59,12 @@ export function FeaturedFlipbook() {
 
   // Map API pages to EnhancedFlipBook format with hotspots
   const pages: FlipbookPage[] = flipbook.pages
-    .sort((a: FlipbookPage, b: FlipbookPage) => a.pageNumber - b.pageNumber) // Ensure pages are sorted by pageNumber
-    .map((page: FlipbookPage) => ({
+    .sort((a: any, b: any) => a.pageNumber - b.pageNumber) // Ensure pages are sorted by pageNumber
+    .map((page: any, index: number) => ({
       id: page.id,
       src: page.imageUrl,
-      alt: `Page ${page.pageNumber}`,
+      alt: index === 0 ? flipbook.description || `${flipbook.title}` : `Page ${page.pageNumber}`,
+      title: index === 0 ? flipbook.title : undefined, // Add title to first page for centered display
       hotspots: page.hotspots || [],
       // Optionally add thumbnailSrc if available
       // thumbnailSrc: page.thumbnailUrl,
