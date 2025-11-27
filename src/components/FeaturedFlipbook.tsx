@@ -77,8 +77,15 @@ export function FeaturedFlipbook() {
   ];
 
   return (
-    <div className="flipbook-canvas-container">
-      <EnhancedFlipBook
+    <>
+      <div className="bg-white text-black text-center py-4 px-6">
+        <h1 className="text-2xl font-bold">{flipbook.title}</h1>
+        {flipbook.description && (
+          <p className="text-sm text-gray-700 mt-1">{flipbook.description}</p>
+        )}
+      </div>
+      <div className="flipbook-canvas-container m-0 p-0 border-0">
+        <EnhancedFlipBook
         pages={pages}
         toc={toc}
         flipbookId={flipbook.id}
@@ -108,6 +115,7 @@ export function FeaturedFlipbook() {
           // Optionally handle page change
         }}
       />
-    </div>
+      </div>
+    </>
   );
 }

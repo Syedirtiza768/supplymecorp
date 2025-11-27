@@ -100,6 +100,9 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     const [isClient, setIsClient] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
+    // Track if we're on the cover page
+    const isOnCoverPage = state.currentPage === 0 && config.showCover;
+
     // Expose ref methods
     useImperativeHandle(ref, () => ({
       getCurrentPage: () => state.currentPage,
@@ -255,7 +258,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
 
         <div className={`flex flex-col h-full ${state.isFullscreen ? 'p-4' : ''}`}>
           {/* Toolbar - always on top */}
-          <div className={`mb-2 ${state.isFullscreen ? 'text-foreground' : ''} relative z-[100]`}>
+          <div className={`${state.isFullscreen ? 'text-foreground' : ''} relative z-[100] bg-gray-300 m-0 p-0 border-0`}>
             <FlipbookToolbar
               state={state}
               actions={actions}
@@ -268,7 +271,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
           </div>
 
           {/* Main content area */}
-          <div className="flex-1 flex gap-4 min-h-0 overflow-hidden">
+          <div className="flex-1 flex gap-4 min-h-0 overflow-hidden m-0 p-0 border-0 bg-gray-300">
             {/* TOC Sidebar */}
             {state.showTOC && toc.length > 0 && (
               <div className="w-64 flex-shrink-0 overflow-hidden">
@@ -286,7 +289,15 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
             <div className="flex-1 flex flex-col items-center min-w-0">
               <div
                 ref={contentRef}
-                className="relative flex items-center justify-center w-full flex-1"
+                className={`relative flex items-center justify-center w-full flex-1 ${isOnCoverPage && !isMobile ? 'cover-page-active' : ''}`}
+                style={{
+                  backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('/images/flipbook/winter-background.png')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center center",
+                  backgroundRepeat: "no-repeat",
+                  backgroundColor: "#87ceeb",
+                  cursor: state.zoomLevel > 1 ? panAndZoom.cursor : undefined
+                }}
                 onClick={(e) => {
                   // Automatically consume first click after returning to stabilize flipbook
                   if (state.needsStabilization) {
@@ -314,7 +325,6 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     panAndZoom.handleTouchStart(e);
                   }
                 }}
-                style={state.zoomLevel > 1 ? { cursor: panAndZoom.cursor } : undefined}
               >
                 {isClient && (
                   // @ts-ignore - react-pageflip has complex typing
