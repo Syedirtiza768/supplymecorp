@@ -39,7 +39,7 @@ export const CartProvider = ({ children }) => {
   const fetchCart = async () => {
     setLoading(true);
     const cartKey = getCartKey(user?.custNo);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, {
       headers: { 'x-session-id': cartKey },
     });
     const data = await res.json();
@@ -58,7 +58,7 @@ export const CartProvider = ({ children }) => {
     setLoading(true);
     try {
       const cartKey = getCartKey(user?.custNo);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/items`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/items`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export const CartProvider = ({ children }) => {
     setLoading(true);
     try {
       const cartKey = getCartKey(user?.custNo);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/items/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/items/${productId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export const CartProvider = ({ children }) => {
     setLoading(true);
     try {
       const cartKey = getCartKey(user?.custNo);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart/items/${productId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/items/${productId}`, {
         method: 'DELETE',
         headers: {
           'x-session-id': cartKey,
@@ -137,7 +137,7 @@ export const CartProvider = ({ children }) => {
     setLoading(true);
     try {
       const cartKey = getCartKey(user?.custNo);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/cart`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, {
         method: 'DELETE',
         headers: {
           'x-session-id': cartKey,

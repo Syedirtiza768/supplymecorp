@@ -28,8 +28,8 @@ const Shop = ({ params }) => {
         if (!productId) throw new Error("Product ID not found in URL parameters");
         // Fetch both endpoints in parallel
         const [standardRes, mergedRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/${productId}/merged`)
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}/merged`)
         ]);
         if (!standardRes.ok) throw new Error(`Failed to fetch product: ${standardRes.status}`);
         if (!mergedRes.ok) throw new Error(`Failed to fetch price: ${mergedRes.status}`);
@@ -59,7 +59,7 @@ const Shop = ({ params }) => {
         // Fetch related products (same categoryCode)
         if (standardData.categoryCode) {
           const relatedResponse = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${standardData.categoryCode}?limit=4`
+            `${process.env.NEXT_PUBLIC_API_URL}/api/products/filters/by-category/${standardData.categoryCode}?limit=4`
           );
           if (relatedResponse.ok) {
             const relatedData = await relatedResponse.json();

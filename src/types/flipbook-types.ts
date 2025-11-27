@@ -160,6 +160,8 @@ export interface EnhancedFlipBookProps {
   onFullscreenChange?: (isFullscreen: boolean) => void;
   /** Callback when zoom level changes */
   onZoomChange?: (zoomLevel: number) => void;
+  /** Callback when flipbook is mounted and ready */
+  onMount?: () => void;
   /** Custom loading component */
   loadingComponent?: React.ReactNode;
   /** Custom error component */

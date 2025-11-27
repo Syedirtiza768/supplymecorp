@@ -6,12 +6,12 @@ import { selectedStaticCategories, mergeCategoryWithCounts } from "@/data"; // I
 // Function to fetch category counts directly from the API
 async function getCategoryProductCounts() {
   try {
-    // Make sure API URL is correct
+    // Backend runs on port 3000 with /api prefix
     const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
     const response = await fetch(
-      `${apiUrl}/products/filters/specific-categories/counts`,
+      `${apiUrl}/api/products/filters/specific-categories/counts`,
       {
         next: { revalidate: 60 }, // Revalidate every 60 seconds
         headers: {

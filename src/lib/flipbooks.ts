@@ -1,12 +1,6 @@
 // Download PDF for a flipbook
 export async function downloadFlipbookPDF(flipbookId: string, filename?: string): Promise<void> {
-  // Use the backend API base URL, not the Next.js /api proxy
-  let backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
-  // If the URL ends with /api, strip it for direct backend calls
-  if (backendUrl.endsWith('/api')) {
-    backendUrl = backendUrl.slice(0, -4);
-  }
-  const url = `${backendUrl}/flipbooks/${flipbookId}/export/pdf`;
+  const url = `${API_URL}/api/flipbooks/${flipbookId}/export/pdf`;
   const headers = getAuthHeaders();
   let res;
   try {
@@ -33,7 +27,7 @@ export async function downloadFlipbookPDF(flipbookId: string, filename?: string)
 }
 // Delete a single page
 export async function deletePage(flipbookId: string, pageNumber: number): Promise<void> {
-  const res = await fetch(`${API_URL}/flipbooks/${flipbookId}/pages/${pageNumber}`, {
+  const res = await fetch(`${API_URL}/api/flipbooks/${flipbookId}/pages/${pageNumber}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
   });
@@ -42,7 +36,7 @@ export async function deletePage(flipbookId: string, pageNumber: number): Promis
 
 // Delete multiple pages
 export async function deletePages(flipbookId: string, pageNumbers: number[]): Promise<void> {
-  const url = new URL(`${API_URL}/flipbooks/${flipbookId}/pages`);
+  const url = new URL(`${API_URL}/api/flipbooks/${flipbookId}/pages`);
   url.searchParams.set('pages', pageNumbers.join(','));
   const res = await fetch(url.toString(), {
     method: 'DELETE',
@@ -91,7 +85,7 @@ export interface PageWithHotspotsResult {
   hotspots: Hotspot[];
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 // Reuse existing auth env if present
 function getAuthHeaders(): Record<string, string> {
@@ -103,14 +97,14 @@ async function handleResponse<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.text();
     console.error('API error', res.status, res.statusText, body);
-    throw new Error(`API ${res.status} ${res.statusText}`);
+    throw new Error(`API error ${res.status} "${res.statusText}" "${body}"`);
   }
   return res.json();
 }
 
 // Ensure a flipbook exists by title (create or return existing)
 export async function ensureFlipbook(title: string): Promise<Flipbook> {
-  const res = await fetch(`${API_URL}/flipbooks`, {
+  const res = await fetch(`${API_URL}/api/flipbooks`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -123,7 +117,7 @@ export async function ensureFlipbook(title: string): Promise<Flipbook> {
 
 // List all pages for a given flipbook
 export async function listPages(flipbookId: string): Promise<FlipbookPage[]> {
-  const res = await fetch(`${API_URL}/flipbooks/${flipbookId}/pages`, {
+  const res = await fetch(`${API_URL}/api/flipbooks/${flipbookId}/pages`, {
     headers: getAuthHeaders(),
     cache: 'no-store',
   });
@@ -136,7 +130,7 @@ export async function getPageWithHotspots(
   pageNumber: number,
 ): Promise<PageWithHotspotsResult> {
   const res = await fetch(
-    `${API_URL}/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`,
+    `${API_URL}/api/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`,
     { headers: getAuthHeaders(), cache: 'no-store' },
   );
   return handleResponse<PageWithHotspotsResult>(res);
@@ -150,7 +144,7 @@ export async function uploadPageImage(
 ): Promise<FlipbookPage> {
   const form = new FormData();
   form.append('image', file);
-  const url = new URL(`${API_URL}/flipbooks/${flipbookId}/pages/upload`);
+  const url = new URL(`${API_URL}/api/flipbooks/${flipbookId}/pages/upload`);
   if (pageNumber) url.searchParams.set('pageNumber', String(pageNumber));
 
   const res = await fetch(url.toString(), {
@@ -170,7 +164,7 @@ export async function savePageHotspots(
   console.log('Saving hotspots:', { flipbookId, pageNumber, count: hotspots.length });
   console.log('Hotspots payload:', JSON.stringify(hotspots, null, 2));
   
-  const url = `${API_URL}/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`;
+  const url = `${API_URL}/api/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`;
   console.log('PUT request to:', url);
   
   const res = await fetch(
@@ -198,7 +192,7 @@ export async function savePageHotspots(
 
 // Product search (mock backend)
 export async function searchProducts(query: string): Promise<{ sku: string; name: string; price?: number }[]> {
-  const url = new URL(`${API_URL}/products/quick-search`);
+  const url = new URL(`${API_URL}/api/products/quick-search`);
   url.searchParams.set('query', query);
   const res = await fetch(url.toString(), { headers: getAuthHeaders() });
   return handleResponse<{ sku: string; name: string; price?: number }[]>(res);

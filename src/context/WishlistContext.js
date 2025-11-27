@@ -33,7 +33,7 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return;
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wishlist`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, {
         headers: {
           "x-session-id": sessionId,
         },
@@ -56,7 +56,7 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return;
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wishlist/count`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist/count`, {
         headers: {
           "x-session-id": sessionId,
         },
@@ -82,7 +82,7 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return { success: false, error: "No session ID" };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wishlist/items`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist/items`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +111,7 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/wishlist/items/${productId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/wishlist/items/${productId}`,
         {
           method: "DELETE",
           headers: {
@@ -139,7 +139,7 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return { success: false };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/wishlist`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, {
         method: "DELETE",
         headers: {
           "x-session-id": sessionId,

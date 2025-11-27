@@ -48,15 +48,15 @@ const ShopContent = () => {
           // Search mode: use the search API endpoint
           apiUrl = `${
             process.env.NEXT_PUBLIC_API_URL
-          }/products/search?query=${encodeURIComponent(
+          }/api/products/search?query=${encodeURIComponent(
             query
           )}&page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         } else if (category) {
           // Category mode: use the category filter endpoint
-          apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products/filters/by-category/${category}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+          apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products/filters/by-category/${category}?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         } else {
           // Default: fetch all products
-          apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/products?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
+          apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/products?page=${page}&limit=${limit}&sortBy=${sortBy}&sortOrder=${sortOrder}`;
         }
 
         const response = await fetch(apiUrl);

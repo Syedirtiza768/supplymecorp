@@ -29,7 +29,7 @@ export const ReviewProvider = ({ children }) => {
   const getProductReviews = useCallback(async (productId) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reviews/product/${productId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/product/${productId}`
       );
 
       if (res.ok) {
@@ -48,7 +48,7 @@ export const ReviewProvider = ({ children }) => {
   const getAverageRating = useCallback(async (productId) => {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reviews/product/${productId}/average`
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/product/${productId}/average`
       );
 
       if (res.ok) {
@@ -73,7 +73,7 @@ export const ReviewProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reviews/product/${productId}/user`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/product/${productId}/user`,
         {
           headers: {
             "x-session-id": sessionId,
@@ -98,7 +98,7 @@ export const ReviewProvider = ({ children }) => {
     if (!sessionId) return { success: false, error: "No session ID" };
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/reviews`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,7 +131,7 @@ export const ReviewProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reviews/${reviewId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}`,
         {
           method: "PUT",
           headers: {
@@ -164,7 +164,7 @@ export const ReviewProvider = ({ children }) => {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/reviews/${reviewId}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/${reviewId}`,
         {
           method: "DELETE",
           headers: {

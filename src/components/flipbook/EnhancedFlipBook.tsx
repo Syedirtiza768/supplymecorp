@@ -52,7 +52,7 @@ const defaultConfig: FlipbookConfig = {
   minHeight: 400,
   maxHeight: 1536,
   size: 'stretch',
-  maxShadowOpacity: 0.5,
+  maxShadowOpacity: 0,
   showCover: false,
   showPageNumbers: true,
   enableSpread: true,
@@ -77,6 +77,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       onPageChange,
       onFullscreenChange,
       onZoomChange,
+      onMount,
       loadingComponent,
       errorComponent,
       className = '',
@@ -136,6 +137,17 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
         window.removeEventListener('resize', checkMobile);
       };
     }, []);
+
+    // Call onMount when component is ready
+    useEffect(() => {
+      if (isClient && pages.length > 0 && onMount) {
+        // Small delay to ensure the flipbook library is initialized
+        const timer = setTimeout(() => {
+          onMount();
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }, [isClient, pages.length, onMount]);
 
     // Pan and zoom handling
     const panAndZoom = usePanAndZoom({
@@ -243,7 +255,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       <div
         id="flipbook-container"
         ref={containerRef}
-        className={`flipbook-enhanced flipbook-canvas-texture w-full h-full ${state.isFullscreen ? 'fixed inset-0 z-50 bg-background' : ''} ${className}`}
+        className={`flipbook-enhanced flipbook-canvas-texture w-full h-full ${state.isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''} ${className}`}
         onFocus={() => actions.setFocused(true)}
         onBlur={() => actions.setFocused(false)}
         tabIndex={0}
@@ -256,9 +268,9 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
           state={state}
         />
 
-        <div className={`flex flex-col h-full ${state.isFullscreen ? 'p-4' : ''}`}>
+        <div className="flex flex-col h-full m-0 p-0">
           {/* Toolbar - always on top */}
-          <div className={`${state.isFullscreen ? 'text-foreground' : ''} relative z-[100] bg-gray-300 m-0 p-0 border-0`}>
+          <div className="relative z-[100] m-0 p-0 border-0">
             <FlipbookToolbar
               state={state}
               actions={actions}
@@ -271,7 +283,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
           </div>
 
           {/* Main content area */}
-          <div className="flex-1 flex gap-4 min-h-0 overflow-hidden m-0 p-0 border-0 bg-gray-300">
+          <div className="flex-1 flex min-h-0 overflow-hidden m-0 p-0 border-0 bg-white">
             {/* TOC Sidebar */}
             {state.showTOC && toc.length > 0 && (
               <div className="w-64 flex-shrink-0 overflow-hidden">
@@ -286,7 +298,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
             )}
 
             {/* Flipbook viewer */}
-            <div className="flex-1 flex flex-col items-center min-w-0">
+            <div className="flex-1 flex flex-col items-center min-w-0 m-0 p-0">
               <div
                 ref={contentRef}
                 className={`relative flex items-center justify-center w-full flex-1 ${isOnCoverPage && !isMobile ? 'cover-page-active' : ''}`}
@@ -295,7 +307,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                   backgroundSize: "cover",
                   backgroundPosition: "center center",
                   backgroundRepeat: "no-repeat",
-                  backgroundColor: "#87ceeb",
+                  backgroundColor: "#ffffff",
                   cursor: state.zoomLevel > 1 ? panAndZoom.cursor : undefined
                 }}
                 onClick={(e) => {
@@ -336,13 +348,13 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     maxWidth={config.maxWidth ?? 1000}
                     minHeight={config.minHeight ?? 400}
                     maxHeight={config.maxHeight ?? 1536}
-                    maxShadowOpacity={config.maxShadowOpacity ?? 0.5}
+                    maxShadowOpacity={0}
                     flippingTime={800} // Adjust flipping time for smoother transitions
                     disableFlipByClick={state.needsStabilization} // Disable click flipping when stabilizing
                     showCover={config.showCover ?? false}
                     usePortrait={isMobile}
                     mobileScrollSupport={isMobile}
-                    className="shadow-xl"
+                    className=""
                     ref={bookRef}
                     onFlip={handleFlip}
                   >
@@ -366,13 +378,6 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                   </div>
                 )}
               </div>
-
-              {/* Zoom controls */}
-              {config.enableZoom && (
-                <div className="mt-4">
-                  <FlipbookZoomControls state={state} actions={actions} />
-                </div>
-              )}
             </div>
           </div>
 

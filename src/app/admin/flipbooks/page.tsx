@@ -47,7 +47,7 @@ interface Flipbook {
   pages?: Array<{ id: string; pageNumber: number }>;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 const AUTH_HEADER = process.env.NEXT_PUBLIC_CUSTOMERS_AUTH || "";
 
 export default function FlipbookManagementPage() {
@@ -71,7 +71,7 @@ export default function FlipbookManagementPage() {
   const loadFlipbooks = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/flipbooks`, {
+      const res = await fetch(`${API_URL}/api/flipbooks`, {
         headers: { Authorization: AUTH_HEADER },
       });
       if (!res.ok) throw new Error("Failed to load flipbooks");
@@ -101,7 +101,7 @@ export default function FlipbookManagementPage() {
 
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/flipbooks`, {
+      const res = await fetch(`${API_URL}/api/flipbooks`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +138,7 @@ export default function FlipbookManagementPage() {
 
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/flipbooks/${selectedFlipbook.id}`, {
+      const res = await fetch(`${API_URL}/api/flipbooks/${selectedFlipbook.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -175,7 +175,7 @@ export default function FlipbookManagementPage() {
 
     setSaving(true);
     try {
-      const res = await fetch(`${API_URL}/flipbooks/${selectedFlipbook.id}`, {
+      const res = await fetch(`${API_URL}/api/flipbooks/${selectedFlipbook.id}`, {
         method: "DELETE",
         headers: { Authorization: AUTH_HEADER },
       });
@@ -204,7 +204,7 @@ export default function FlipbookManagementPage() {
 
   const handleToggleFeatured = async (flipbook: Flipbook) => {
     try {
-      const res = await fetch(`${API_URL}/flipbooks/${flipbook.id}/toggle-featured`, {
+      const res = await fetch(`${API_URL}/api/flipbooks/${flipbook.id}/toggle-featured`, {
         method: "PATCH",
         headers: { Authorization: AUTH_HEADER },
       });
@@ -255,7 +255,7 @@ export default function FlipbookManagementPage() {
         description: "Please wait while we generate your PDF...",
       });
 
-      const res = await fetch(`${API_URL}/flipbooks/${flipbook.id}/export/pdf`, {
+      const res = await fetch(`${API_URL}/api/flipbooks/${flipbook.id}/export/pdf`, {
         headers: { Authorization: AUTH_HEADER },
       });
 

@@ -12,7 +12,7 @@ const Sidebar = () => {
     const fetchCounts = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/products/filters/specific-categories/counts`
+          `${process.env.NEXT_PUBLIC_API_URL}/api/products/filters/specific-categories/counts`
         );
         if (res.ok) {
           const data = await res.json();

@@ -18,7 +18,7 @@ export type Hotspot = {
   product?: Product | null;
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 // Get Authorization from env
 const getAuthHeaders = (): Record<string, string> => {
@@ -30,7 +30,7 @@ const getAuthHeaders = (): Record<string, string> => {
 };
 
 export async function fetchHotspots(flipbookId: string, pageNumber: number) {
-  const url = new URL(`${API_URL}/hotspots`);
+  const url = new URL(`${API_URL}/api/hotspots`);
   url.searchParams.set("flipbookId", flipbookId);
   url.searchParams.set("pageNumber", String(pageNumber));
 
@@ -51,7 +51,7 @@ export async function createHotspotApi(
   pageNumber: number,
   rect: { x: number; y: number; width: number; height: number }
 ) {
-  const res = await fetch(`${API_URL}/hotspots`, {
+  const res = await fetch(`${API_URL}/api/hotspots`, {
     method: "POST",
     headers: { 
       "Content-Type": "application/json",
@@ -72,7 +72,7 @@ export async function updateHotspotApi(
   id: string,
   partial: Partial<Hotspot>
 ) {
-  const res = await fetch(`${API_URL}/hotspots/${id}`, {
+  const res = await fetch(`${API_URL}/api/hotspots/${id}`, {
     method: "PATCH",
     headers: { 
       "Content-Type": "application/json",
@@ -86,7 +86,7 @@ export async function updateHotspotApi(
 }
 
 export async function deleteHotspotApi(id: string) {
-  const res = await fetch(`${API_URL}/hotspots/${id}`, {
+  const res = await fetch(`${API_URL}/api/hotspots/${id}`, {
     method: "DELETE",
     headers: getAuthHeaders(),
   });
@@ -97,7 +97,7 @@ export async function deleteHotspotApi(id: string) {
 export async function searchProducts(term: string) {
   if (!term.trim()) return [] as Product[];
 
-  const url = new URL(`${API_URL}/products/search`);
+  const url = new URL(`${API_URL}/api/products/search`);
   url.searchParams.set("query", term);
   url.searchParams.set("page", "1");
   url.searchParams.set("limit", "10");

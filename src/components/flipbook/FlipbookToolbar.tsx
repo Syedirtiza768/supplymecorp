@@ -3,8 +3,9 @@
  * Provides navigation and control buttons for the flipbook
  */
 
-import React from 'react';
+import React, { useState, KeyboardEvent } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,10 +16,12 @@ import {
   Maximize2,
   Minimize2,
   Download,
-  Printer,
   Share2,
   Grid3x3,
   List,
+  ZoomIn,
+  ZoomOut,
+  Maximize,
 } from 'lucide-react';
 import type { FlipbookState, FlipbookActions } from '@/types/flipbook-types';
 
@@ -47,11 +50,36 @@ export function FlipbookToolbar({
 }: FlipbookToolbarProps) {
   const isFirstPage = state.currentPage === 0;
   const isLastPage = state.currentPage === state.totalPages - 1;
+  const [pageInput, setPageInput] = useState('');
+
+  const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow numbers
+    if (value === '' || /^\d+$/.test(value)) {
+      setPageInput(value);
+    }
+  };
+
+  const handlePageInputSubmit = () => {
+    const pageNum = parseInt(pageInput, 10);
+    if (pageNum >= 1 && pageNum <= state.totalPages) {
+      actions.goToPage(pageNum - 1); // Convert to 0-based index
+      setPageInput('');
+    }
+  };
+
+  const handlePageInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handlePageInputSubmit();
+    } else if (e.key === 'Escape') {
+      setPageInput('');
+    }
+  };
 
   return (
-    <div className={`flex flex-wrap items-center justify-between gap-2 ${className}`}>
-      {/* Navigation Controls */}
-      <div className="flex items-center gap-1">
+    <div className={`bg-black text-white px-4 py-3 flex flex-wrap items-center justify-between gap-4 ${className}`}>
+      {/* Left side - Navigation Controls */}
+      <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
@@ -59,6 +87,7 @@ export function FlipbookToolbar({
           disabled={isFirstPage}
           aria-label="First page"
           title="First page (Home)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
         >
           <ChevronsLeft className="h-4 w-4" />
         </Button>
@@ -69,13 +98,24 @@ export function FlipbookToolbar({
           disabled={isFirstPage}
           aria-label="Previous page"
           title="Previous page (Left arrow)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         
-        {/* Page indicator */}
-        <div className="px-3 py-1 text-sm font-medium min-w-[100px] text-center">
-          {state.currentPage + 1} / {state.totalPages}
+        {/* Page indicator with input */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium whitespace-nowrap">Page</span>
+          <Input
+            type="text"
+            value={pageInput}
+            onChange={handlePageInputChange}
+            onKeyDown={handlePageInputKeyDown}
+            onBlur={handlePageInputSubmit}
+            placeholder={String(state.currentPage + 1)}
+            className="w-14 h-8 px-2 text-center bg-white/10 border-white/20 text-white placeholder:text-white/50"
+          />
+          <span className="text-sm font-medium whitespace-nowrap">of {state.totalPages}</span>
         </div>
         
         <Button
@@ -85,6 +125,7 @@ export function FlipbookToolbar({
           disabled={isLastPage}
           aria-label="Next page"
           title="Next page (Right arrow)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -95,6 +136,7 @@ export function FlipbookToolbar({
           disabled={isLastPage}
           aria-label="Last page"
           title="Last page (End)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
         >
           <ChevronsRight className="h-4 w-4" />
         </Button>
@@ -106,6 +148,7 @@ export function FlipbookToolbar({
           onClick={actions.toggleAutoPlay}
           aria-label={state.isPlaying ? 'Pause auto-play' : 'Start auto-play'}
           title={state.isPlaying ? 'Pause' : 'Auto-play'}
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
         >
           {state.isPlaying ? (
             <Pause className="h-4 w-4" />
@@ -115,8 +158,46 @@ export function FlipbookToolbar({
         </Button>
       </div>
 
-      {/* View Controls */}
-      <div className="flex items-center gap-1">
+      {/* Center - Zoom Controls */}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={actions.zoomOut}
+          aria-label="Zoom out"
+          title="Zoom out (-)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
+        >
+          <ZoomOut className="h-4 w-4" />
+        </Button>
+        <div className="px-3 py-1 text-sm font-medium min-w-[60px] text-center">
+          {Math.round(state.zoomLevel * 100)}%
+        </div>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={actions.zoomIn}
+          aria-label="Zoom in"
+          title="Zoom in (+)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
+        >
+          <ZoomIn className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={actions.resetZoom}
+          disabled={state.zoomLevel === 1}
+          aria-label="Reset zoom"
+          title="Reset zoom (0)"
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
+        >
+          <Maximize className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Right side - View and Action Controls */}
+      <div className="flex items-center gap-2">
         {showThumbnailsToggle && (
           <Button
             variant={state.showThumbnails ? 'default' : 'outline'}
@@ -124,6 +205,7 @@ export function FlipbookToolbar({
             onClick={actions.toggleThumbnails}
             aria-label="Toggle thumbnails"
             title="Show thumbnails"
+            className={state.showThumbnails ? 'bg-white text-black hover:bg-white/90' : 'bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white'}
           >
             <Grid3x3 className="h-4 w-4" />
           </Button>
@@ -136,6 +218,7 @@ export function FlipbookToolbar({
             onClick={actions.toggleTOC}
             aria-label="Toggle table of contents"
             title="Table of contents"
+            className={state.showTOC ? 'bg-white text-black hover:bg-white/90' : 'bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white'}
           >
             <List className="h-4 w-4" />
           </Button>
@@ -147,6 +230,7 @@ export function FlipbookToolbar({
           onClick={actions.toggleFullscreen}
           aria-label={state.isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
           title={state.isFullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (F)'}
+          className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
         >
           {state.isFullscreen ? (
             <Minimize2 className="h-4 w-4" />
@@ -154,11 +238,6 @@ export function FlipbookToolbar({
             <Maximize2 className="h-4 w-4" />
           )}
         </Button>
-      </div>
-
-      {/* Action Controls */}
-      <div className="flex items-center gap-1">
-        {/* Print button removed */}
         
         {showDownload && (
           <Button
@@ -167,6 +246,7 @@ export function FlipbookToolbar({
             onClick={onDownload}
             aria-label="Download catalog"
             title="Download"
+            className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
           >
             <Download className="h-4 w-4" />
           </Button>
@@ -179,6 +259,7 @@ export function FlipbookToolbar({
             onClick={onShare}
             aria-label="Share catalog"
             title="Share"
+            className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white"
           >
             <Share2 className="h-4 w-4" />
           </Button>
