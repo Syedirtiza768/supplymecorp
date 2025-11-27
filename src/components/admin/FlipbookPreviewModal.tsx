@@ -29,7 +29,7 @@ interface FlipbookPreviewModalProps {
   onClose: () => void;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 const AUTH_HEADER = process.env.NEXT_PUBLIC_CUSTOMERS_AUTH || "";
 
 export function FlipbookPreviewModal({
@@ -51,7 +51,7 @@ export function FlipbookPreviewModal({
   const loadPages = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/flipbooks/${flipbookId}/pages`, {
+      const res = await fetch(`${API_URL}/api/flipbooks/${flipbookId}/pages`, {
         headers: { Authorization: AUTH_HEADER },
       });
       if (!res.ok) throw new Error("Failed to load pages");
