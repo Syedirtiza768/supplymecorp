@@ -47,8 +47,8 @@ export default async function Home() {
       </div>
 
       {/* FlipBook */}
-      <section className="container mt-[50px]">
-        <div className="flex flex-col gap-4">
+      <section className="container">
+        <div className="m-0 p-0">
           {/* Removed 2025 Catalog heading as requested */}
           {/* Show the featured flipbook on the homepage */}
           <FeaturedFlipbook />
@@ -58,7 +58,7 @@ export default async function Home() {
       <ProductsByCategorySection />
 
       {/* Most Viewed Products Section */}
-      <section className="mt-[50px]">
+      <section>
         <Container1 headingTitle={"Most Viewed Products"}>
           <div className="w-full flex">
             <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

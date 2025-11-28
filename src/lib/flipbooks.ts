@@ -65,7 +65,7 @@ export interface FlipbookPage {
 
 export interface HotspotInput {
   id?: string; // optional (for updating)
-  productSku: string;
+  productSku?: string; // optional - hotspot can exist without product
   label?: string;
   linkUrl?: string;
   x: number; // percent 0-100
@@ -179,14 +179,16 @@ export async function savePageHotspots(
     },
   );
   
+  console.log('Response status:', res.status, res.statusText);
+  
   if (!res.ok) {
     const errorText = await res.text();
-    console.error('Save hotspots failed:', { status: res.status, statusText: res.statusText, body: errorText });
+    console.error('❌ Save hotspots failed:', { status: res.status, statusText: res.statusText, body: errorText });
     throw new Error(`Failed to save hotspots: ${res.status} ${res.statusText} - ${errorText}`);
   }
   
   const result = await res.json();
-  console.log('Hotspots saved successfully:', result);
+  console.log('✅ Hotspots saved successfully:', result);
   return result;
 }
 

@@ -112,6 +112,17 @@ export function FlipbookCanvas({
   };
 
   const handleHotspotUpdate = (id: string, x: number, y: number, width: number, height: number) => {
+    console.log('📐 Hotspot position update:', {
+      id,
+      pixelPos: { x, y },
+      pixelSize: { width, height },
+      imageDimensions,
+      percentPos: {
+        x: pxToPercent(x, imageDimensions.width),
+        y: pxToPercent(y, imageDimensions.height),
+      }
+    });
+    
     const updated = hotspots.map((h) =>
       h.id === id
         ? {
@@ -123,6 +134,8 @@ export function FlipbookCanvas({
           }
         : h
     );
+    
+    console.log('📐 Updated hotspot:', updated.find(h => h.id === id));
     onHotspotsChange(updated);
   };
 

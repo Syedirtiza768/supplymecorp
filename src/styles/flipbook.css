@@ -4,14 +4,10 @@
 
 /* Flipbook Canvas Container - Main background with aesthetic image */
 .flipbook-canvas-container {
-  min-height: 100vh;
   height: auto;
   width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  padding-bottom: 2rem;
+  padding: 0;
+  margin: 0;
   position: relative;
   overflow: visible;
   background: #ffffff;
@@ -184,10 +180,10 @@
 /* Mobile devices */
 @media (max-width: 768px) {
   .flipbook-canvas-container {
-    padding: 0.5rem;
-    padding-bottom: 2rem;
-    min-height: 100vh;
     height: auto;
+    padding: 0;
+    margin: 0;
+    width: 100%;
   }
 
   .flipbook-container {

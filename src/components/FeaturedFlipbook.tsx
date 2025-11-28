@@ -160,8 +160,8 @@ export function FeaturedFlipbook() {
 
   return (
     <>
-      <div className="bg-white text-black text-center py-4 px-6">
-        <h1 className="text-2xl font-bold">{flipbook.title}</h1>
+      <div className="bg-white text-black text-center py-2 px-6 mb-0">
+        <h1 className="text-4xl font-bold">{flipbook.title}</h1>
         {flipbook.description && (
           <p className="text-sm text-gray-700 mt-1">{flipbook.description}</p>
         )}
@@ -176,37 +176,39 @@ export function FeaturedFlipbook() {
           />
         )}
         
-        <EnhancedFlipBook
-          pages={pages}
-          toc={toc}
-          flipbookId={flipbook.id}
-          onMount={handleFlipbookMount}
-          config={{
-            width: 600,
-            height: 800,
-            minWidth: 315,
-            maxWidth: 1000,
-            minHeight: 420,
-            maxHeight: 1333,
-            size: 'stretch',
-            maxShadowOpacity: 0.5,
-            showCover: true,
-            showPageNumbers: true,
-            enableSpread: true,
-            autoPlayOnMount: false,
-            autoPlayInterval: 3000,
-            showThumbnails: false,
-            showTOC: false,
-            enableZoom: true,
-            enableFullscreen: true,
-            enableKeyboard: true,
-            enableURLSync: true,
-            preloadPages: 3,
-          }}
-          onPageChange={(pageIndex) => {
-            // Optionally handle page change
-          }}
-        />
+        <div className="flex justify-center w-full">
+          <EnhancedFlipBook
+            pages={pages}
+            toc={toc}
+            flipbookId={flipbook.id}
+            onMount={handleFlipbookMount}
+            config={{
+              width: 420,
+              height: 560,
+              minWidth: 300,
+              maxWidth: 700,
+              minHeight: 400,
+              maxHeight: 933,
+              size: 'stretch',
+              maxShadowOpacity: 0.5,
+              showCover: true,
+              showPageNumbers: true,
+              enableSpread: true,
+              autoPlayOnMount: false,
+              autoPlayInterval: 3000,
+              showThumbnails: false,
+              showTOC: false,
+              enableZoom: true,
+              enableFullscreen: true,
+              enableKeyboard: true,
+              enableURLSync: true,
+              preloadPages: 3,
+            }}
+            onPageChange={(pageIndex) => {
+              // Optionally handle page change
+            }}
+          />
+        </div>
       </div>
     </>
   );

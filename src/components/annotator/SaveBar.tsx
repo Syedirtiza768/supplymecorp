@@ -13,6 +13,11 @@ interface SaveBarProps {
 export function SaveBar({ hasChanges, onSave, isSaving }: SaveBarProps) {
   if (!hasChanges) return null;
 
+  const handleClick = () => {
+    console.log('💾 Save button clicked!');
+    onSave();
+  };
+
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
       <div className={cn(
@@ -24,7 +29,7 @@ export function SaveBar({ hasChanges, onSave, isSaving }: SaveBarProps) {
           <span className="font-semibold text-amber-900 dark:text-amber-100">Unsaved changes</span>
         </div>
         <Button
-          onClick={onSave}
+          onClick={handleClick}
           disabled={isSaving}
           size="sm"
           className="gap-2 bg-amber-600 hover:bg-amber-700 text-white"

@@ -83,6 +83,16 @@ export default function AnnotatePage() {
 
   const selectedHotspot = hotspots.find((h) => h.id === selectedId);
   const hasChanges = JSON.stringify(hotspots) !== JSON.stringify(originalHotspots);
+  
+  useEffect(() => {
+    console.log('📊 Change detection:', { 
+      hasChanges, 
+      hotspotCount: hotspots.length, 
+      originalCount: originalHotspots.length,
+      hotspots: hotspots.map(h => ({ id: h.id, sku: h.productSku })),
+      original: originalHotspots.map(h => ({ id: h.id, sku: h.productSku }))
+    });
+  }, [hasChanges, hotspots, originalHotspots]);
 
   const currentPageIndex = pages.findIndex((p) => p.pageNumber === pageNumber);
   const hasPrevPage = currentPageIndex > 0;
@@ -207,12 +217,17 @@ export default function AnnotatePage() {
   }, [hasPrevPage, hasNextPage, hasChanges, saving, selectedId]);
 
   const handleSave = async () => {
-    if (!page) return;
+    if (!page) {
+      console.error('❌ Cannot save: page is null');
+      return;
+    }
+    
+    console.log('🔄 Starting save process...', { flipbookId, pageNumber, hotspotCount: hotspots.length });
     
     setSaving(true);
     try {
       const savedHotspots = await savePageHotspots(flipbookId, pageNumber, hotspots);
-      console.log('Hotspots saved successfully:', savedHotspots);
+      console.log('✅ Hotspots saved successfully:', savedHotspots);
       
       // Reload to confirm save
       await loadPage();
@@ -222,7 +237,7 @@ export default function AnnotatePage() {
         description: `${hotspots.length} hotspot(s) saved successfully`,
       });
     } catch (error) {
-      console.error("Save failed:", error);
+      console.error("❌ Save failed:", error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to save hotspots';
       toast({
         title: "Error",
