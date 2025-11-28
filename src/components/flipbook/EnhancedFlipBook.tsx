@@ -413,16 +413,21 @@ interface FlipbookPageComponentProps {
 
 const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageComponentProps>(
   ({ page, index, currentPage, preloadPages }, ref) => {
-    const [shouldLoad, setShouldLoad] = useState(true);
+    const [shouldLoad, setShouldLoad] = useState(() => Math.abs(index - currentPage) <= preloadPages);
     const [hasLoaded, setHasLoaded] = useState(false);
 
-    // Lazy loading logic: load if within preloadPages range
+    // Lazy loading logic: render only pages within the preload range buffer
     useEffect(() => {
       const distance = Math.abs(index - currentPage);
-      if (distance <= preloadPages) {
-        setShouldLoad(true);
-      }
+      setShouldLoad(distance <= preloadPages);
     }, [index, currentPage, preloadPages]);
+
+    // Reset load flag when page is unloaded so it re-displays correctly when revisited
+    useEffect(() => {
+      if (!shouldLoad && hasLoaded) {
+        setHasLoaded(false);
+      }
+    }, [shouldLoad, hasLoaded]);
 
     const handleHotspotClick = (hotspot: any) => {
       console.log('Hotspot clicked:', hotspot);
