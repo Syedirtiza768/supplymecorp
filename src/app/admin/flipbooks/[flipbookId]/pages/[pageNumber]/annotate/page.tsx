@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -8,23 +8,23 @@ import {
   savePageHotspots,
   listPages,
   HotspotInput,
-  Hotspot,
   FlipbookPage,
+  deletePage,
+  deletePages,
 } from "@/lib/flipbooks";
 import { FlipbookCanvas } from "@/components/annotator/FlipbookCanvas";
 import { ProductSearch } from "@/components/annotator/ProductSearch";
 import { SaveBar } from "@/components/annotator/SaveBar";
 import { Button } from "@/components/ui/button";
-import { Checkbox, CheckboxProps } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Trash2, Plus, Eye, EyeOff, Upload, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
-import { deletePage, deletePages } from "@/lib/flipbooks";
 import { cn } from "@/lib/utils";
+
 export default function AnnotatePage() {
   const params = useParams();
   const router = useRouter();
@@ -43,6 +43,10 @@ export default function AnnotatePage() {
   const [previewMode, setPreviewMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  // SaveBar feedback state
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [showSaveBar, setShowSaveBar] = useState(false);
   // Multi-select for pages
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
 
@@ -82,17 +86,30 @@ export default function AnnotatePage() {
   };
 
   const selectedHotspot = hotspots.find((h) => h.id === selectedId);
-  const hasChanges = JSON.stringify(hotspots) !== JSON.stringify(originalHotspots);
   
+  // Stable change detection using useMemo to avoid recalculating on every render
+  const hasChanges = useMemo(() => {
+    if (hotspots.length !== originalHotspots.length) return true;
+    return JSON.stringify(hotspots) !== JSON.stringify(originalHotspots);
+  }, [hotspots, originalHotspots]);
+
+  // Show SaveBar when there are changes, saving, error, or just after save
   useEffect(() => {
-    console.log('📊 Change detection:', { 
-      hasChanges, 
-      hotspotCount: hotspots.length, 
-      originalCount: originalHotspots.length,
-      hotspots: hotspots.map(h => ({ id: h.id, sku: h.productSku })),
-      original: originalHotspots.map(h => ({ id: h.id, sku: h.productSku }))
-    });
-  }, [hasChanges, hotspots, originalHotspots]);
+    if (hasChanges || saving || errorMessage) {
+      setShowSaveBar(true);
+    } else if (lastSavedAt) {
+      setShowSaveBar(true);
+      const timer = setTimeout(() => setShowSaveBar(false), 2500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSaveBar(false);
+    }
+  }, [hasChanges, saving, errorMessage, lastSavedAt]);
+
+  // Clear error message on new changes
+  useEffect(() => {
+    if (hasChanges && errorMessage) setErrorMessage(null);
+  }, [hasChanges, errorMessage]);
 
   const currentPageIndex = pages.findIndex((p) => p.pageNumber === pageNumber);
   const hasPrevPage = currentPageIndex > 0;
@@ -223,14 +240,19 @@ export default function AnnotatePage() {
     }
     
     console.log('🔄 Starting save process...', { flipbookId, pageNumber, hotspotCount: hotspots.length });
-    
     setSaving(true);
+    setErrorMessage(null);
     try {
-      const savedHotspots = await savePageHotspots(flipbookId, pageNumber, hotspots);
+      const payload = hotspots.map(h => ({ ...h }));
+      const savedHotspots = await savePageHotspots(flipbookId, pageNumber, payload);
       console.log('✅ Hotspots saved successfully:', savedHotspots);
-      
-      // Reload to confirm save
-      await loadPage();
+
+      // Sync local state with saved hotspots (authoritative)
+      if (Array.isArray(savedHotspots)) {
+        setHotspots(savedHotspots as unknown as HotspotInput[]);
+        setOriginalHotspots(savedHotspots as unknown as HotspotInput[]);
+        setLastSavedAt(Date.now());
+      }
       
       toast({
         title: "Success",
@@ -238,10 +260,11 @@ export default function AnnotatePage() {
       });
     } catch (error) {
       console.error("❌ Save failed:", error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save hotspots';
+      const msg = error instanceof Error ? error.message : 'Failed to save hotspots';
+      setErrorMessage(msg);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: msg,
         variant: "destructive",
       });
     } finally {
@@ -642,7 +665,9 @@ export default function AnnotatePage() {
         </aside>
       </div>
 
-      <SaveBar hasChanges={hasChanges} onSave={handleSave} isSaving={saving} />
+      {showSaveBar && (
+        <SaveBar hasChanges={hasChanges} onSave={handleSave} isSaving={saving} lastSavedAt={lastSavedAt ?? undefined} errorMessage={errorMessage ?? undefined} />
+      )}
     </div>
   );
 }

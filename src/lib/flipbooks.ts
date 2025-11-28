@@ -164,7 +164,7 @@ export async function savePageHotspots(
   console.log('Saving hotspots:', { flipbookId, pageNumber, count: hotspots.length });
   console.log('Hotspots payload:', JSON.stringify(hotspots, null, 2));
   
-  const url = `${API_URL}/api/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`;
+  const url = `${API_URL}/api/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots?replace=true`;
   console.log('PUT request to:', url);
   
   const res = await fetch(
