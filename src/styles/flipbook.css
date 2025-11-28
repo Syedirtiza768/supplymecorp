@@ -36,6 +36,45 @@
   position: relative;
 }
 
+/* ============================================
+   REAL BOOK JOIN/GUTTER EFFECT
+   ============================================ */
+/* Center seam where two pages meet */
+.flipbook-canvas-container .stf__wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-1px);
+  background: radial-gradient(circle at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.15) 20%, rgba(0,0,0,0.08) 35%, rgba(0,0,0,0) 60%);
+  pointer-events: none;
+  z-index: 5;
+  mix-blend-mode: multiply;
+}
+
+/* Inner gutter shadows fading into each page */
+.flipbook-canvas-container .stf__wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+  z-index: 4;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12) 12px, rgba(0,0,0,0.06) 24px, rgba(0,0,0,0) 56px) left center/50% 100% no-repeat,
+    linear-gradient(270deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12) 12px, rgba(0,0,0,0.06) 24px, rgba(0,0,0,0) 56px) right center/50% 100% no-repeat;
+  mix-blend-mode: multiply;
+}
+
+/* Subtle page edge bevels to enhance thickness */
+.flipbook-page {
+  box-shadow: inset 20px 0 30px -20px rgba(0,0,0,0.12), inset -20px 0 30px -20px rgba(0,0,0,0.12);
+}
+
 /* Individual Flipbook Page */
 .flipbook-page {
   background-color: #ffffff;

@@ -190,7 +190,7 @@ export function FeaturedFlipbook() {
               minHeight: 400,
               maxHeight: 933,
               size: 'stretch',
-              maxShadowOpacity: 0.5,
+              maxShadowOpacity: 0.65,
               showCover: true,
               showPageNumbers: true,
               enableSpread: true,
