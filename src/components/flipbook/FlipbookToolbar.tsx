@@ -3,7 +3,7 @@
  * Provides navigation and control buttons for the flipbook
  */
 
-import React, { useState, KeyboardEvent } from 'react';
+import React, { useMemo, useState, KeyboardEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,6 +28,7 @@ import type { FlipbookState, FlipbookActions } from '@/types/flipbook-types';
 interface FlipbookToolbarProps {
   state: FlipbookState;
   actions: FlipbookActions;
+  pageNumbers?: number[];
   showThumbnailsToggle?: boolean;
   showTOCToggle?: boolean;
   showDownload?: boolean;
@@ -40,6 +41,7 @@ interface FlipbookToolbarProps {
 export function FlipbookToolbar({
   state,
   actions,
+  pageNumbers,
   showThumbnailsToggle = true,
   showTOCToggle = true,
   showDownload = true,
@@ -49,8 +51,18 @@ export function FlipbookToolbar({
   className = '',
 }: FlipbookToolbarProps) {
   const isFirstPage = state.currentPage === 0;
-  const isLastPage = state.currentPage === state.totalPages - 1;
+  const isLastPage = state.currentPage === (pageNumbers?.length ?? state.totalPages) - 1;
   const [pageInput, setPageInput] = useState('');
+
+  const pageNumberMap = useMemo(() => {
+    if (!pageNumbers || pageNumbers.length === 0) return null;
+    const map = new Map<number, number>();
+    pageNumbers.forEach((num, idx) => map.set(num, idx));
+    return map;
+  }, [pageNumbers]);
+
+  const displayCurrentPage = pageNumbers?.[state.currentPage] ?? state.currentPage + 1;
+  const displayTotalPages = pageNumbers?.[pageNumbers.length - 1] ?? state.totalPages;
 
   const handlePageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -62,10 +74,40 @@ export function FlipbookToolbar({
 
   const handlePageInputSubmit = () => {
     const pageNum = parseInt(pageInput, 10);
-    if (pageNum >= 1 && pageNum <= state.totalPages) {
-      actions.goToPage(pageNum - 1); // Convert to 0-based index
-      setPageInput('');
+    let targetIndex: number | null = null;
+
+    console.log('[FlipbookToolbar] handlePageInputSubmit called', {
+      pageInput,
+      pageNum,
+      pageNumbersLength: pageNumbers?.length,
+      hasPageNumberMap: !!pageNumberMap,
+      totalPages: state.totalPages,
+    });
+
+    if (!isNaN(pageNum)) {
+      if (pageNumberMap && pageNumbers && pageNumbers.length > 0) {
+        if (pageNumberMap.has(pageNum)) {
+          targetIndex = pageNumberMap.get(pageNum)!;
+          console.log('[FlipbookToolbar] Found exact match', { pageNum, targetIndex });
+        } else {
+          const nextIndex = pageNumbers.findIndex((num) => num >= pageNum);
+          targetIndex = nextIndex !== -1 ? nextIndex : pageNumbers.length - 1;
+          console.log('[FlipbookToolbar] Using nearest match', { pageNum, nextIndex, targetIndex });
+        }
+      } else if (pageNum >= 1 && pageNum <= state.totalPages) {
+        targetIndex = pageNum - 1; // Convert to 0-based index when we don't have explicit page numbers
+        console.log('[FlipbookToolbar] Fallback to 0-based index', { pageNum, targetIndex });
+      }
     }
+
+    if (targetIndex !== null) {
+      console.log('[FlipbookToolbar] Calling goToPage with index', targetIndex);
+      actions.goToPage(targetIndex);
+    } else {
+      console.log('[FlipbookToolbar] No target index found, not navigating');
+    }
+
+    setPageInput('');
   };
 
   const handlePageInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -112,10 +154,10 @@ export function FlipbookToolbar({
             onChange={handlePageInputChange}
             onKeyDown={handlePageInputKeyDown}
             onBlur={handlePageInputSubmit}
-            placeholder={String(state.currentPage + 1)}
+            placeholder={String(displayCurrentPage)}
             className="w-14 h-8 px-2 text-center bg-white/10 border-white/20 text-white placeholder:text-white/50"
           />
-          <span className="text-sm font-medium whitespace-nowrap">of {state.totalPages}</span>
+          <span className="text-sm font-medium whitespace-nowrap">of {displayTotalPages}</span>
         </div>
         
         <Button

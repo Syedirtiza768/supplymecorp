@@ -148,8 +148,12 @@ export function useFlipbookState({
 
   const actions: FlipbookActions = {
     goToPage: useCallback((pageIndex: number) => {
+      console.log('[useFlipbookState] goToPage called', { pageIndex, totalPages });
       if (pageIndex >= 0 && pageIndex < totalPages) {
+        console.log('[useFlipbookState] Setting currentPage to', pageIndex);
         setState((prev) => ({ ...prev, currentPage: pageIndex }));
+      } else {
+        console.log('[useFlipbookState] pageIndex out of bounds', { pageIndex, totalPages });
       }
     }, [totalPages]),
 

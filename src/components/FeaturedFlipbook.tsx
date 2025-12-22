@@ -145,6 +145,7 @@ export function FeaturedFlipbook() {
     .map((page: any, index: number) => ({
       id: page.id,
       src: page.imageUrl,
+      pageNumber: page.pageNumber,
       alt: index === 0 ? flipbook.description || `${flipbook.title}` : `Page ${page.pageNumber}`,
       title: index === 0 ? flipbook.title : undefined, // Add title to first page for centered display
       hotspots: page.hotspots || [],

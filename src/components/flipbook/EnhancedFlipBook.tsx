@@ -15,7 +15,7 @@
 
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, useState, useCallback, forwardRef, useImperativeHandle, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { useFlipbookState } from '@/hooks/useFlipbookState';
 import { downloadFlipbookPDF } from '@/lib/flipbooks';
@@ -103,6 +103,14 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [showCoverClass, setShowCoverClass] = useState(true);
     const pendingFlipRef = useRef<number | null>(null);
+    // Track programmatic flips to prevent handleFlip from interfering
+    const isProgrammaticFlipRef = useRef(false);
+    const programmaticTargetRef = useRef<number | null>(null);
+
+    // Preserve original page numbers so "go to page" uses catalog numbering even if file names or indexes differ
+    const pageNumbers = useMemo(() => pages.map((page, idx) => page.pageNumber ?? idx + 1), [pages]);
+    const currentDisplayPage = pageNumbers[state.currentPage] ?? state.currentPage + 1;
+    const maxDisplayPage = pageNumbers.length ? pageNumbers[pageNumbers.length - 1] : state.totalPages;
 
     // Track if we're on the cover page
     const isOnCoverPage = state.currentPage === 0 && config.showCover && showCoverClass;
@@ -170,19 +178,36 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       }
       
       try {
+        // Mark this as a programmatic flip so handleFlip won't interfere
+        isProgrammaticFlipRef.current = true;
+        programmaticTargetRef.current = state.currentPage;
+        
         // Use timeout to ensure flipbook is initialized
         const timer = setTimeout(() => {
           if (bookRef.current?.pageFlip) {
             const flipInstance = bookRef.current.pageFlip();
-            if (flipInstance?.flip && typeof flipInstance.flip === 'function') {
+            if (flipInstance?.turnToPage && typeof flipInstance.turnToPage === 'function') {
+              // Use turnToPage for instant navigation without animation interference
+              console.log('[EnhancedFlipBook] Turning to page index (instant)', state.currentPage);
+              flipInstance.turnToPage(state.currentPage);
+            } else if (flipInstance?.flip && typeof flipInstance.flip === 'function') {
+              console.log('[EnhancedFlipBook] Flipping to page index', state.currentPage);
               flipInstance.flip(state.currentPage);
             }
           }
+          
+          // Reset programmatic flip flag after a delay to allow animation to complete
+          setTimeout(() => {
+            isProgrammaticFlipRef.current = false;
+            programmaticTargetRef.current = null;
+          }, 1000);
         }, 100);
         
         return () => clearTimeout(timer);
       } catch (err) {
-        // Silently handle errors
+        console.error('[EnhancedFlipBook] Error flipping page:', err);
+        isProgrammaticFlipRef.current = false;
+        programmaticTargetRef.current = null;
       }
     }, [state.currentPage, config.showCover]);
 
@@ -209,7 +234,23 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     const handleFlip = useCallback(
       (e: any) => {
         const newPage = e.data;
+        
+        // If this is a programmatic flip, only accept the final target page
+        if (isProgrammaticFlipRef.current) {
+          if (programmaticTargetRef.current !== null && newPage === programmaticTargetRef.current) {
+            // We've reached the target, reset the flag
+            console.log('[EnhancedFlipBook] Programmatic flip reached target', newPage);
+            isProgrammaticFlipRef.current = false;
+            programmaticTargetRef.current = null;
+          } else {
+            // Ignore intermediate pages during programmatic flip
+            console.log('[EnhancedFlipBook] Ignoring intermediate page during programmatic flip', newPage);
+            return;
+          }
+        }
+        
         if (newPage !== state.currentPage && !isTransitioning) {
+          console.log('[EnhancedFlipBook] Manual flip to page', newPage);
           actions.goToPage(newPage);
         }
       },
@@ -301,6 +342,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
             <FlipbookToolbar
               state={state}
               actions={actions}
+              pageNumbers={pageNumbers}
               showThumbnailsToggle={config.showThumbnails}
               showTOCToggle={config.showTOC && toc.length > 0}
               onDownload={handleDownload}
@@ -402,7 +444,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                 {/* Page indicator overlay */}
                 {config.showPageNumbers && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/70 px-4 py-2 text-white text-sm font-medium">
-                    Page {state.currentPage + 1} of {state.totalPages}
+                    Page {currentDisplayPage} of {maxDisplayPage}
                   </div>
                 )}
               </div>

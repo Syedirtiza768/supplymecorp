@@ -7,6 +7,8 @@ export interface FlipbookPage {
   id: string | number;
   /** Source URL of the page image */
   src: string;
+  /** Original 1-based page number from the API (if available) */
+  pageNumber?: number;
   /** Alt text for accessibility */
   alt?: string;
   /** Optional title for cover/title pages */
