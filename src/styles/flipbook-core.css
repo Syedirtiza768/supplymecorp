@@ -39,7 +39,6 @@
 
 .stf__parent {
   margin: 0 auto !important;
-  transition: transform 0.6s ease-in-out;
 }
 
 .stf__wrapper {
@@ -48,10 +47,12 @@
 
 .stf__block {
   background: white !important;
+  transition: transform 0.6s ease-in-out;
+  transform: translateX(0);
 }
 
-/* Center cover page by shifting the entire flipbook container */
-.cover-page-active .stf__parent {
+/* Center cover page - reset to centered position */
+.cover-page-active .stf__block {
   transform: translateX(-25%) !important;
 }
 

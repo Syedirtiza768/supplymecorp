@@ -100,9 +100,12 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     const contentRef = useRef<HTMLDivElement>(null);
     const [isClient, setIsClient] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [showCoverClass, setShowCoverClass] = useState(true);
+    const pendingFlipRef = useRef<number | null>(null);
 
     // Track if we're on the cover page
-    const isOnCoverPage = state.currentPage === 0 && config.showCover;
+    const isOnCoverPage = state.currentPage === 0 && config.showCover && showCoverClass;
 
     // Expose ref methods
     useImperativeHandle(ref, () => ({
@@ -161,6 +164,11 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     useEffect(() => {
       if (!bookRef.current) return;
       
+      // Reset cover class when returning to page 0
+      if (state.currentPage === 0 && config.showCover) {
+        setShowCoverClass(true);
+      }
+      
       try {
         // Use timeout to ensure flipbook is initialized
         const timer = setTimeout(() => {
@@ -176,17 +184,36 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       } catch (err) {
         // Silently handle errors
       }
-    }, [state.currentPage]);
+    }, [state.currentPage, config.showCover]);
+
+    // Handle manual click on cover page
+    const handleCoverClick = useCallback((e: React.MouseEvent) => {
+      if (isOnCoverPage && !isTransitioning) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        setIsTransitioning(true);
+        
+        // Remove cover class to trigger CSS transition
+        setShowCoverClass(false);
+        
+        // Wait for CSS transition (600ms) then actually flip to next page
+        setTimeout(() => {
+          actions.goToPage(1);
+          setIsTransitioning(false);
+        }, 600);
+      }
+    }, [isOnCoverPage, isTransitioning, actions]);
 
     // Handle page flip from react-pageflip
     const handleFlip = useCallback(
       (e: any) => {
         const newPage = e.data;
-        if (newPage !== state.currentPage) {
+        if (newPage !== state.currentPage && !isTransitioning) {
           actions.goToPage(newPage);
         }
       },
-      [state.currentPage, actions]
+      [state.currentPage, actions, isTransitioning]
     );
 
     // Download handler
@@ -337,6 +364,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     panAndZoom.handleTouchStart(e);
                   }
                 }}
+                onClick={handleCoverClick}
               >
                 {isClient && (
                   // @ts-ignore - react-pageflip has complex typing
@@ -350,7 +378,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     maxHeight={config.maxHeight ?? 1536}
                     maxShadowOpacity={0}
                     flippingTime={800} // Adjust flipping time for smoother transitions
-                    disableFlipByClick={state.needsStabilization} // Disable click flipping when stabilizing
+                    disableFlipByClick={state.needsStabilization || isOnCoverPage} // Disable click flipping when stabilizing or on cover
                     showCover={config.showCover ?? false}
                     usePortrait={isMobile}
                     mobileScrollSupport={isMobile}
