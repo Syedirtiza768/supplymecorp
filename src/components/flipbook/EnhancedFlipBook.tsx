@@ -485,19 +485,19 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
   ({ page, index, currentPage, preloadPages }, ref) => {
     const [shouldLoad, setShouldLoad] = useState(() => Math.abs(index - currentPage) <= preloadPages);
     const [hasLoaded, setHasLoaded] = useState(false);
+    const [imageError, setImageError] = useState(false);
 
     // Lazy loading logic: render only pages within the preload range buffer
     useEffect(() => {
       const distance = Math.abs(index - currentPage);
-      setShouldLoad(distance <= preloadPages);
-    }, [index, currentPage, preloadPages]);
-
-    // Reset load flag when page is unloaded so it re-displays correctly when revisited
-    useEffect(() => {
-      if (!shouldLoad && hasLoaded) {
-        setHasLoaded(false);
+      const shouldBeLoaded = distance <= preloadPages;
+      
+      if (!shouldLoad && shouldBeLoaded) {
+        // Load this page when it enters range
+        setShouldLoad(true);
       }
-    }, [shouldLoad, hasLoaded]);
+      // Don't unload pages that have already loaded for better UX
+    }, [index, currentPage, preloadPages, shouldLoad]);
 
     const handleHotspotClick = (hotspot: any) => {
       console.log('Hotspot clicked:', hotspot);
@@ -540,10 +540,31 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                 objectFit: 'contain',
                 display: 'block',
                 margin: 'auto',
-                pointerEvents: 'none'
+                pointerEvents: 'none',
+                opacity: hasLoaded ? 1 : 0
               }}
-              onLoad={() => setHasLoaded(true)}
+              onLoad={() => {
+                setHasLoaded(true);
+                setImageError(false);
+              }}
+              onError={() => setImageError(true)}
+              loading="lazy"
             />
+            {/* Loading spinner while image loads */}
+            {!hasLoaded && !imageError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+              </div>
+            )}
+            {/* Error state */}
+            {imageError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-50 text-gray-500">
+                <div className="text-center">
+                  <p className="text-sm">Failed to load image</p>
+                  <p className="text-xs">Page {index + 1}</p>
+                </div>
+              </div>
+            )}
             {/* Page number badge */}
             {hasLoaded && (
               <div className="flipbook-page-number">
@@ -613,8 +634,14 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
             )}
           </>
         ) : (
-          <div className="flex items-center justify-center w-full h-full">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          // Placeholder for unloaded pages
+          <div className="flex flex-col items-center justify-center w-full h-full bg-gray-50">
+            <div className="text-gray-400 text-center">
+              <svg className="w-12 h-12 mx-auto mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <p className="text-xs">Page {index + 1}</p>
+            </div>
           </div>
         )}
       </div>
