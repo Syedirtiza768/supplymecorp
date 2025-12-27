@@ -502,9 +502,26 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
     const handleHotspotClick = (hotspot: any) => {
       console.log('Hotspot clicked:', hotspot);
       if (hotspot.linkUrl) {
-        if (hotspot.linkUrl.startsWith('http')) {
+        // Check if URL is from the same domain (absolute URL pointing to our site)
+        const currentOrigin = window.location.origin;
+        const isSameDomain = hotspot.linkUrl.startsWith(currentOrigin) || 
+                            hotspot.linkUrl.startsWith('http://localhost:3001') ||
+                            hotspot.linkUrl.startsWith('https://dev.rrgeneralsupply.com');
+        
+        if (isSameDomain) {
+          // Extract path from absolute URL and navigate in same window
+          try {
+            const url = new URL(hotspot.linkUrl);
+            window.location.href = url.pathname + url.search + url.hash;
+          } catch (e) {
+            // Fallback if URL parsing fails
+            window.location.href = hotspot.linkUrl;
+          }
+        } else if (hotspot.linkUrl.startsWith('http')) {
+          // External URL - open in new tab
           window.open(hotspot.linkUrl, '_blank');
         } else {
+          // Relative URL - navigate in same window
           window.location.href = hotspot.linkUrl;
         }
       } else if (hotspot.productSku) {

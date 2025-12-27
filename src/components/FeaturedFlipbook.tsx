@@ -10,6 +10,27 @@ import type { FlipbookPage, TOCEntry } from "@/types/flipbook-types";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 const AUTH_HEADER = process.env.NEXT_PUBLIC_CUSTOMERS_AUTH || "";
 
+/**
+ * Cache upcoming pages in Service Worker for smooth navigation
+ */
+function cacheUpcomingPages(currentPage: number, pages: any[], apiUrl: string) {
+  if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
+  if (!navigator.serviceWorker.controller) return;
+  
+  // Cache next 5 pages ahead of current position
+  const pagesToCache = pages
+    .slice(currentPage, currentPage + 5)
+    .map(p => `${apiUrl}${p.imageUrl}`)
+    .filter(url => url.startsWith('http'));
+  
+  if (pagesToCache.length > 0) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'CACHE_FLIPBOOK_PAGES',
+      payload: { pages: pagesToCache },
+    });
+  }
+}
+
 export function FeaturedFlipbook() {
   const [flipbook, setFlipbook] = useState<any>(null);
   const [isFlipbookMounted, setIsFlipbookMounted] = useState(false);
@@ -118,11 +139,31 @@ export function FeaturedFlipbook() {
 
   const handleHotspotClick = (hotspot: any) => {
     if (hotspot.linkUrl) {
-      if (hotspot.linkUrl.startsWith("http")) {
+      // Check if URL is from the same domain (absolute URL pointing to our site)
+      const currentOrigin = window.location.origin;
+      const isSameDomain = hotspot.linkUrl.startsWith(currentOrigin) || 
+                          hotspot.linkUrl.startsWith('http://localhost:3001') ||
+                          hotspot.linkUrl.startsWith('https://dev.rrgeneralsupply.com');
+      
+      if (isSameDomain) {
+        // Extract path from absolute URL and navigate in same window
+        try {
+          const url = new URL(hotspot.linkUrl);
+          window.location.href = url.pathname + url.search + url.hash;
+        } catch (e) {
+          // Fallback if URL parsing fails
+          window.location.href = hotspot.linkUrl;
+        }
+      } else if (hotspot.linkUrl.startsWith("http")) {
+        // External URL - open in new tab
         window.open(hotspot.linkUrl, "_blank");
+      } else {
+        // Relative URL - navigate in same window
+        window.location.href = hotspot.linkUrl;
       }
     } else if (hotspot.productSku) {
-      // Could navigate to product page
+      // Navigate to product page in same window
+      window.location.href = `/shop/${hotspot.productSku}`;
     }
   };
 
@@ -216,7 +257,10 @@ export function FeaturedFlipbook() {
               preloadPages: 3,
             }}
             onPageChange={(pageIndex) => {
-              // Optionally handle page change
+              // Pre-cache upcoming pages in Service Worker for smooth navigation
+              if (flipbook?.pages) {
+                cacheUpcomingPages(pageIndex, flipbook.pages, API_URL);
+              }
             }}
           />
         </div>

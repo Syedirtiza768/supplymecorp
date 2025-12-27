@@ -42,14 +42,31 @@ export function FlipbookViewer({ flipbookId, pageNumber }: FlipbookViewerProps) 
 
   const handleHotspotClick = (hotspot: Hotspot) => {
     if (hotspot.linkUrl) {
-      // Always open in a new tab, whether relative or absolute
-      const url = hotspot.linkUrl.startsWith('http')
-        ? hotspot.linkUrl
-        : window.location.origin + hotspot.linkUrl;
-      window.open(url, '_blank');
+      // Check if URL is from the same domain (absolute URL pointing to our site)
+      const currentOrigin = window.location.origin;
+      const isSameDomain = hotspot.linkUrl.startsWith(currentOrigin) || 
+                          hotspot.linkUrl.startsWith('http://localhost:3001') ||
+                          hotspot.linkUrl.startsWith('https://dev.rrgeneralsupply.com');
+      
+      if (isSameDomain) {
+        // Extract path from absolute URL and navigate in same window
+        try {
+          const url = new URL(hotspot.linkUrl);
+          window.location.href = url.pathname + url.search + url.hash;
+        } catch (e) {
+          // Fallback if URL parsing fails
+          window.location.href = hotspot.linkUrl;
+        }
+      } else if (hotspot.linkUrl.startsWith('http')) {
+        // External URL - open in new tab
+        window.open(hotspot.linkUrl, '_blank');
+      } else {
+        // Relative URL - navigate in same window
+        window.location.href = hotspot.linkUrl;
+      }
     } else if (hotspot.productSku) {
-      // Navigate to product page in a new tab
-      window.open(`/shop/${hotspot.productSku}`, '_blank');
+      // Navigate to product page in same window
+      window.location.href = `/shop/${hotspot.productSku}`;
     }
   };
 

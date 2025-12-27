@@ -58,10 +58,26 @@ export function FlipbookPageWithHotspots({
     e.stopPropagation(); // Prevent page flip when clicking hotspot
     
     if (hotspot.linkUrl) {
-      // Custom link
-      if (hotspot.linkUrl.startsWith('http')) {
+      // Check if URL is from the same domain (absolute URL pointing to our site)
+      const currentOrigin = window.location.origin;
+      const isSameDomain = hotspot.linkUrl.startsWith(currentOrigin) || 
+                          hotspot.linkUrl.startsWith('http://localhost:3001') ||
+                          hotspot.linkUrl.startsWith('https://dev.rrgeneralsupply.com');
+      
+      if (isSameDomain) {
+        // Extract path from absolute URL and navigate via router
+        try {
+          const url = new URL(hotspot.linkUrl);
+          router.push(url.pathname + url.search + url.hash);
+        } catch (e) {
+          // Fallback to direct navigation
+          router.push(hotspot.linkUrl);
+        }
+      } else if (hotspot.linkUrl.startsWith('http')) {
+        // External URL - open in new tab
         window.open(hotspot.linkUrl, '_blank');
       } else {
+        // Relative URL - use router
         router.push(hotspot.linkUrl);
       }
     } else if (hotspot.productSku) {
