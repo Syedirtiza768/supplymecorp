@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import Container1 from "@/components/custom/Container1";
 import ProductItem1 from "@/components/custom/home/ProductItem1";
 import Card1Item from "@/components/custom/home/Card1Item";
@@ -51,7 +52,9 @@ export default async function Home() {
         <div className="m-0 p-0">
           {/* Removed 2025 Catalog heading as requested */}
           {/* Show the featured flipbook on the homepage */}
-          <FeaturedFlipbook />
+          <Suspense fallback={<div className="h-[600px] flex items-center justify-center">Loading catalog...</div>}>
+            <FeaturedFlipbook />
+          </Suspense>
         </div>
       </section>
       {/* PRoducts By Category Section */}
