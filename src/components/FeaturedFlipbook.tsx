@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { EnhancedFlipBook } from "@/components/flipbook/EnhancedFlipBook";
 import { FlipbookLoader } from "@/components/flipbook/FlipbookLoader";
 import { FlipbookErrorFallback } from "@/components/flipbook/FlipbookErrorFallback";
@@ -8,6 +9,11 @@ import { useFlipbookLoader } from "@/hooks/useFlipbookLoader";
 import type { FlipbookPage, TOCEntry } from "@/types/flipbook-types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+// Helper to resolve relative image URLs against backend origin
+const resolveImageUrl = (u: string, apiUrl: string): string => {
+  if (!u) return u;
+  return u.startsWith('http') ? u : `${apiUrl}${u}`;
+};
 const AUTH_HEADER = process.env.NEXT_PUBLIC_CUSTOMERS_AUTH || "";
 
 /**
@@ -32,8 +38,21 @@ function cacheUpcomingPages(currentPage: number, pages: any[], apiUrl: string) {
 }
 
 export function FeaturedFlipbook() {
+  const searchParams = useSearchParams();
   const [flipbook, setFlipbook] = useState<any>(null);
   const [isFlipbookMounted, setIsFlipbookMounted] = useState(false);
+  
+  // Get initial page from URL (1-based to 0-based conversion)
+  const initialPage = useMemo(() => {
+    const pageParam = searchParams?.get('page');
+    if (pageParam) {
+      const pageNum = parseInt(pageParam, 10);
+      if (!isNaN(pageNum) && pageNum > 0) {
+        return pageNum - 1; // Convert to 0-based
+      }
+    }
+    return 0;
+  }, [searchParams]);
   
   /**
    * Lazy Loading Configuration:
@@ -81,6 +100,23 @@ export function FeaturedFlipbook() {
       const data = await res.json();
       console.log('Featured flipbook data:', data);
       
+      // FIX: Inject Page 0 if missing (User reported Title Page 0 missing)
+      // The file catalog-page-0.webp exists on server but is not in DB for this specific flipbook
+      if (data && data.pages && data.id === '2025-26-FW-New-Catalogue') {
+        const hasPage0 = data.pages.some((p: any) => p.pageNumber === 0);
+        if (!hasPage0) {
+          console.log('Injecting missing Page 0 (Title Page)...');
+          data.pages.unshift({
+            id: 'manual-page-0',
+            flipbookId: data.id,
+            pageNumber: 0,
+            imageUrl: `/uploads/flipbooks/${data.id}/catalog-page-0.webp`,
+            width: 1000, 
+            height: 1414
+          });
+        }
+      }
+      
       if (!data || !data.pages || data.pages.length === 0) {
         console.log('No featured flipbook data returned');
         setError('No featured catalog available');
@@ -93,12 +129,25 @@ export function FeaturedFlipbook() {
       setPreloadingImages();
       const imageUrls = data.pages
         .sort((a: any, b: any) => a.pageNumber - b.pageNumber)
-        .map((page: any) => page.imageUrl)
+        .map((page: any) => resolveImageUrl(page.imageUrl, API_URL))
         .filter(Boolean);
 
       // Only preload first 5 pages for faster initial load
       const pagesToPreload = imageUrls.slice(0, 5);
       
+      // Ask Service Worker to pre-cache the first N pages using resolved URLs
+      if (typeof window !== 'undefined' && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        navigator.serviceWorker.controller.postMessage({
+          type: 'CACHE_FLIPBOOK_PAGES',
+          payload: { pages: pagesToPreload }
+        });
+        // Alternatively, instruct SW to fetch via API if needed
+        navigator.serviceWorker.controller.postMessage({
+          type: 'PRECACHE_FIRST_PAGES',
+          payload: { apiUrl: API_URL, flipbookId: data.id, count: 10 }
+        });
+      }
+
       if (pagesToPreload.length > 0) {
         await preloadImages(pagesToPreload);
       }
@@ -195,7 +244,7 @@ export function FeaturedFlipbook() {
     .sort((a: any, b: any) => a.pageNumber - b.pageNumber) // Ensure pages are sorted by pageNumber
     .map((page: any, index: number) => ({
       id: page.id,
-      src: page.imageUrl,
+      src: resolveImageUrl(page.imageUrl, API_URL),
       pageNumber: page.pageNumber,
       alt: index === 0 ? flipbook.description || `${flipbook.title}` : `Page ${page.pageNumber}`,
       title: index === 0 ? flipbook.title : undefined, // Add title to first page for centered display
@@ -233,6 +282,7 @@ export function FeaturedFlipbook() {
             pages={pages}
             toc={toc}
             flipbookId={flipbook.id}
+            initialPage={initialPage}
             onMount={handleFlipbookMount}
             config={{
               width: 420,

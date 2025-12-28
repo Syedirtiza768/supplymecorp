@@ -27,14 +27,16 @@ export function FlipbookPageWithHotspots({
     const fetchHotspots = async () => {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+        // Use API route with prefix
         const res = await fetch(
-          `${apiUrl}/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`,
+          `${apiUrl}/api/flipbooks/${flipbookId}/pages/${pageNumber}/hotspots`,
           { cache: 'no-store' }
         );
 
         if (res.ok) {
           const data = await res.json();
-          setHotspots((data.hotspots || []).sort((a, b) => a.pageNumber - b.pageNumber));
+          // Hotspots from backend are pixel-based; store as-is and convert at render time
+          setHotspots((data.hotspots || []));
         }
       } catch (error) {
         console.error('Failed to load hotspots:', error);
@@ -99,15 +101,21 @@ export function FlipbookPageWithHotspots({
 
       {/* Hotspots Overlay */}
       {!loading && containerSize.width > 0 && containerSize.height > 0 && hotspots.map((hotspot, index) => {
+        // Convert pixel-based rect to percentage for CSS positioning
+        const percentRect = pixelsToPercent(
+          { x: hotspot.x, y: hotspot.y, width: hotspot.width, height: hotspot.height },
+          containerSize.width,
+          containerSize.height,
+        );
         return (
           <div
             key={hotspot.id ?? `temp-${index}`}
             className="absolute cursor-pointer group z-10"
             style={{
-              left: `${hotspot.x}%`,
-              top: `${hotspot.y}%`,
-              width: `${hotspot.width}%`,
-              height: `${hotspot.height}%`,
+              left: `${percentRect.x}%`,
+              top: `${percentRect.y}%`,
+              width: `${percentRect.width}%`,
+              height: `${percentRect.height}%`,
               zIndex: (hotspot.zIndex ?? 0) + 10,
             }}
             onClick={(e) => handleHotspotClick(hotspot, e)}

@@ -41,7 +41,7 @@ export function useFlipbookState({
     return initialPage;
   }, [config.enableURLSync, searchParams, initialPage, totalPages]);
 
-  const [state, setState] = useState<FlipbookState>({
+  const [state, setState] = useState<FlipbookState>(() => ({
     currentPage: getInitialPage(),
     totalPages,
     isPlaying: config.autoPlayOnMount ?? false,
@@ -54,7 +54,15 @@ export function useFlipbookState({
     error: null,
     isFocused: false,
     needsStabilization: false,
-  });
+  }));
+
+  // Re-sync from URL on mount (handles direct URL navigation)
+  useEffect(() => {
+    const urlPage = getInitialPage();
+    if (urlPage !== state.currentPage) {
+      setState((prev) => ({ ...prev, currentPage: urlPage }));
+    }
+  }, []);
 
   // Update URL when page changes (if enableURLSync is true)
   useEffect(() => {

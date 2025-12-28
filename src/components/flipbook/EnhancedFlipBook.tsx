@@ -106,6 +106,8 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     // Track programmatic flips to prevent handleFlip from interfering
     const isProgrammaticFlipRef = useRef(false);
     const programmaticTargetRef = useRef<number | null>(null);
+    // Track if initial URL page navigation has happened
+    const hasInitializedFromURL = useRef(false);
 
     // Preserve original page numbers so "go to page" uses catalog numbering even if file names or indexes differ
     const pageNumbers = useMemo(() => pages.map((page, idx) => page.pageNumber ?? idx + 1), [pages]);
@@ -160,6 +162,35 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
       }
     }, [isClient, pages.length, onMount]);
 
+    // Navigate to initial page from URL once after flipbook is ready
+    useEffect(() => {
+      if (!isClient || !bookRef.current || hasInitializedFromURL.current) return;
+      if (initialPage === 0) {
+        hasInitializedFromURL.current = true;
+        return;
+      }
+      
+      // Wait for flipbook library to be fully initialized
+      const timer = setTimeout(() => {
+        if (bookRef.current?.pageFlip) {
+          const flipInstance = bookRef.current.pageFlip();
+          if (flipInstance?.turnToPage && typeof flipInstance.turnToPage === 'function') {
+            console.log('[EnhancedFlipBook] Initial URL navigation to page', initialPage);
+            isProgrammaticFlipRef.current = true;
+            programmaticTargetRef.current = initialPage;
+            flipInstance.turnToPage(initialPage);
+            hasInitializedFromURL.current = true;
+            setTimeout(() => {
+              isProgrammaticFlipRef.current = false;
+              programmaticTargetRef.current = null;
+            }, 1000);
+          }
+        }
+      }, 800); // Longer delay to ensure library is fully ready
+      
+      return () => clearTimeout(timer);
+    }, [isClient, initialPage]);
+
     // Pan and zoom handling
     const panAndZoom = usePanAndZoom({
       zoomLevel: state.zoomLevel,
@@ -213,20 +244,21 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
 
     // Handle manual click on cover page
     const handleCoverClick = useCallback((e: React.MouseEvent) => {
+      // Only handle if clicking the container directly, not child elements
+      if (e.target !== e.currentTarget) return;
+      
       if (isOnCoverPage && !isTransitioning) {
         e.preventDefault();
         e.stopPropagation();
         
         setIsTransitioning(true);
-        
-        // Remove cover class to trigger CSS transition
         setShowCoverClass(false);
         
-        // Wait for CSS transition (600ms) then actually flip to next page
+        // Just go to page 1, let the regular flip mechanism handle it
+        actions.goToPage(1);
         setTimeout(() => {
-          actions.goToPage(1);
           setIsTransitioning(false);
-        }, 600);
+        }, 800);
       }
     }, [isOnCoverPage, isTransitioning, actions]);
 
@@ -370,7 +402,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
             <div className="flex-1 flex flex-col items-center min-w-0 m-0 p-0">
               <div
                 ref={contentRef}
-                className={`relative flex items-center justify-center w-full flex-1 ${isOnCoverPage && !isMobile ? 'cover-page-active' : ''}`}
+                className={`relative flex items-center justify-center w-full flex-1`}
                 style={{
                   backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('/images/flipbook/winter-background.webp')",
                   backgroundSize: "cover",
@@ -379,15 +411,7 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                   backgroundColor: "#ffffff",
                   cursor: state.zoomLevel > 1 ? panAndZoom.cursor : undefined
                 }}
-                onClick={(e) => {
-                  // Automatically consume first click after returning to stabilize flipbook
-                  if (state.needsStabilization) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    actions.stabilize();
-                    return;
-                  }
-                }}
+                onClick={handleCoverClick}
                 onMouseDown={(e) => {
                   // Consume mousedown to prevent drag start when stabilizing
                   if (state.needsStabilization) {
@@ -406,10 +430,21 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     panAndZoom.handleTouchStart(e);
                   }
                 }}
-                onClick={handleCoverClick}
               >
                 {isClient && (
-                  // @ts-ignore - react-pageflip has complex typing
+                  <div
+                    style={{
+                      transform: `translate(${state.panOffset.x}px, ${state.panOffset.y}px) scale(${state.zoomLevel})`,
+                      transformOrigin: 'center center',
+                      transition: panAndZoom.isDragging ? 'none' : 'transform 0.2s ease-out',
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                  {/* @ts-ignore - react-pageflip has complex typing */}
                   <HTMLFlipBook
                     width={config.width ?? 400}
                     height={config.height ?? 500}
@@ -421,7 +456,9 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                     maxShadowOpacity={0}
                     flippingTime={800} // Adjust flipping time for smoother transitions
                     disableFlipByClick={state.needsStabilization || isOnCoverPage} // Disable click flipping when stabilizing or on cover
+                    useMouseEvents={state.zoomLevel === 1 && !isTransitioning} // Disable mouse flipping when zoomed or transitioning
                     showCover={config.showCover ?? false}
+                    startPage={initialPage}
                     usePortrait={isMobile}
                     mobileScrollSupport={isMobile}
                     className=""
@@ -435,9 +472,11 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                         index={index}
                         currentPage={state.currentPage}
                         preloadPages={config.preloadPages ?? 3}
+                        flipbookId={flipbookId}
                       />
                     ))}
                   </HTMLFlipBook>
+                  </div>
                 )
                 }
 
@@ -479,13 +518,16 @@ interface FlipbookPageComponentProps {
   index: number;
   currentPage: number;
   preloadPages: number;
+  flipbookId?: string;
 }
 
 const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageComponentProps>(
-  ({ page, index, currentPage, preloadPages }, ref) => {
+  ({ page, index, currentPage, preloadPages, flipbookId }, ref) => {
     const [shouldLoad, setShouldLoad] = useState(() => Math.abs(index - currentPage) <= preloadPages);
     const [hasLoaded, setHasLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
+    const [naturalSize, setNaturalSize] = useState<{ width: number; height: number }>({ width: 0, height: 0 });
+    const [hotspotsFetched, setHotspotsFetched] = useState<any[]>([]);
 
     // Lazy loading logic: render only pages within the preload range buffer
     useEffect(() => {
@@ -563,6 +605,41 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
               onLoad={() => {
                 setHasLoaded(true);
                 setImageError(false);
+                // Measure natural image size for hotspot conversion
+                const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img');
+                if (imgEl && (imgEl as HTMLImageElement).naturalWidth) {
+                  const el = imgEl as HTMLImageElement;
+                  setNaturalSize({ width: el.naturalWidth, height: el.naturalHeight });
+                }
+                // Lazy fetch hotspots if not provided
+                if ((!Array.isArray(page.hotspots) || page.hotspots.length === 0) && flipbookId) {
+                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+                  const endpoint = `${apiUrl}/api/flipbooks/${flipbookId}/pages/${page.pageNumber}/hotspots`;
+                  fetch(endpoint)
+                    .then(res => res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`)))
+                    .then(data => {
+                      // Get actual rendered image element for pixel conversion
+                      const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img') as HTMLImageElement;
+                      const renderWidth = imgEl?.clientWidth || imgEl?.naturalWidth || naturalSize.width || 1200;
+                      const renderHeight = imgEl?.clientHeight || imgEl?.naturalHeight || naturalSize.height || 1600;
+                      
+                      const hs = (data?.hotspots || []).map((h: any) => {
+                        // If coords are already percent (< 100), use as-is; else convert from pixels
+                        const isPercent = h.x <= 100 && h.y <= 100 && h.width <= 100 && h.height <= 100;
+                        if (isPercent) {
+                          return h;
+                        }
+                        // Convert pixel-based to percentage using rendered image size
+                        const xPct = Math.min(Math.max((h.x / renderWidth) * 100, 0), 100);
+                        const yPct = Math.min(Math.max((h.y / renderHeight) * 100, 0), 100);
+                        const wPct = Math.min(Math.max((h.width / renderWidth) * 100, 0), 100);
+                        const hPct = Math.min(Math.max((h.height / renderHeight) * 100, 0), 100);
+                        return { ...h, x: xPct, y: yPct, width: wPct, height: hPct };
+                      });
+                      setHotspotsFetched(hs);
+                    })
+                    .catch(err => console.warn('[Flipbook] Hotspots fetch failed:', err?.message || err));
+                }
               }}
               onError={() => setImageError(true)}
               loading="lazy"
@@ -582,70 +659,77 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                 </div>
               </div>
             )}
-            {/* Page number badge */}
+            {/* Page number badge (sync with API/DB pageNumber) */}
             {hasLoaded && (
               <div className="flipbook-page-number">
-                {index + 1}
+                {page.pageNumber ?? index + 1}
               </div>
             )}
             {/* Hotspots overlay: invisible by default, highlight on hover, open links in new tab, skip empty */}
-            {hasLoaded && Array.isArray(page.hotspots) && page.hotspots.length > 0 && (
+            {hasLoaded && ((Array.isArray(page.hotspots) && page.hotspots.length > 0) || hotspotsFetched.length > 0) && (
               <div className="absolute inset-0 pointer-events-none z-[99999]">
                 <div className="relative w-full h-full">
-                  {page.hotspots.filter(h => (h.linkUrl || h.productSku)).map((hotspot) => (
-                    <button
-                      key={hotspot.id}
-                      type="button"
-                      className="absolute group pointer-events-auto cursor-pointer"
-                      style={{
-                        left: `${hotspot.x}%`,
-                        top: `${hotspot.y}%`,
-                        width: `${hotspot.width}%`,
-                        height: `${hotspot.height}%`,
-                        zIndex: (hotspot.zIndex ?? 0) + 1000,
-                        border: 'none',
-                        background: 'transparent',
-                        padding: 0,
-                      }}
-                      title={hotspot.label || hotspot.productSku || ''}
-                      onClick={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
-                        if (hotspot.linkUrl) {
-                          window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
-                        } else if (hotspot.productSku) {
-                          window.open(`/shop?search=${encodeURIComponent(hotspot.productSku)}`, '_blank', 'noopener,noreferrer');
-                        }
-                        return false;
-                      }}
-                      onMouseDown={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
-                      }}
-                      onMouseUp={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
-                      }}
-                      onMouseMove={e => {
-                        e.stopPropagation();
-                        e.nativeEvent.stopImmediatePropagation();
-                      }}
-                      onTouchStart={e => {
-                        e.stopPropagation();
-                      }}
-                      onTouchMove={e => {
-                        e.stopPropagation();
-                      }}
-                      onTouchEnd={e => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      {/* No custom tooltip, just default browser tooltip */}
-                    </button>
-                  ))}
+                  {(page.hotspots?.length ? page.hotspots : hotspotsFetched).filter((h: any) => (h.linkUrl || h.productSku)).map((hotspot: any) => {
+                    // Normalize coordinates if needed (if > 100, treat as pixels and convert)
+                    const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img') as HTMLImageElement;
+                    const renderWidth = imgEl?.clientWidth || imgEl?.naturalWidth || 1200;
+                    const renderHeight = imgEl?.clientHeight || imgEl?.naturalHeight || 1600;
+                    
+                    const isPercent = hotspot.x <= 100 && hotspot.y <= 100;
+                    const xPct = isPercent ? hotspot.x : (hotspot.x / renderWidth) * 100;
+                    const yPct = isPercent ? hotspot.y : (hotspot.y / renderHeight) * 100;
+                    const wPct = isPercent ? hotspot.width : (hotspot.width / renderWidth) * 100;
+                    const hPct = isPercent ? hotspot.height : (hotspot.height / renderHeight) * 100;
+                    
+                    return (
+                      <button
+                        key={hotspot.id}
+                        type="button"
+                        className="absolute group pointer-events-auto cursor-pointer transition-all"
+                        style={{
+                          left: `${xPct}%`,
+                          top: `${yPct}%`,
+                          width: `${wPct}%`,
+                          height: `${hPct}%`,
+                          zIndex: 9999,
+                          border: 'none',
+                          background: 'transparent',
+                          padding: 0,
+                        }}
+                        title={hotspot.label || hotspot.productSku || ''}
+                        onClick={e => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.nativeEvent.stopImmediatePropagation();
+                          console.log('Hotspot clicked:', hotspot);
+                          
+                          // Use setTimeout to ensure event propagation is fully stopped
+                          setTimeout(() => {
+                            if (hotspot.linkUrl) {
+                              console.log('Opening URL:', hotspot.linkUrl);
+                              window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
+                            } else if (hotspot.productSku) {
+                              const url = `/shop?search=${encodeURIComponent(hotspot.productSku)}`;
+                              console.log('Opening product search:', url);
+                              window.open(url, '_blank', 'noopener,noreferrer');
+                            }
+                          }, 0);
+                          return false;
+                        }}
+                        onMouseDown={e => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.nativeEvent.stopImmediatePropagation();
+                        }}
+                        onMouseUp={e => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          e.nativeEvent.stopImmediatePropagation();
+                        }}
+                      >
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

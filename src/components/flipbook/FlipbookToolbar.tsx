@@ -200,8 +200,8 @@ export function FlipbookToolbar({
         </Button>
       </div>
 
-      {/* Center - Zoom Controls */}
-      <div className="flex items-center gap-2">
+      {/* Center - Zoom Controls - HIDDEN per request */}
+      {/* <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"
@@ -236,7 +236,7 @@ export function FlipbookToolbar({
         >
           <Maximize className="h-4 w-4" />
         </Button>
-      </div>
+      </div> */}
 
       {/* Right side - View and Action Controls */}
       <div className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export function FlipbookToolbar({
           )}
         </Button>
         
-        {showDownload && (
+        {/* {showDownload && (
           <Button
             variant="outline"
             size="icon"
@@ -292,7 +292,7 @@ export function FlipbookToolbar({
           >
             <Download className="h-4 w-4" />
           </Button>
-        )}
+        )} */}
         
         {showShare && (
           <Button

@@ -204,6 +204,7 @@ export function usePanAndZoom({
   }, []);
 
   return {
+    isDragging,
     handleMouseDown,
     handleTouchStart,
     cursor: zoomLevel > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',

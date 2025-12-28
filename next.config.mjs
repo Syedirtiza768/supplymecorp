@@ -1,4 +1,20 @@
 /** @type {import('next').NextConfig} */
+
+// Backend API URL for flipbook images
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+const FLIPBOOK_ID = '2025-26-Fall-Winter-Catalogue';
+
+// Generate Link headers for HTTP/2 Server Push (first 5 pages)
+const generatePushHeaders = () => {
+  const headers = [];
+  for (let i = 0; i < 5; i++) {
+    headers.push(
+      `<${API_URL}/uploads/flipbooks/${FLIPBOOK_ID}/page-${i}.webp>; rel=preload; as=image; type=image/webp`
+    );
+  }
+  return headers.join(', ');
+};
+
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
@@ -9,6 +25,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.orgill.com',
+        pathname: '/**',
+      },
       {
         protocol: 'http',
         hostname: 'localhost',
@@ -22,6 +43,50 @@ const nextConfig = {
       },
     ],
     formats: ['image/webp', 'image/avif'],
+  },
+  
+  // HTTP/2 Server Push headers for flipbook pages
+  async headers() {
+    return [
+      {
+        // Apply to homepage and flipbook routes
+        source: '/',
+        headers: [
+          {
+            key: 'Link',
+            value: generatePushHeaders(),
+          },
+          // Service Worker hints
+          {
+            key: 'Service-Worker-Allowed',
+            value: '/',
+          },
+        ],
+      },
+      {
+        source: '/flipbook/:path*',
+        headers: [
+          {
+            key: 'Link',
+            value: generatePushHeaders(),
+          },
+        ],
+      },
+      // Cache headers for static assets
+      {
+        source: '/sw.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-cache, no-store, must-revalidate',
+          },
+          {
+            key: 'Service-Worker-Allowed',
+            value: '/',
+          },
+        ],
+      },
+    ];
   },
 }
 

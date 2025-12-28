@@ -8,6 +8,7 @@ import { ReviewProvider } from "@/context/ReviewContext";
 import { AuthProvider } from "@/context/AuthContext";
 import Header from "@/components/header";
 import Footer from "@/components/custom/footer";
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${playfair.variable} font-sans`}>
+        <ServiceWorkerRegistration />
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

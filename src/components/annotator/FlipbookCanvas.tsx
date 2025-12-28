@@ -49,6 +49,24 @@ export function FlipbookCanvas({
   const percentToPx = (percent: number, dimension: number) => (percent / 100) * dimension;
   const pxToPercent = (px: number, dimension: number) => (px / dimension) * 100;
 
+  // If hotspots come back in pixel units (>100), normalize them to percent once the image size is known.
+  useEffect(() => {
+    if (!imageDimensions.width || !imageDimensions.height) return;
+    const needsConversion = hotspots.some(
+      (h) => h.x > 100 || h.y > 100 || h.width > 100 || h.height > 100
+    );
+    if (!needsConversion) return;
+
+    const converted = hotspots.map((h) => ({
+      ...h,
+      x: pxToPercent(h.x, imageDimensions.width),
+      y: pxToPercent(h.y, imageDimensions.height),
+      width: pxToPercent(h.width, imageDimensions.width),
+      height: pxToPercent(h.height, imageDimensions.height),
+    }));
+    onHotspotsChange(converted);
+  }, [hotspots, imageDimensions, onHotspotsChange]);
+
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     if (previewMode || (e.target as HTMLElement).closest(".rnd-hotspot")) return;
     

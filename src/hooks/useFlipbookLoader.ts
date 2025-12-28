@@ -142,12 +142,16 @@ export const useFlipbookLoader = (
    */
   const preloadImage = useCallback((url: string): Promise<void> => {
     return new Promise((resolve, reject) => {
+      // Resolve relative URLs against backend origin if provided
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+      const finalUrl = url?.startsWith('/') ? `${apiUrl}${url}` : url;
+
       const img = new Image();
       
       img.onload = () => resolve();
-      img.onerror = () => reject(new Error(`Failed to load image: ${url}`));
+      img.onerror = () => reject(new Error(`Failed to load image: ${finalUrl}`));
       
-      img.src = url;
+      img.src = finalUrl;
     });
   }, []);
 

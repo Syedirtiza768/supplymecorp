@@ -25,6 +25,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Trash2, Plus, Eye, EyeOff, Upload, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 export default function AnnotatePage() {
   const params = useParams();
   const router = useRouter();
@@ -192,6 +194,11 @@ export default function AnnotatePage() {
     loadPage();
     loadPages();
   }, [loadPage, loadPages]);
+
+  const resolvedImageUrl = useMemo(() => {
+    if (!page?.imageUrl) return "";
+    return page.imageUrl.startsWith("http") ? page.imageUrl : `${API_URL}${page.imageUrl}`;
+  }, [page]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -483,7 +490,7 @@ export default function AnnotatePage() {
         {/* Center Canvas */}
         <main className="flex-1 overflow-auto bg-muted/20 p-8">
           <FlipbookCanvas
-            imageUrl={page.imageUrl}
+            imageUrl={resolvedImageUrl}
             hotspots={hotspots}
             selectedId={selectedId}
             zoom={zoom}
@@ -638,25 +645,30 @@ export default function AnnotatePage() {
                   </p>
                 ) : (
                   <div className="space-y-2">
-                    {hotspots.map((h, idx) => (
-                      <button
-                        key={h.id}
-                        onClick={() => setSelectedId(h.id!)}
-                        className={cn(
-                          "w-full text-left px-3 py-2 rounded-md border text-sm transition-colors",
-                          selectedId === h.id
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-border hover:bg-muted"
-                        )}
-                      >
-                        <div className="font-medium truncate">
-                          {h.label || h.productSku || `Hotspot ${idx + 1}`}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {h.productSku && `SKU: ${h.productSku}`}
-                        </div>
-                      </button>
-                    ))}
+                    {hotspots.map((h, idx) => {
+                      const display = h.label?.trim() || h.productSku || `Hotspot ${idx + 1}`;
+                      return (
+                        <button
+                          key={h.id}
+                          onClick={() => setSelectedId(h.id!)}
+                          className={cn(
+                            "w-full text-left px-3 py-2 rounded-md border text-sm transition-colors",
+                            selectedId === h.id
+                              ? "border-blue-500 bg-blue-50"
+                              : "border-border hover:bg-muted"
+                          )}
+                        >
+                          <div className="font-medium truncate">{display}</div>
+                          <div className="text-[11px] text-muted-foreground flex flex-wrap gap-2">
+                            {h.productSku && <span>SKU: {h.productSku}</span>}
+                            {h.linkUrl && <span className="truncate">Link: {h.linkUrl}</span>}
+                            <span>
+                              Pos: {h.x.toFixed(1)}%, {h.y.toFixed(1)}% • Size: {h.width.toFixed(1)}% × {h.height.toFixed(1)}%
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>

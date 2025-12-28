@@ -9,7 +9,7 @@ interface MostViewedProductsProps {
 
 export default async function MostViewedProducts({ 
   limit = 12, 
-  days = 30 
+  days 
 }: MostViewedProductsProps) {
   const products = await fetchMostViewed(limit, days);
 
@@ -25,24 +25,6 @@ export default async function MostViewedProducts({
   }
 
   return (
-                  </div>
-                )}
-              </div>
-              <h3 className="text-lg font-semibold mb-2 line-clamp-2">
-                {product.onlineTitleDescription || product.brandName || 'Untitled Product'}
-              </h3>
-              {product.brandName && (
-                <p className="text-sm text-gray-600 mb-2">{product.brandName}</p>
-              )}
-              <p className="text-sm text-gray-500 mb-2">{product.viewCount || 0} views</p>
-              <Link
-                href={`/products/${product.id}`}
-                className="inline-block mt-2 text-blue-600 hover:text-blue-800 font-medium"
-              >
-                View Details →
-              </Link>
-            </div>
-          ))}
     <section className="most-viewed-products py-8">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold mb-6">Most Viewed Products</h2>
@@ -73,6 +55,7 @@ export default async function MostViewedProducts({
                 <p className="text-sm text-gray-500 mb-2">{product.viewCount || 0} views</p>
               </div>
             </Link>
+          ))}
         </div>
       </div>
     </section>

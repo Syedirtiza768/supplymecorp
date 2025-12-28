@@ -13,7 +13,7 @@ import { fetchNewProductsByCategory, fetchMostViewed, fetchFeaturedProducts } fr
 export default async function Home() {
   // Fetch products from API
   const [mostViewedProducts, newProducts, featuredProducts] = await Promise.all([
-    fetchMostViewed(6, 30).catch(() => []),
+    fetchMostViewed(6).catch(() => []),
     fetchNewProductsByCategory().catch(() => []),
     fetchFeaturedProducts(6).catch(() => [])
   ]);
