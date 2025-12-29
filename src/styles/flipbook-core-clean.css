@@ -104,10 +104,123 @@
   margin: 0 auto !important;
 }
 
-/* ===== 7. PAGE TEXTURE ===== */
+/* ===== 7. SYMMETRIC SPREAD LAYOUT ===== */
+/* Symmetric page layout for 2-page spread view */
 
+/* Gutter/Spine effect - the center seam where pages meet */
+.stf__wrapper {
+  position: relative;
+  overflow: visible;
+}
 
-/* ===== 8. RESPONSIVE BREAKPOINTS ===== */
+/* Create visual spine/gutter effect in spread mode */
+.stf__wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 12px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(0, 0, 0, 0.08) 25%,
+    rgba(0, 0, 0, 0) 50%,
+    rgba(0, 0, 0, 0.08) 75%,
+    rgba(0, 0, 0, 0.12) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+  box-shadow: 
+    inset 1px 0 2px rgba(0, 0, 0, 0.1),
+    inset -1px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Add subtle drop shadow along the spine for depth */
+.stf__wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.06);
+  box-shadow: 
+    0 10px 20px rgba(0, 0, 0, 0.08),
+    0 -10px 20px rgba(0, 0, 0, 0.08);
+  pointer-events: none;
+  z-index: 9;
+}
+
+/* Left page (even) styling */
+.stf__item:nth-child(2n) {
+  padding-right: 6px;  /* Small spacing from gutter */
+}
+
+/* Right page (odd) styling */
+.stf__item:nth-child(2n+1) {
+  padding-left: 6px;   /* Small spacing from gutter */
+}
+
+/* Ensure content inside pages is centered */
+.flipbook-page {
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+/* Page content wrapper - centers items horizontally */
+.flipbook-page-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+}
+
+/* ===== 8. PAGE TEXTURE ===== */
+/* Subtle paper texture overlay */
+.flipbook-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 2px,
+      rgba(255, 255, 255, 0.02) 2px,
+      rgba(255, 255, 255, 0.02) 4px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Page corner curl effect - subtle depth */
+.flipbook-page::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(
+    -45deg,
+    transparent 40%,
+    rgba(0, 0, 0, 0.03) 50%,
+    rgba(0, 0, 0, 0.08) 60%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ===== 9. RESPONSIVE BREAKPOINTS ===== */
 @media (max-width: 768px) {
   .flipbook-canvas-container {
     padding: 0.5rem;
@@ -144,20 +257,23 @@
   }
 }
 
-/* ===== 9. PAGE NUMBERS ===== */
+/* ===== 10. PAGE NUMBERS - CENTER ALIGNED ===== */
 .flipbook-page-number {
   position: absolute;
-  bottom: 1rem;
-  right: 1rem;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  color: #999;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.875rem;
   z-index: 10;
+  text-align: center;
+  font-weight: normal;
 }
 
-/* ===== 10. SHADOWS (Library Elements) ===== */
+/* ===== 11. SHADOWS (Library Elements) ===== */
 .stf__outerShadow,
 .stf__innerShadow,
 .stf__hardShadow,

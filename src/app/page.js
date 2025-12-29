@@ -64,7 +64,7 @@ export default async function Home() {
       <section>
         <Container1 headingTitle={"Most Viewed Products"}>
           <div className="w-full flex">
-            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
               {mostViewedProducts.length > 0 ? (
                 mostViewedProducts.map((product) => (
                   <ProductItem2
