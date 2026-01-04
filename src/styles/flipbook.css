@@ -8,77 +8,72 @@
   width: 100%;
   padding: 0;
   margin: 0;
+}
+
+.flipbook-stage {
   position: relative;
-  overflow: visible;
-  background: #ffffff;
-}
-
-/* Subtle animation for background */
-@keyframes backgroundShift {
-  0%, 100% { background-position: center, 0% 0%; }
-  50% { background-position: center, 100% 100%; }
-}
-
-.flipbook-canvas-container {
-  animation: backgroundShift 60s ease-in-out infinite;
-}
-
-/* Canvas/Paper Texture Background (for internal use) */
-.flipbook-canvas-texture {
-  background-image: 
-    url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-}
-
-/* Flipbook Container */
-.flipbook-container {
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  border-radius: 8px;
-  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* GPU layer promotion for smooth animations */
+  will-change: transform;
+  contain: layout style;
 }
 
 /* ============================================
-   REAL BOOK JOIN/GUTTER EFFECT
+   PHOTOREALISTIC BOUND BOOK - STUDIO QUALITY
+   Natural Physical Behavior, Zero Digital Artifacts
    ============================================ */
-/* Center seam where two pages meet */
+
+/* New subtle gutter line - present when spread, fades during flip, returns on settle */
+/* Applied to all pages via wrapper level to ensure visibility across all spreads */
 .flipbook-canvas-container .stf__wrapper::before {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 6%;
+  bottom: 6%;
   left: 50%;
-  width: 2px;
-  transform: translateX(-1px);
-  background: radial-gradient(circle at center, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.15) 20%, rgba(0,0,0,0.08) 35%, rgba(0,0,0,0) 60%);
+  width: 4px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse 110% 120% at center,
+      rgba(0, 0, 0, 0.26) 0%,
+      rgba(0, 0, 0, 0.14) 38%,
+      rgba(0, 0, 0, 0.06) 70%,
+      transparent 100%);
   pointer-events: none;
-  z-index: 5;
+  /* Below flipping page (z-20) but above base pages */
+  z-index: 3;
+  filter: blur(0.9px);
+  /* Keep a faint presence mid-flip while still fading at the peak of motion */
+  opacity: calc(0.32 + 0.28 * (1 - (var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4)));
   mix-blend-mode: multiply;
 }
 
-/* Inner gutter shadows fading into each page */
+/* Micro-shadow layer on gutter - only appears during page lifts */
 .flipbook-canvas-container .stf__wrapper::after {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  top: 8%;
+  bottom: 8%;
+  left: 50%;
+  width: 14px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse 120% 140% at center,
+      rgba(0, 0, 0, 0.18) 0%,
+      rgba(0, 0, 0, 0.08) 40%,
+      transparent 75%);
   pointer-events: none;
+  /* Below main gutter line but above static pages */
   z-index: 4;
-  background:
-    linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12) 12px, rgba(0,0,0,0.06) 24px, rgba(0,0,0,0) 56px) left center/50% 100% no-repeat,
-    linear-gradient(270deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12) 12px, rgba(0,0,0,0.06) 24px, rgba(0,0,0,0) 56px) right center/50% 100% no-repeat;
+  filter: blur(3px);
+  opacity: calc(0.18 * var(--flip-progress, 0));
   mix-blend-mode: multiply;
 }
 
-/* Subtle page edge bevels to enhance thickness */
+/* Individual Pages - Matte Coated Paper, Studio Lighting */
 .flipbook-page {
-  box-shadow: inset 20px 0 30px -20px rgba(0,0,0,0.12), inset -20px 0 30px -20px rgba(0,0,0,0.12);
-}
-
-/* Individual Flipbook Page */
-.flipbook-page {
-  background-color: #ffffff;
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
   position: relative;
   overflow: visible;
   display: flex;
@@ -86,6 +81,17 @@
   justify-content: center;
   padding: 0;
   height: 100%;
+  /* GPU layer promotion for crisp rendering during flips */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  /* Paint containment for performance */
+  contain: layout paint style;
+  /* Consolidated background: base gradient + crosshatch grain + SVG paper texture */
+  background: #ffffff;
+  background-blend-mode: normal, normal, normal, multiply;
+  /* Soft overhead studio lighting (no edge shadows) */
 }
 
 .flipbook-page img {
@@ -95,46 +101,15 @@
   max-height: 100% !important;
   object-fit: contain !important;
   display: block !important;
+  /* Prevent blur during transforms */
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
-/* Paper texture overlay on pages */
-.flipbook-page::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 2px,
-      rgba(255, 255, 255, 0.03) 2px,
-      rgba(255, 255, 255, 0.03) 4px
-    );
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* Page corner curl effect */
-.flipbook-page::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 50px;
-  height: 50px;
-  background: linear-gradient(
-    -45deg,
-    transparent 40%,
-    rgba(0, 0, 0, 0.05) 50%,
-    rgba(0, 0, 0, 0.1) 60%,
-    transparent 70%
-  );
-  pointer-events: none;
-  z-index: 2;
-}
+/* NO base ::before or ::after - reserved for active-page effects only */
 
 /* Title Page Styles */
 .flipbook-title-page {
@@ -161,10 +136,321 @@
   opacity: 0.9;
 }
 
-/* Page flip wrapper enhancements */
+/* Book wrapper - Natural table-top elevation */
 .stf__wrapper {
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 1px;
+  position: relative;
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.16)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.10)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.08));
+}
+
+.flipbook-animating .stf__wrapper {
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.18)) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.10));
+  transition: filter 80ms linear;
+}
+
+/* ============================================
+   Z-INDEX LAYERING STRATEGY (Deterministic)
+   ============================================ */
+/* Base page image: z-1 */
+.flipbook-page img {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hotspot interaction layer: z-2 (above page, below flipping page) */
+.flipbook-hotspot-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  /* Always visible, subtle fade during flip to feel "under paper" */
+  opacity: 1;
+  transition: opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* During flip: reduce opacity slightly but keep hotspots clickable */
+.flipbook-hotspot-layer.flipping {
+  opacity: 0.7;
+  /* Blend mode creates "under paper" feel */
+  mix-blend-mode: normal;
+}
+
+/* Flipping page visuals (curl, shadow, transform): z-20 (see .active-flipping-page below) */
+
+/* Navigation UI controls: z-60 (above everything except modals) */
+
+/* ============================================
+   HOTSPOT INTERACTIVE ELEMENTS
+   ============================================ */
+.flipbook-hotspot {
+  position: absolute;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  outline: none;
+  /* Smooth transitions with reduced motion support */
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Touch-friendly minimum size */
+  min-width: 24px;
+  min-height: 24px;
+  /* Accessible focus ring */
   border-radius: 4px;
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .flipbook-hotspot {
+    transition: none;
+  }
+  .flipbook-hotspot-highlight {
+    transition: none;
+  }
+}
+
+/* Hotspot during flip: keep clickable but reduce visual emphasis */
+.flipbook-hotspot.flipping {
+  /* Still fully clickable */
+  pointer-events: auto;
+  opacity: 0.8;
+}
+
+/* Deferred hotspots (in corners where nav buttons exist) */
+.flipbook-hotspot.defer {
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* Focus ring for keyboard navigation */
+.flipbook-hotspot:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.6);
+  outline-offset: 2px;
+  z-index: 3;
+}
+
+/* ============================================
+   HOTSPOT VISUAL HIGHLIGHT (Hover/Focus)
+   ============================================ */
+.flipbook-hotspot-highlight {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  /* Subtle, natural gradient - not harsh neon */
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%, 
+    rgba(59, 130, 246, 0.12), 
+    rgba(59, 130, 246, 0.06) 50%,
+    transparent 75%
+  );
+  /* Soft glow */
+  box-shadow: 
+    inset 0 0 0 1px rgba(59, 130, 246, 0.15),
+    0 0 16px rgba(59, 130, 246, 0.18);
+  /* Hidden by default */
+  opacity: 0;
+  /* Smooth fade in/out */
+  transition: opacity 220ms cubic-bezier(0.4, 0, 0.2, 1), 
+              box-shadow 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  /* Prevent interference with page visuals */
+  mix-blend-mode: normal;
+}
+
+/* Show highlight on hover or keyboard focus */
+.flipbook-hotspot:hover .flipbook-hotspot-highlight,
+.flipbook-hotspot:focus-visible .flipbook-hotspot-highlight {
+  opacity: 1;
+  box-shadow: 
+    inset 0 0 0 1.5px rgba(59, 130, 246, 0.25),
+    0 0 20px rgba(59, 130, 246, 0.28),
+    0 0 40px rgba(59, 130, 246, 0.12);
+}
+
+/* Reduce highlight during active flip to feel natural */
+.flipbook-hotspot.flipping:hover .flipbook-hotspot-highlight {
+  opacity: 0.6;
+  box-shadow: 
+    inset 0 0 0 1px rgba(59, 130, 246, 0.18),
+    0 0 12px rgba(59, 130, 246, 0.2);
+}
+
+
+
+/* Left page - Gentle inward curve toward spine */
+.stf__item:nth-child(2n) {
+  padding-right: 0;
+  padding-left: 0;
+  transform-origin: right center;
+  /* Subtle concave curve - dips inward at the binding edge */
+  transform: perspective(3000px) rotateY(-0.4deg) translateZ(-0.5px);
+  box-shadow: none;
+  clip-path: none;
+}
+
+/* Right page - Gentle inward curve toward spine */
+.stf__item:nth-child(2n+1) {
+  padding-left: 0;
+  padding-right: 0;
+  transform-origin: left center;
+  /* Subtle concave curve - dips inward at the binding edge */
+  transform: perspective(3000px) rotateY(0.4deg) translateZ(-0.5px);
+  box-shadow: none;
+  clip-path: none;
+}
+
+/* Active flipping page - Drag-responsive curvature, lighting, and deformation */
+.active-flipping-page {
+  /* 
+    Comprehensive drag-responsive transform:
+    - Perspective establishes depth plane
+    - rotateY scales with progress but responds to drag-x for side bias
+    - scaleX applies spine compression (resistance strongest at center, easing toward edges)
+    - skewY creates subtle binding deformation
+    - translateZ creates depth layering responsive to drag position
+    - translateX/Y offset for interactive feel
+  */
+  --drag-normalized: calc(var(--drag-x, 0) / 100);
+  --drag-y-normalized: calc(var(--drag-y, 0) / 100);
+  --progress-smooth: calc(var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4);
+
+  /* Binding resistance: stronger at center (spine), easing toward outer edge */
+  --spine-compression: calc(0.96 - (0.04 * var(--progress-smooth)));
+
+  /* Curvature responds to drag position and flip progress */
+  --active-curve: calc(var(--flip-direction, 1) * (1deg + 3deg * var(--progress-smooth) + (var(--drag-normalized) * 0.8deg * var(--progress-smooth))));
+
+  /* Depth scaling based on drag height and progress */
+  --active-depth: calc(1px + 3px * var(--progress-smooth) + (abs(var(--drag-y-normalized)) * 1px));
+
+  transform: perspective(2400px) rotateY(var(--active-curve)) scaleX(var(--spine-compression)) skewY(calc(var(--drag-y-normalized) * 0.6deg * var(--progress-smooth))) translateZ(var(--active-depth)) translateX(calc(var(--drag-normalized) * 2px * var(--progress-smooth))) translateY(calc(var(--drag-y-normalized) * 1.5px * var(--progress-smooth)));
+
+  /* Smooth immediate response to animation progress */
+  transition: none;
+  will-change: transform;
+  transform-origin: center center;
+  position: relative;
+  /* Z-index above hotspots (z-2) to show curl/shadow on top */
+  z-index: 20;
+  /* Allow pointer events for drag gestures */
+  pointer-events: auto;
+}
+
+/* Translucency gradient on lifting edge of active page - light passes through slightly */
+.active-flipping-page::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(12% + 8% * var(--flip-progress, 0));
+  background: linear-gradient(to right,
+      rgba(255, 255, 255, calc(0.32 * var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4)) 0%,
+      rgba(255, 255, 255, calc(0.18 * var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4)) 40%,
+      rgba(255, 255, 255, 0) 100%);
+  /* Respond to drag: more translucency at extremes */
+  opacity: calc(0.5 + (abs(var(--drag-y-normalized)) * 0.3));
+  pointer-events: none;
+  z-index: 8;
+  mix-blend-mode: screen;
+  /* Position on lift side based on direction */
+  right: calc(var(--flip-direction, 1) * -100% + 100%);
+  filter: blur(calc(1px + 2px * var(--flip-progress, 0)));
+  display: block;
+}
+
+/* Dynamic edge shadow on active turning page - lighting responds to drag position */
+.active-flipping-page::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(8% + 6% * var(--flip-progress, 0));
+
+  /* Multi-layer shadow gradient responding to drag position */
+  background:
+    /* Base shadow layer */
+    radial-gradient(ellipse 120% 100% at calc(50% + (var(--drag-normalized) * 20%)),
+      rgba(0, 0, 0, calc(0.38 + 0.18 * var(--progress-smooth))) 0%,
+      rgba(0, 0, 0, calc(0.24 + 0.12 * var(--progress-smooth))) 22%,
+      rgba(0, 0, 0, calc(0.12 + 0.06 * var(--progress-smooth))) 48%,
+      rgba(0, 0, 0, calc(0.04 + 0.02 * var(--progress-smooth))) 72%,
+      transparent 100%),
+    /* Secondary shadow for depth */
+    radial-gradient(circle at calc(50% + (var(--drag-normalized) * 15%)),
+      rgba(0, 0, 0, calc(0.15 * var(--progress-smooth))) 0%,
+      transparent 60%);
+
+  pointer-events: none;
+  z-index: 7;
+  mix-blend-mode: multiply;
+
+  /* Position on turning side based on direction */
+  right: calc(var(--flip-direction, 1) * -100% + 100%);
+
+  /* Blur responds to progress and drag position */
+  filter: blur(calc(8px + 2px * var(--progress-smooth) + (abs(var(--drag-y-normalized)) * 2px)));
+
+  display: block;
+}
+
+/* Single smooth page flip - settle integrated into main motion */
+@keyframes page-settle {
+  0% {
+    transform: translateX(0) scaleY(1);
+  }
+
+  100% {
+    transform: translateX(0) scaleY(1);
+  }
+}
+
+/* Subtle paper texture ripple during flip - optional effect */
+.active-flipping-page img {
+  /* Removed animation - main page transform is sufficient */
+  transform-origin: center center;
+}
+
+/* Disable react-pageflip's built-in corner hover shadow/overlay */
+.stf__item::before,
+.stf__item::after {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Disable any hover effects on flipbook pages */
+.stf__item:hover::before,
+.stf__item:hover::after,
+.stf__hardPage:hover::before,
+.stf__hardPage:hover::after {
+  display: none !important;
+  opacity: 0 !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+/* CRITICAL: Disable ALL react-pageflip shadow overlays */
+.stf__outerShadow,
+.stf__innerShadow,
+.stf__hardShadow,
+.stf__hardInnerShadow {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+/* Disable any shadow layers on parent/wrapper */
+.stf__parent>*:not(.stf__wrapper),
+.stf__wrapper>*:not(.stf__block) {
+  display: none !important;
+}
+
+/* Force remove any dynamically added shadow elements */
+[class*="shadow" i]:not(.flipbook-shadow-soft):not(.flipbook-shadow-medium):not(.flipbook-shadow-hard) {
+  display: none !important;
 }
 
 /* Page number badges */
@@ -193,8 +479,13 @@
 }
 
 @keyframes flipbook-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ============================================
@@ -210,7 +501,7 @@
   .flipbook-container {
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
   }
-  
+
   .flipbook-title-page {
     padding: 1.5rem;
   }
@@ -229,11 +520,11 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     border-radius: 4px;
   }
-  
+
   .flipbook-title-page {
     padding: 1rem;
   }
-  
+
   .flipbook-page-number {
     font-size: 0.625rem;
     padding: 0.125rem 0.375rem;
@@ -275,11 +566,18 @@
   .flipbook-page {
     touch-action: pan-y pinch-zoom;
   }
-  
-  /* Larger tap targets on touch devices */
-  .flipbook-control-button {
+
+  /* Enforce 44x44px minimum touch targets (WCAG 2.5.5) */
+  .flipbook-control-button,
+  button {
     min-width: 44px;
     min-height: 44px;
+  }
+
+  /* Navigation arrows need larger touch area on mobile */
+  .flipbook-enhanced button[aria-label*="page"] {
+    min-width: 48px;
+    min-height: 48px;
   }
 }
 
@@ -292,12 +590,12 @@
     box-shadow: none;
     page-break-inside: avoid;
   }
-  
+
   .flipbook-page {
     page-break-inside: avoid;
     page-break-after: always;
   }
-  
+
   .flipbook-page::before,
   .flipbook-page::after,
   .flipbook-page-number {
@@ -315,14 +613,38 @@
   outline-offset: 2px;
 }
 
-/* Reduced motion preference */
+/* Reduced motion preference - disable animations AND physics effects */
 @media (prefers-reduced-motion: reduce) {
+
   .flipbook-container,
   .flipbook-page,
+  .flipbook-stage,
+  .active-flipping-page,
   * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Disable flip physics entirely */
+  .active-flipping-page {
+    transform: none !important;
+  }
+
+  .active-flipping-page::before,
+  .active-flipping-page::after {
+    display: none !important;
+  }
+
+  .flipbook-gutter-dynamics,
+  .flipbook-turn-shadow,
+  .flipbook-turn-highlight {
+    display: none !important;
+  }
+
+  /* Simple instant page swap */
+  .stf__item {
+    transition: none !important;
+    transform: none !important;
   }
 }
 
@@ -364,16 +686,18 @@
 /* Hotspot rectangles */
 .flipbook-hotspot {
   position: absolute;
-  border: 2px solid rgba(59, 130, 246, 0.8);
-  background-color: rgba(59, 130, 246, 0.2);
+  border: 2px solid transparent;
+  background-color: transparent;
   cursor: pointer;
   transition: all 0.2s;
   z-index: 10;
 }
 
 .flipbook-hotspot:hover {
-  background-color: rgba(59, 130, 246, 0.3);
+  background-color: rgba(59, 130, 246, 0.35);
   border-color: rgba(59, 130, 246, 1);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6), inset 0 0 8px rgba(59, 130, 246, 0.2);
+  transform: scale(1.02);
 }
 
 .flipbook-hotspot.selected {
@@ -389,6 +713,19 @@
 /* ============================================
    UTILITY CLASSES
    ============================================ */
+
+/* Screen reader only - for accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .flipbook-shadow-soft {
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
@@ -408,16 +745,64 @@
 
 @media (prefers-color-scheme: dark) {
   .flipbook-canvas-texture {
-    background-image: 
+    background-image:
       url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   }
-  
+
   .flipbook-container {
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
   }
-  
+
   .flipbook-page {
     background-color: #1f2937;
     box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* ============================================
+   ADAPTIVE QUALITY FOR LOW-POWER DEVICES
+   Battery saver mode / low-end hardware detection
+   ============================================ */
+
+/* Reduce effects when battery saver is on or device is low-power */
+@media (prefers-reduced-data: reduce) {
+
+  /* Disable texture backgrounds to save bandwidth */
+  .flipbook-page {
+    background-image: none !important;
+  }
+
+  .flipbook-canvas-texture {
+    background-image: none !important;
+  }
+}
+
+/* Low refresh rate devices - simplify animations */
+@media (update: slow) {
+
+  .flipbook-gutter-dynamics,
+  .flipbook-turn-shadow,
+  .flipbook-turn-highlight {
+    display: none !important;
+  }
+
+  .active-flipping-page::before,
+  .active-flipping-page::after {
+    display: none !important;
+  }
+
+  .stf__item {
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+
+/* Force hardware acceleration on capable devices */
+@supports (transform: translateZ(0)) {
+
+  .flipbook-stage,
+  .flipbook-page,
+  .stf__item {
+    transform: translateZ(0);
   }
 }

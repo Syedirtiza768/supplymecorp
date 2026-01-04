@@ -88,7 +88,7 @@ export default function AnnotatePage() {
   };
 
   const selectedHotspot = hotspots.find((h) => h.id === selectedId);
-  
+
   // Stable change detection using useMemo to avoid recalculating on every render
   const hasChanges = useMemo(() => {
     if (hotspots.length !== originalHotspots.length) return true;
@@ -197,7 +197,9 @@ export default function AnnotatePage() {
 
   const resolvedImageUrl = useMemo(() => {
     if (!page?.imageUrl) return "";
-    return page.imageUrl.startsWith("http") ? page.imageUrl : `${API_URL}${page.imageUrl}`;
+    // Normalize any accidental backslashes coming from Windows-style paths
+    const normalized = page.imageUrl.replace(/\\/g, "/");
+    return normalized.startsWith("http") ? normalized : `${API_URL}${normalized}`;
   }, [page]);
 
   // Keyboard shortcuts
@@ -245,7 +247,7 @@ export default function AnnotatePage() {
       console.error('❌ Cannot save: page is null');
       return;
     }
-    
+
     console.log('🔄 Starting save process...', { flipbookId, pageNumber, hotspotCount: hotspots.length });
     setSaving(true);
     setErrorMessage(null);
@@ -260,7 +262,7 @@ export default function AnnotatePage() {
         setOriginalHotspots(savedHotspots as unknown as HotspotInput[]);
         setLastSavedAt(Date.now());
       }
-      
+
       toast({
         title: "Success",
         description: `${hotspots.length} hotspot(s) saved successfully`,

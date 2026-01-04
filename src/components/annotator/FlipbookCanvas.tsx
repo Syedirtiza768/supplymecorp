@@ -69,13 +69,13 @@ export function FlipbookCanvas({
 
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
     if (previewMode || (e.target as HTMLElement).closest(".rnd-hotspot")) return;
-    
+
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    
+
     setIsDrawing(true);
     setDrawStart({ x, y });
     setDrawRect({ x, y, width: 0, height: 0 });
@@ -140,19 +140,19 @@ export function FlipbookCanvas({
         y: pxToPercent(y, imageDimensions.height),
       }
     });
-    
+
     const updated = hotspots.map((h) =>
       h.id === id
         ? {
-            ...h,
-            x: pxToPercent(x, imageDimensions.width),
-            y: pxToPercent(y, imageDimensions.height),
-            width: pxToPercent(width, imageDimensions.width),
-            height: pxToPercent(height, imageDimensions.height),
-          }
+          ...h,
+          x: pxToPercent(x, imageDimensions.width),
+          y: pxToPercent(y, imageDimensions.height),
+          width: pxToPercent(width, imageDimensions.width),
+          height: pxToPercent(height, imageDimensions.height),
+        }
         : h
     );
-    
+
     console.log('📐 Updated hotspot:', updated.find(h => h.id === id));
     onHotspotsChange(updated);
   };
@@ -161,14 +161,14 @@ export function FlipbookCanvas({
     <div className="flipbook-annotator-canvas p-4 rounded-lg">
       <div
         ref={containerRef}
-        className="relative inline-block select-none bg-white rounded-lg shadow-2xl overflow-hidden flipbook-page"
+        className="relative inline-block select-none bg-white rounded-lg shadow-2xl overflow-hidden"
         style={{ transform: `scale(${zoom})`, transformOrigin: "top left" }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <Image
+        <img
           src={imageUrl}
           alt="Flipbook page"
           width={1200}

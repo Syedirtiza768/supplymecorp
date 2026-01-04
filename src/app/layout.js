@@ -23,7 +23,7 @@ const playfair = Playfair_Display({
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${playfair.variable} font-sans`}>
+      <body className={`${inter.variable} ${playfair.variable} font-sans`} suppressHydrationWarning={true}>
         <ServiceWorkerRegistration />
         <ThemeProvider
           attribute="class"

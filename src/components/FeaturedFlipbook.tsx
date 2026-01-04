@@ -100,23 +100,6 @@ export function FeaturedFlipbook() {
       const data = await res.json();
       console.log('Featured flipbook data:', data);
       
-      // FIX: Inject Page 0 if missing (User reported Title Page 0 missing)
-      // The file catalog-page-0.webp exists on server but is not in DB for this specific flipbook
-      if (data && data.pages && data.id === '2025-26-FW-New-Catalogue') {
-        const hasPage0 = data.pages.some((p: any) => p.pageNumber === 0);
-        if (!hasPage0) {
-          console.log('Injecting missing Page 0 (Title Page)...');
-          data.pages.unshift({
-            id: 'manual-page-0',
-            flipbookId: data.id,
-            pageNumber: 0,
-            imageUrl: `/uploads/flipbooks/${data.id}/catalog-page-0.webp`,
-            width: 1000, 
-            height: 1414
-          });
-        }
-      }
-      
       if (!data || !data.pages || data.pages.length === 0) {
         console.log('No featured flipbook data returned');
         setError('No featured catalog available');

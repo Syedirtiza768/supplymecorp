@@ -83,6 +83,8 @@ export interface FlipbookConfig {
   preloadPages?: number;
   /** Custom CSS class for the container */
   className?: string;
+  /** Duration of page flip animation in ms */
+  flippingTime?: number;
 }
 
 export interface FlipbookState {

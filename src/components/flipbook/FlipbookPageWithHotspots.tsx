@@ -22,6 +22,7 @@ export function FlipbookPageWithHotspots({
   const [hotspots, setHotspots] = useState<Hotspot[]>([]);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
   const [loading, setLoading] = useState(true);
+  const [isFlipping, setIsFlipping] = useState(false);
 
   useEffect(() => {
     const fetchHotspots = async () => {
@@ -47,6 +48,21 @@ export function FlipbookPageWithHotspots({
 
     fetchHotspots();
   }, [flipbookId, pageNumber]);
+
+  // Detect flip animations by monitoring page flip events
+  useEffect(() => {
+    const detectFlipStart = () => setIsFlipping(true);
+    const detectFlipEnd = () => setTimeout(() => setIsFlipping(false), 100);
+
+    // Listen for flip events from react-pageflip
+    window.addEventListener('pageflip-start', detectFlipStart);
+    window.addEventListener('pageflip-end', detectFlipEnd);
+
+    return () => {
+      window.removeEventListener('pageflip-start', detectFlipStart);
+      window.removeEventListener('pageflip-end', detectFlipEnd);
+    };
+  }, []);
 
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget;
@@ -110,7 +126,9 @@ export function FlipbookPageWithHotspots({
         return (
           <div
             key={hotspot.id ?? `temp-${index}`}
-            className="absolute cursor-pointer group z-10"
+            className={`absolute group z-10 transition-all duration-200 ${
+              isFlipping ? 'pointer-events-none opacity-30' : 'cursor-pointer'
+            }`}
             style={{
               left: `${percentRect.x}%`,
               top: `${percentRect.y}%`,
@@ -118,11 +136,11 @@ export function FlipbookPageWithHotspots({
               height: `${percentRect.height}%`,
               zIndex: (hotspot.zIndex ?? 0) + 10,
             }}
-            onClick={(e) => handleHotspotClick(hotspot, e)}
+            onClick={(e) => !isFlipping && handleHotspotClick(hotspot, e)}
             title={hotspot.label || `View ${hotspot.productSku}`}
           >
-            {/* Invisible clickable area with hover effect */}
-            <div className="absolute inset-0 bg-transparent group-hover:bg-blue-500/20 transition-colors border-2 border-transparent group-hover:border-blue-500 rounded" />
+            {/* Enhanced hover highlight with glow */}
+            <div className="absolute inset-0 bg-transparent group-hover:bg-blue-500/25 transition-all duration-200 border-2 border-transparent group-hover:border-blue-400 group-hover:shadow-[0_0_16px_rgba(59,130,246,0.5)] rounded" />
             
             {/* Label tooltip on hover */}
             {hotspot.label && (
