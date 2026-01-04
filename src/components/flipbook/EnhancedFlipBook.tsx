@@ -903,7 +903,7 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
           window.location.href = hotspot.linkUrl;
         }
       } else if (hotspot.productSku) {
-        window.location.href = `/shop?search=${encodeURIComponent(hotspot.productSku)}`;
+        window.location.href = `/shop/${encodeURIComponent(hotspot.productSku)}`;
       }
     };
 
