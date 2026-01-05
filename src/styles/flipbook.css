@@ -448,8 +448,9 @@
   display: none !important;
 }
 
-/* Force remove any dynamically added shadow elements */
-[class*="shadow" i]:not(.flipbook-shadow-soft):not(.flipbook-shadow-medium):not(.flipbook-shadow-hard) {
+/* Force remove react-pageflip dynamically added shadow elements only */
+.stf__parent [class*="Shadow"],
+.stf__wrapper [class*="Shadow"] {
   display: none !important;
 }
 

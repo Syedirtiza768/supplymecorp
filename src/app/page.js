@@ -19,10 +19,11 @@ export default async function Home() {
     fetchFeaturedProducts(6).catch(() => [])
   ]);
 
-  // DEBUG: Log newProducts and fallback selection
-  if (typeof window !== 'undefined') {
-    // Only runs on client, but this is a server component. So, use a debug div below.
-  }
+  // Server-side logging
+  console.log('🔍 Homepage Data:');
+  console.log('Most Viewed Products:', mostViewedProducts.length);
+  console.log('New Products:', newProducts.length);
+  console.log('Featured Products:', featuredProducts.length);
 
   return (
     <div className="w-full min-h-screen ">
@@ -61,10 +62,10 @@ export default async function Home() {
       <ProductsByCategorySection />
 
       {/* Most Viewed Products Section */}
-      <section>
+      <section className="mt-[50px]">
         <Container1 headingTitle={"Most Viewed Products"}>
-          <div className="w-full flex">
-            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+          <div className="w-full flex min-h-[400px]">
+            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {mostViewedProducts.length > 0 ? (
                 mostViewedProducts.map((product) => (
                   <ProductItem2
@@ -130,8 +131,8 @@ export default async function Home() {
           HeadingButtonLink={"/shop"}
           headingButtonTitle={"View More Products"}
         >
-          <div className="w-full flex">
-            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="w-full flex min-h-[400px]">
+            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {newProducts.length > 0 ? (
                 newProducts.map((product) => (
                   <ProductItem2
@@ -227,13 +228,13 @@ export default async function Home() {
           HeadingButtonLink={"/shop"}
           headingButtonTitle={"View More Products"}
         >
-          <div className="w-full flex">
+          <div className="w-full flex min-h-[400px]">
             <div className="hidden w-[25%] min-h-max bg-[url('/images/home/section-bg4.png')] bg-cover bg-center lg:flex lg:items-start justify-center py-20 px-5">
               <h2 className="text-white font-semibold text-3xl leading-normal ">
                 Automatic Digital Equipment
               </h2>
             </div>
-            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="w-full lg:w-[75%] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Show actual featured products, fallback to 6 from 6 categories with price > 0 */}
               {(() => {
                 let displayProducts = featuredProducts && featuredProducts.length > 0

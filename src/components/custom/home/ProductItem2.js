@@ -23,49 +23,59 @@ const ProductItem2 = ({
 
   return (
     (link || url) ? (
-      <Link href={link || url} className="block h-full group" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <div className="relative w-full h-full p-5 flex flex-col border border-gray1 cursor-pointer hover:shadow-md transition-shadow">
+      <Link href={link || url} className="block min-h-[450px] group" style={{ textDecoration: 'none', color: 'inherit' }}>
+        <div className="relative w-full h-full min-h-[450px] p-6 flex flex-col border-2 border-gray-200 rounded-xl cursor-pointer hover:shadow-2xl hover:border-primary/30 transition-all duration-300 bg-white">
           {discount && (
-            <div className="absolute top-0 left-0 z-10">
-              <div className=" bg-red text-white pl-1   text-xs flex items-center justify-center">
-                <span className="">-{discount}%</span>
-                <div className="h-0 w-0 border-t-[12px] border-r-[20px] border-b-[12px] border-solid border-t-transparent border-b-transparent border-l-transparent "></div>
+            <div className="absolute top-3 left-3 z-10">
+              <div className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-md">
+                -{discount}%
               </div>
             </div>
           )}
-          <div className="absolute top-2 right-2 z-10">
+          <div className="absolute top-3 right-3 z-10">
             <WishlistButton productId={id} iconSize={20} />
           </div>
-          <div className="w-full aspect-square flex items-center justify-center mb-4">
-            <img src={img} alt="" className="max-w-full max-h-full object-contain" />
+          <div className="w-full aspect-square flex items-center justify-center mb-4 bg-gray-50 rounded-lg p-4">
+            <img src={img} alt={title} className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300" />
           </div>
           <div className="mt-auto w-full flex flex-col items-center gap-3">
-            <h3 className="text-gray2 text-center w-full px-2 line-clamp-2 min-h-[3em]">{title}</h3>
-            <Button className="w-full bg-primary hover:bg-primary-700 text-white" onClick={(e) => { e.preventDefault(); window.location.href = link || url; }}>
+            <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug group-hover:text-primary transition-colors">{title}</h3>
+            <div className="flex items-center gap-3 w-full justify-center">
+              {oldPrice && (
+                <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
+              )}
+              <span className="text-2xl font-bold text-primary">${price}</span>
+            </div>
+            <Button className="w-full bg-primary hover:bg-primary-700 text-white shadow-md hover:shadow-lg transition-all" onClick={(e) => { e.preventDefault(); window.location.href = link || url; }}>
               View Details
             </Button>
           </div>
         </div>
       </Link>
     ) : (
-      <div className="relative w-full h-full p-5 flex flex-col border border-gray1">
+      <div className="relative w-full h-full min-h-[450px] p-6 flex flex-col border-2 border-gray-200 rounded-xl bg-white hover:shadow-2xl hover:border-primary/30 transition-all duration-300">
         {discount && (
-          <div className="absolute top-0 left-0 z-10">
-            <div className=" bg-red text-white pl-1   text-xs flex items-center justify-center">
-              <span className="">-{discount}%</span>
-              <div className="h-0 w-0 border-t-[12px] border-r-[20px] border-b-[12px] border-solid border-t-transparent border-b-transparent border-l-transparent "></div>
+          <div className="absolute top-3 left-3 z-10">
+            <div className="bg-red-500 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-md">
+              -{discount}%
             </div>
           </div>
         )}
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute top-3 right-3 z-10">
           <WishlistButton productId={id} iconSize={20} />
         </div>
-        <div className="w-full aspect-square flex items-center justify-center mb-4">
-          <img src={img} alt="" className="max-w-full max-h-full object-contain" />
+        <div className="w-full aspect-square flex items-center justify-center mb-4 bg-gray-50 rounded-lg p-4">
+          <img src={img} alt={title} className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300" />
         </div>
         <div className="mt-auto w-full flex flex-col items-center gap-3">
-          <h3 className="text-gray2 text-center w-full px-2 line-clamp-2 min-h-[3em]">{title}</h3>
-          <Button className="w-full bg-primary hover:bg-primary-700 text-white" disabled={hideButton === true}>
+          <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug">{title}</h3>
+          <div className="flex items-center gap-3 w-full justify-center">
+            {oldPrice && (
+              <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
+            )}
+            <span className="text-2xl font-bold text-primary">${price}</span>
+          </div>
+          <Button className="w-full bg-primary hover:bg-primary-700 text-white shadow-md hover:shadow-lg transition-all" disabled={hideButton === true}>
             View Details
           </Button>
         </div>
