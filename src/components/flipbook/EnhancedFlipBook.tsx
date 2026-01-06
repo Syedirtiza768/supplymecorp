@@ -1024,7 +1024,7 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
             {hasLoaded && (
               <div
                 className={`absolute inset-0 flipbook-hotspot-layer ${isActiveFlippingPage ? 'flipping' : ''}`}
-                style={{ zIndex: 12 }}
+                style={{ zIndex: isActiveFlippingPage ? 30 : 12, pointerEvents: 'auto' }}
               >
                 <div className="relative w-full h-full">
                   {(() => {
