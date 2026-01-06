@@ -1,5 +1,7 @@
 import { fetchMostViewed, fetchFeaturedProducts, fetchNewProducts } from "@/lib/products";
 
+export const dynamic = 'force-dynamic';
+
 export default async function TestPage() {
   console.log('📊 TestPage: Fetching products...');
   
