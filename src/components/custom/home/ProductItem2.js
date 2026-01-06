@@ -18,6 +18,7 @@ const ProductItem2 = ({
   url,
   id,
   hideButton,
+  hidePrice,
 }) => {
   const router = useRouter();
 
@@ -40,12 +41,14 @@ const ProductItem2 = ({
           </div>
           <div className="mt-auto w-full flex flex-col items-center gap-3">
             <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug group-hover:text-primary transition-colors">{title}</h3>
-            <div className="flex items-center gap-3 w-full justify-center">
-              {oldPrice && (
-                <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
-              )}
-              <span className="text-2xl font-bold text-primary">${price}</span>
-            </div>
+            {!hidePrice && (
+              <div className="flex items-center gap-3 w-full justify-center">
+                {oldPrice && (
+                  <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
+                )}
+                <span className="text-2xl font-bold text-primary">${price}</span>
+              </div>
+            )}
             <Button className="w-full bg-primary hover:bg-primary-700 text-white shadow-md hover:shadow-lg transition-all" onClick={(e) => { e.preventDefault(); window.location.href = link || url; }}>
               View Details
             </Button>
@@ -69,12 +72,14 @@ const ProductItem2 = ({
         </div>
         <div className="mt-auto w-full flex flex-col items-center gap-3">
           <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug">{title}</h3>
-          <div className="flex items-center gap-3 w-full justify-center">
-            {oldPrice && (
-              <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
-            )}
-            <span className="text-2xl font-bold text-primary">${price}</span>
-          </div>
+          {!hidePrice && (
+            <div className="flex items-center gap-3 w-full justify-center">
+              {oldPrice && (
+                <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
+              )}
+              <span className="text-2xl font-bold text-primary">${price}</span>
+            </div>
+          )}
           <Button className="w-full bg-primary hover:bg-primary-700 text-white shadow-md hover:shadow-lg transition-all" disabled={hideButton === true}>
             View Details
           </Button>

@@ -76,6 +76,7 @@ export default async function Home() {
                     rating={4}
                     link={`/shop/${product.id}`}
                     id={product.id}
+                    hidePrice={true}
                   />
                 ))
               ) : (
@@ -143,6 +144,7 @@ export default async function Home() {
                     rating={4}
                     link={`/shop/${product.id}`}
                     id={product.id}
+                    hidePrice={true}
                   />
                 ))
               ) : (
@@ -296,6 +298,7 @@ export default async function Home() {
                     rating={5}
                     link={`/shop/${product.id}`}
                     id={product.id}
+                    hidePrice={true}
                   />
                 ));
               })()}
