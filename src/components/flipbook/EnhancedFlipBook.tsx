@@ -939,35 +939,8 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                   const el = imgEl as HTMLImageElement;
                   setNaturalSize({ width: el.naturalWidth, height: el.naturalHeight });
                 }
-                // Lazy fetch hotspots if not provided
-                if ((!Array.isArray(page.hotspots) || page.hotspots.length === 0) && flipbookId) {
-                  const apiUrl = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' ? window.location.origin : '');
-                  const endpoint = `${apiUrl}/api/flipbooks/${flipbookId}/pages/${page.pageNumber}/hotspots`;
-                  fetch(endpoint)
-                    .then(res => res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`)))
-                    .then(data => {
-                      // Get actual rendered image element for pixel conversion
-                      const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img') as HTMLImageElement;
-                      const renderWidth = imgEl?.clientWidth || imgEl?.naturalWidth || naturalSize.width || 1200;
-                      const renderHeight = imgEl?.clientHeight || imgEl?.naturalHeight || naturalSize.height || 1600;
-
-                      const hs = (data?.hotspots || []).map((h: any) => {
-                        // If coords are already percent (< 100), use as-is; else convert from pixels
-                        const isPercent = h.x <= 100 && h.y <= 100 && h.width <= 100 && h.height <= 100;
-                        if (isPercent) {
-                          return h;
-                        }
-                        // Convert pixel-based to percentage using rendered image size
-                        const xPct = Math.min(Math.max((h.x / renderWidth) * 100, 0), 100);
-                        const yPct = Math.min(Math.max((h.y / renderHeight) * 100, 0), 100);
-                        const wPct = Math.min(Math.max((h.width / renderWidth) * 100, 0), 100);
-                        const hPct = Math.min(Math.max((h.height / renderHeight) * 100, 0), 100);
-                        return { ...h, x: xPct, y: yPct, width: wPct, height: hPct };
-                      });
-                      setHotspotsFetched(hs);
-                    })
-                    .catch(err => console.warn('[Flipbook] Hotspots fetch failed:', err?.message || err));
-                }
+                // Hotspots are now preloaded at flipbook initialization, no need to lazy fetch
+                // (see FeaturedFlipbook component)
               }}
               onError={() => {
                 if (retryCount < MAX_RETRIES) {

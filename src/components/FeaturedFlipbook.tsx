@@ -108,6 +108,26 @@ export function FeaturedFlipbook() {
 
       setFlipbook(data);
 
+      // Eagerly fetch hotspots for first 5 pages to avoid lazy delays
+      if (data.pages && data.pages.length > 0) {
+        const firstPages = data.pages.slice(0, 5);
+        Promise.all(
+          firstPages.map(page =>
+            fetch(`${API_URL}/api/flipbooks/${data.id}/pages/${page.pageNumber}/hotspots`)
+              .then(res => (res.ok ? res.json() : Promise.reject(res)))
+              .catch(err => {
+                console.warn(`Failed to preload hotspots for page ${page.pageNumber}:`, err);
+                return { hotspots: [] };
+              })
+          )
+        ).then(hotspotsResults => {
+          console.log('✅ Preloaded hotspots for first 5 pages');
+        }).catch(err => {
+          console.warn('Hotspots preload error:', err);
+          // Don't fail the entire flipbook on hotspot preload failure
+        });
+      }
+
       // Step 2: Preload images (lazy load: only first few pages)
       setPreloadingImages();
       const imageUrls = data.pages
