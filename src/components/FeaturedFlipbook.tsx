@@ -236,16 +236,22 @@ export function FeaturedFlipbook() {
   // Map API pages to EnhancedFlipBook format with hotspots
   const pages: FlipbookPage[] = flipbook.pages
     .sort((a: any, b: any) => a.pageNumber - b.pageNumber) // Ensure pages are sorted by pageNumber
-    .map((page: any, index: number) => ({
-      id: page.id,
-      src: resolveImageUrl(page.imageUrl, API_URL),
-      pageNumber: page.pageNumber,
-      alt: index === 0 ? flipbook.description || `${flipbook.title}` : `Page ${page.pageNumber}`,
-      title: index === 0 ? flipbook.title : undefined, // Add title to first page for centered display
-      hotspots: page.hotspots || [],
-      // Optionally add thumbnailSrc if available
-      // thumbnailSrc: page.thumbnailUrl,
-    }));
+    .map((page: any, index: number) => {
+      const hotspots = page.hotspots || [];
+      if (index < 5) {
+        console.log(`Page ${page.pageNumber} hotspots:`, hotspots.length);
+      }
+      return {
+        id: page.id,
+        src: resolveImageUrl(page.imageUrl, API_URL),
+        pageNumber: page.pageNumber,
+        alt: index === 0 ? flipbook.description || `${flipbook.title}` : `Page ${page.pageNumber}`,
+        title: index === 0 ? flipbook.title : undefined, // Add title to first page for centered display
+        hotspots,
+        // Optionally add thumbnailSrc if available
+        // thumbnailSrc: page.thumbnailUrl,
+      };
+    });
 
   // Optionally, build a TOC if your API provides it or you want to hardcode
   const toc: TOCEntry[] = [

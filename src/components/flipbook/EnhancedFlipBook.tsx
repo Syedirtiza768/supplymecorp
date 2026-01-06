@@ -1040,39 +1040,17 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                               title={isInCorner ? '' : (hotspot.label || hotspot.productSku || '')}
                               aria-label={isInCorner ? '' : `Product: ${hotspot.label || hotspot.productSku || 'View details'}`}
                               tabIndex={isInCorner ? -1 : 0}
-                              onMouseDown={(e) => {
-                                mouseDownPos.current = { x: e.clientX, y: e.clientY };
-                                isDragging.current = false;
-                              }}
-                              onMouseMove={(e) => {
-                                if (mouseDownPos.current) {
-                                  const dx = e.clientX - mouseDownPos.current.x;
-                                  const dy = e.clientY - mouseDownPos.current.y;
-                                  const distance = Math.sqrt(dx * dx + dy * dy);
-                                  if (distance > 10) {
-                                    isDragging.current = true;
-                                  }
-                                }
-                              }}
-                              onMouseUp={() => {
-                                mouseDownPos.current = null;
-                              }}
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                e.nativeEvent.stopImmediatePropagation();
 
-                                if (!isDragging.current) {
-                                  if (hotspot.linkUrl) {
-                                    window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
-                                  } else if (hotspot.productSku) {
-                                    const url = `/shop/${encodeURIComponent(hotspot.productSku)}`;
-                                    window.open(url, '_blank', 'noopener,noreferrer');
-                                  }
+                                // Immediate response - no drag detection needed for buttons
+                                if (hotspot.linkUrl) {
+                                  window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
+                                } else if (hotspot.productSku) {
+                                  const url = `/shop/${encodeURIComponent(hotspot.productSku)}`;
+                                  window.open(url, '_blank', 'noopener,noreferrer');
                                 }
-
-                                isDragging.current = false;
-                                mouseDownPos.current = null;
                                 return false;
                               }}
                             >
