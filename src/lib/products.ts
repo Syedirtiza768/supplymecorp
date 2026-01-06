@@ -27,6 +27,8 @@ export interface Product {
   upcCode?: string;
   modelNumber?: string;
   categoryTitleDescription?: string;
+  price?: number;
+  regularPrice?: number;
 }
 
 export async function fetchNewProducts(limit = 12): Promise<Product[]> {
