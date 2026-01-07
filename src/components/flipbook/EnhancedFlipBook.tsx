@@ -244,6 +244,10 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     // Navigate to initial page from URL once after flipbook is ready
     useEffect(() => {
       if (!isClient || !bookRef.current || hasInitializedFromURL.current) return;
+      
+      // Set flipbook ref for auto-play animated flips
+      actions.setFlipbookRef(bookRef.current);
+      
       if (initialPage === 0) {
         hasInitializedFromURL.current = true;
         return;

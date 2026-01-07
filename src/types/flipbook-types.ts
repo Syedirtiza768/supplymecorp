@@ -127,6 +127,8 @@ export interface FlipbookActions {
   lastPage: () => void;
   /** Toggle auto-play */
   toggleAutoPlay: () => void;
+  /** Set flipbook reference for animated flips during auto-play */
+  setFlipbookRef: (ref: any) => void;
   /** Toggle fullscreen */
   toggleFullscreen: () => void;
   /** Set zoom level */

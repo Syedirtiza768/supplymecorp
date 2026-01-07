@@ -53,6 +53,26 @@ export function FlipbookToolbar({
   const isFirstPage = state.currentPage === 0;
   const isLastPage = state.currentPage === (pageNumbers?.length ?? state.totalPages) - 1;
   const [pageInput, setPageInput] = useState('');
+  const [isFlipping, setIsFlipping] = useState(false);
+
+  // Smooth flipping animation for first/last page jumps
+  const smoothFlipToPage = async (targetPageIndex: number) => {
+    if (isFlipping) return; // Prevent concurrent flips
+    
+    setIsFlipping(true);
+    const currentPage = state.currentPage;
+    const step = targetPageIndex > currentPage ? 1 : -1;
+    let nextPage = currentPage + step;
+
+    // Animate page-by-page with smooth timing
+    while ((step > 0 && nextPage <= targetPageIndex) || (step < 0 && nextPage >= targetPageIndex)) {
+      await new Promise(resolve => setTimeout(resolve, 80)); // 80ms per page flip
+      actions.goToPage(nextPage);
+      nextPage += step;
+    }
+    
+    setIsFlipping(false);
+  };
 
   const pageNumberMap = useMemo(() => {
     if (!pageNumbers || pageNumbers.length === 0) return null;
@@ -125,10 +145,10 @@ export function FlipbookToolbar({
         <Button
           variant="outline"
           size="icon"
-          onClick={actions.firstPage}
-          disabled={isFirstPage}
+          onClick={() => smoothFlipToPage(0)}
+          disabled={isFirstPage || isFlipping}
           aria-label="First page"
-          title="First page (Home)"
+          title="First page (Home) - animated flip"
           className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
         >
           <ChevronsLeft className="h-4 w-4" />
@@ -174,10 +194,10 @@ export function FlipbookToolbar({
         <Button
           variant="outline"
           size="icon"
-          onClick={actions.lastPage}
-          disabled={isLastPage}
+          onClick={() => smoothFlipToPage(state.totalPages - 1)}
+          disabled={isLastPage || isFlipping}
           aria-label="Last page"
-          title="Last page (End)"
+          title="Last page (End) - animated flip"
           className="bg-transparent border-white/20 text-white hover:bg-white/10 hover:text-white disabled:opacity-30"
         >
           <ChevronsRight className="h-4 w-4" />

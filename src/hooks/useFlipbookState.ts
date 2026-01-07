@@ -26,6 +26,7 @@ export function useFlipbookState({
   const router = useRouter();
   const searchParams = useSearchParams();
   const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const flipbookRefRef = useRef<any>(null); // Reference to flipbook for animated flips
 
   // Initialize current page from URL if enableURLSync is true
   const getInitialPage = useCallback(() => {
@@ -73,15 +74,32 @@ export function useFlipbookState({
     }
   }, [state.currentPage, config.enableURLSync]);
 
-  // Auto-play effect
+  // Auto-play effect - with animated page flips
   useEffect(() => {
     if (state.isPlaying) {
       const interval = config.autoPlayInterval ?? 3000;
       autoPlayTimerRef.current = setInterval(() => {
-        setState((prev) => ({
-          ...prev,
-          currentPage: prev.currentPage >= prev.totalPages - 1 ? 0 : prev.currentPage + 1,
-        }));
+        setState((prev) => {
+          const nextPage = prev.currentPage >= prev.totalPages - 1 ? 0 : prev.currentPage + 1;
+          
+          // Use animated flip if flipbook ref is available
+          if (flipbookRefRef.current?.pageFlip) {
+            try {
+              const flipInstance = flipbookRefRef.current.pageFlip();
+              if (flipInstance?.flip && typeof flipInstance.flip === 'function') {
+                // Use animated flip() instead of instant turnToPage()
+                flipInstance.flip(nextPage);
+              }
+            } catch (e) {
+              console.warn('Auto-play flip animation failed, falling back to instant navigation');
+            }
+          }
+          
+          return {
+            ...prev,
+            currentPage: nextPage,
+          };
+        });
       }, interval);
     } else {
       if (autoPlayTimerRef.current) {
@@ -189,6 +207,10 @@ export function useFlipbookState({
 
     toggleAutoPlay: useCallback(() => {
       setState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
+    }, []),
+
+    setFlipbookRef: useCallback((ref: any) => {
+      flipbookRefRef.current = ref;
     }, []),
 
     toggleFullscreen: useCallback(async () => {
