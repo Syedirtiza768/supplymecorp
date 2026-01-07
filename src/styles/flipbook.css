@@ -29,7 +29,7 @@
 
 /* New subtle gutter line - present when spread, fades during flip, returns on settle */
 /* Applied to all pages via wrapper level to ensure visibility across all spreads */
-/* Color matches catalog primary brand color (hsl(43, 89%, 38%)) */
+/* Color matches catalog primary brand color (hsl(45, 93%, 56%)) */
 .flipbook-canvas-container .stf__wrapper::before {
   content: '';
   position: absolute;
@@ -38,8 +38,8 @@
   left: 50%;
   width: 3px;
   transform: translateX(-50%);
-  /* Primary catalog green color: matches subcategory/content page styling */
-  background: hsl(43, 89%, 38%);
+  /* Primary catalog yellow/gold color: matches subcategory/content page styling */
+  background: hsl(45, 93%, 56%);
   pointer-events: none;
   /* Below flipping page (z-20) but above base pages */
   z-index: 3;
@@ -762,9 +762,9 @@
    Catalog color coordination for visual consistency
    ============================================ */
 
-/* Primary catalog color: hsl(43, 89%, 38%) - green branding */
+/* Primary catalog color: hsl(45, 93%, 56%) - yellow/gold branding */
 :root {
-  --flipbook-catalog-color: hsl(43, 89%, 38%);
+  --flipbook-catalog-color: hsl(45, 93%, 56%);
 }
 
 /* Content tables and structured data in flipbook pages */
