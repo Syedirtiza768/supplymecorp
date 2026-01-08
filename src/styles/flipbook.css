@@ -38,8 +38,8 @@
   left: 50%;
   width: 8px;
   transform: translateX(-50%);
-  /* Exact subcategory header yellow: matches YELLOW = (255, 215, 0) from page generation */
-  background: rgb(255, 215, 0);
+  /* Exact subcategory header yellow: #FFD701 */
+  background: #FFD701;
   pointer-events: none;
   /* Below flipping page (z-20) but above base pages */
   z-index: 3;
