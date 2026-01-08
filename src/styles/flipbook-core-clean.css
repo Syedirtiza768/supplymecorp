@@ -156,6 +156,13 @@
   z-index: 11;
 }
 
+/* Ensure all pages fill container completely */
+.stf__item {
+  width: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
 /* Left page (even) styling - borders only, no padding */
 .stf__item:nth-child(2n) {
   border-right: 4px solid rgb(255, 215, 0);
