@@ -997,12 +997,11 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                 {page.pageNumber ?? index + 1}
               </div>
             )}
-            {/* Interaction layer: always present so turn hotspots never disappear */}
-            {hasLoaded && (
-              <div
-                className={`absolute inset-0 flipbook-hotspot-layer ${isActiveFlippingPage ? 'flipping' : ''}`}
-                style={{ zIndex: isActiveFlippingPage ? 30 : 12, pointerEvents: 'auto' }}
-              >
+            {/* Interaction layer: render hotspots immediately (data from DB), don't wait for image load */}
+            <div
+              className={`absolute inset-0 flipbook-hotspot-layer ${isActiveFlippingPage ? 'flipping' : ''}`}
+              style={{ zIndex: isActiveFlippingPage ? 30 : 12, pointerEvents: 'auto' }}
+            >
                 <div className="relative w-full h-full">
                   {(() => {
                     const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img') as HTMLImageElement;
@@ -1067,7 +1066,6 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                   })()}
                 </div>
               </div>
-            )}
           </>
         ) : (
           // Placeholder for unloaded pages
