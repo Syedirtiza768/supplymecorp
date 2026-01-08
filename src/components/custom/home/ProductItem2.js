@@ -2,6 +2,7 @@
 // This component is used in home and shop page for showing products in large size
 
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Rating from "../Rating";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -36,8 +37,14 @@ const ProductItem2 = ({
           <div className="absolute top-3 right-3 z-10">
             <WishlistButton productId={id} iconSize={20} />
           </div>
-          <div className="w-full aspect-square flex items-center justify-center mb-4 bg-gray-50 rounded-lg p-4">
-            <img src={img} alt={title} className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300" />
+          <div className="w-full aspect-square flex items-center justify-center mb-4 bg-gray-50 rounded-lg p-4 relative">
+            <Image
+              src={img || "/images/products/default.png"}
+              alt={title || "Product"}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-contain hover:scale-105 transition-transform duration-300"
+            />
           </div>
           <div className="mt-auto w-full flex flex-col items-center gap-3">
             <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug group-hover:text-primary transition-colors">{title}</h3>
@@ -67,8 +74,14 @@ const ProductItem2 = ({
         <div className="absolute top-3 right-3 z-10">
           <WishlistButton productId={id} iconSize={20} />
         </div>
-        <div className="w-full aspect-square flex items-center justify-center mb-4 bg-gray-50 rounded-lg p-4">
-          <img src={img} alt={title} className="max-w-full max-h-full object-contain hover:scale-105 transition-transform duration-300" />
+        <div className="w-full aspect-square flex items-center justify-center mb-4 bg-gray-50 rounded-lg p-4 relative">
+          <Image
+            src={img || "/images/products/default.png"}
+            alt={title || "Product"}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="object-contain hover:scale-105 transition-transform duration-300"
+          />
         </div>
         <div className="mt-auto w-full flex flex-col items-center gap-3">
           <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug">{title}</h3>

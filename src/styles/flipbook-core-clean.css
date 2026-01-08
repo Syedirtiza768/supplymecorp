@@ -58,10 +58,6 @@
 .stf__parent {
   position: relative !important;
   margin: 0 auto !important;
-  /* Outer book shadow - elevation effect */
-  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.25)) 
-          drop-shadow(0 10px 20px rgba(0, 0, 0, 0.15))
-          drop-shadow(0 5px 10px rgba(0, 0, 0, 0.1));
 }
 
 .stf__wrapper {
@@ -156,10 +152,8 @@
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.15);
-  box-shadow: 
-    0 15px 30px rgba(0, 0, 0, 0.15),
-    0 -15px 30px rgba(0, 0, 0, 0.15);
+  background: rgb(255, 215, 0);
+  box-shadow: none;
   pointer-events: none;
   z-index: 11;
 }
@@ -167,19 +161,15 @@
 /* Left page (even) styling - more spacing from gutter */
 .stf__item:nth-child(2n) {
   padding-right: 12px;
-  /* Progressive shadow: darker on right edge (toward spine) */
-  box-shadow: 
-    inset -15px 0 25px -15px rgba(0, 0, 0, 0.2),
-    5px 0 15px -5px rgba(0, 0, 0, 0.15);
+  border-right: 4px solid rgb(255, 215, 0);
+  border-left: 4px solid rgb(255, 215, 0);
 }
 
 /* Right page (odd) styling - more spacing from gutter */
 .stf__item:nth-child(2n+1) {
   padding-left: 12px;
-  /* Progressive shadow: darker on left edge (toward spine) */
-  box-shadow: 
-    inset 15px 0 25px -15px rgba(0, 0, 0, 0.2),
-    -5px 0 15px -5px rgba(0, 0, 0, 0.15);
+  border-left: 4px solid rgb(255, 215, 0);
+  border-right: 4px solid rgb(255, 215, 0);
 }
 
 /* Ensure content inside pages is centered */

@@ -23,9 +23,9 @@ function cacheUpcomingPages(currentPage: number, pages: any[], apiUrl: string) {
   if (typeof window === 'undefined' || !('serviceWorker' in navigator)) return;
   if (!navigator.serviceWorker.controller) return;
   
-  // Cache next 5 pages ahead of current position
+  // Cache next 2 pages ahead of current position
   const pagesToCache = pages
-    .slice(currentPage, currentPage + 5)
+    .slice(currentPage, currentPage + 2)
     .map(p => `${apiUrl}${p.imageUrl}`)
     .filter(url => url.startsWith('http'));
   
@@ -130,7 +130,7 @@ export function FeaturedFlipbook() {
         // Alternatively, instruct SW to fetch via API if needed
         navigator.serviceWorker.controller.postMessage({
           type: 'PRECACHE_FIRST_PAGES',
-          payload: { apiUrl: API_URL, flipbookId: data.id, count: 10 }
+          payload: { apiUrl: API_URL, flipbookId: data.id, count: 3 }
         });
       }
 

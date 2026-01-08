@@ -1,15 +1,17 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import FeaturedFlipbookClient from "@/components/FeaturedFlipbookClient";
 import Container1 from "@/components/custom/Container1";
 import ProductItem1 from "@/components/custom/home/ProductItem1";
 import Card1Item from "@/components/custom/home/Card1Item";
 import ProductItem2 from "@/components/custom/home/ProductItem2";
 import MyFlipBookEnhanced from "@/components/custom/MyFlipBookEnhanced";
-import { FeaturedFlipbook } from "@/components/FeaturedFlipbook";
 import { LiaShippingFastSolid } from "react-icons/lia";
 import ServicesItem from "@/components/custom/home/ServicesItem";
 import ProductsByCategorySection from "@/components/custom/home/ProductsByCategorySection";
 import { fetchNewProductsByCategory, fetchMostViewed, fetchFeaturedProducts } from "@/lib/products";
+
+export const revalidate = 60; // ISR for homepage
 
 export default async function Home() {
   // Fetch products from API
@@ -54,7 +56,7 @@ export default async function Home() {
           {/* Removed 2025 Catalog heading as requested */}
           {/* Show the featured flipbook on the homepage */}
           <Suspense fallback={<div className="h-[600px] flex items-center justify-center">Loading catalog...</div>}>
-            <FeaturedFlipbook />
+            <FeaturedFlipbookClient />
           </Suspense>
         </div>
       </section>

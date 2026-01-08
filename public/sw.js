@@ -163,7 +163,7 @@ self.addEventListener('message', (event) => {
     case 'PRECACHE_FIRST_PAGES':
       // Pre-cache first N pages for a flipbook by calling API
       // payload: { apiUrl, flipbookId, count }
-      preCacheFirstPages(payload).catch((e) => console.warn('[SW] PRECACHE_FIRST_PAGES failed:', e?.message || e));
+      preCacheFirstPages({ ...payload, count: 3 }).catch((e) => console.warn('[SW] PRECACHE_FIRST_PAGES failed:', e?.message || e));
       break;
       
     case 'CLEAR_CACHE':

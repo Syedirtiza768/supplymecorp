@@ -27,24 +27,24 @@
    Natural Physical Behavior, Zero Digital Artifacts
    ============================================ */
 
-/* New subtle gutter line - present when spread, fades during flip, returns on settle */
+/* Prominent gutter/spine line - present when spread, fades during flip, returns on settle */
 /* Applied to all pages via wrapper level to ensure visibility across all spreads */
-/* Color matches catalog primary brand color (hsl(45, 93%, 56%)) */
+/* Color matches subcategory header background: rgb(255, 215, 0) */
 .flipbook-canvas-container .stf__wrapper::before {
   content: '';
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 3px;
+  width: 8px;
   transform: translateX(-50%);
-  /* Primary catalog yellow/gold color: matches subcategory/content page styling */
-  background: hsl(45, 93%, 56%);
+  /* Exact subcategory header yellow: matches YELLOW = (255, 215, 0) from page generation */
+  background: rgb(255, 215, 0);
   pointer-events: none;
   /* Below flipping page (z-20) but above base pages */
   z-index: 3;
   /* Visible at full height, subtle fade during flip animation */
-  opacity: calc(0.85 + 0.15 * (1 - (var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4)));
+  opacity: calc(0.95 + 0.05 * (1 - (var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4)));
   mix-blend-mode: multiply;
 }
 
@@ -137,11 +137,9 @@
 .stf__wrapper {
   border-radius: 1px;
   position: relative;
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.16)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.10)) drop-shadow(0 3px 8px rgba(0, 0, 0, 0.08));
 }
 
 .flipbook-animating .stf__wrapper {
-  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.18)) drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.10));
   transition: filter 80ms linear;
 }
 

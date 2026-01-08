@@ -4,7 +4,6 @@ export async function fetchNewProductsByCategory(): Promise<Product[]> {
   const url = new URL(`${API_BASE}/api/products/new-by-category`);
   const response = await fetch(url.toString(), {
     next: { revalidate: 300 },
-    cache: 'no-store',
   });
   if (!response.ok) {
     throw new Error(`Failed to fetch new products by category: ${response.status}`);
@@ -37,7 +36,6 @@ export async function fetchNewProducts(limit = 12): Promise<Product[]> {
   
   const response = await fetch(url.toString(), {
     next: { revalidate: 300 },
-    cache: 'no-store',
   });
   
   if (!response.ok) {
@@ -54,7 +52,6 @@ export async function fetchMostViewed(limit = 12, days?: number): Promise<Produc
   
   const response = await fetch(url.toString(), {
     next: { revalidate: 300 },
-    cache: 'no-store',
   });
   
   if (!response.ok) {
@@ -70,7 +67,6 @@ export async function fetchFeaturedProducts(limit = 12): Promise<Product[]> {
   
   const response = await fetch(url.toString(), {
     next: { revalidate: 300 },
-    cache: 'no-store',
   });
   
   if (!response.ok) {

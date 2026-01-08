@@ -23,7 +23,8 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    // Enable Next Image Optimization in production
+    unoptimized: false,
     remotePatterns: [
       {
         protocol: 'https',
@@ -38,11 +39,23 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'rrgeneralsupply.com',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.rrgeneralsupply.com',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'https',
         hostname: '**',
         pathname: '/uploads/**',
       },
     ],
     formats: ['image/webp', 'image/avif'],
+    deviceSizes: [360, 640, 768, 1024, 1280, 1536, 1920],
+    imageSizes: [64, 96, 128, 256, 384],
   },
   
   // HTTP/2 Server Push headers for flipbook pages

@@ -33,7 +33,8 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return;
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const res = await fetch(`${apiUrl}/api/wishlist`, {
         headers: {
           "x-session-id": sessionId,
         },

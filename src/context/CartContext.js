@@ -38,13 +38,27 @@ export const CartProvider = ({ children }) => {
   // Fetch cart items from backend
   const fetchCart = async () => {
     setLoading(true);
-    const cartKey = getCartKey(user?.custNo);
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart`, {
-      headers: { 'x-session-id': cartKey },
-    });
-    const data = await res.json();
-    setCartItems(data.items || []);
-    setLoading(false);
+    try {
+      const cartKey = getCartKey(user?.custNo);
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      console.log('Fetching cart from:', `${apiUrl}/api/cart`);
+      const res = await fetch(`${apiUrl}/api/cart`, {
+        headers: { 'x-session-id': cartKey },
+      });
+      
+      if (!res.ok) {
+        console.error('Failed to fetch cart:', res.status);
+        return;
+      }
+      
+      const data = await res.json();
+      setCartItems(data.items || []);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      setCartItems([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
