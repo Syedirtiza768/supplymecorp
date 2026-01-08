@@ -150,7 +150,7 @@
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
-  background: #FFD701;
+  background: #FFD700;
   box-shadow: none;
   pointer-events: none;
   z-index: 11;
@@ -165,14 +165,14 @@
 
 /* Left page (even) styling - borders only, no padding */
 .stf__item:nth-child(2n) {
-  border-right: 4px solid #FFD701;
-  border-left: 4px solid #FFD701;
+  border-right: 4px solid #FFD700;
+  border-left: 4px solid #FFD700;
 }
 
 /* Right page (odd) styling - borders only, no padding */
 .stf__item:nth-child(2n+1) {
-  border-left: 4px solid #FFD701;
-  border-right: 4px solid #FFD701;
+  border-left: 4px solid #FFD700;
+  border-right: 4px solid #FFD700;
 }
 
 /* Ensure content inside pages is centered */
