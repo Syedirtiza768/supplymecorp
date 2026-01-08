@@ -1048,10 +1048,13 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
                                 e.stopPropagation();
 
                                 // Immediate response - no drag detection needed for buttons
+                                const clickTime = performance.now();
                                 if (hotspot.linkUrl) {
+                                  console.log(`🔗 Hotspot clicked - opening linkUrl: ${hotspot.linkUrl}`);
                                   window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
                                 } else if (hotspot.productSku) {
                                   const url = `/shop/${encodeURIComponent(hotspot.productSku)}`;
+                                  console.log(`🔗 Hotspot clicked (${hotspot.productSku}) - opening: ${url} at ${clickTime}ms`);
                                   window.open(url, '_blank', 'noopener,noreferrer');
                                 }
                                 return false;
