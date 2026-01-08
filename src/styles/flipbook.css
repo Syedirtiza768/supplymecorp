@@ -44,8 +44,7 @@
   /* Below flipping page (z-20) but above base pages */
   z-index: 3;
   /* Visible at full height, subtle fade during flip animation */
-  opacity: calc(0.95 + 0.05 * (1 - (var(--flip-progress, 0) * (1 - var(--flip-progress, 0)) * 4)));
-  mix-blend-mode: multiply;
+  opacity: 1;
 }
 
 /* Micro-shadow layer on gutter - only appears during page lifts */
