@@ -158,7 +158,7 @@
 .flipbook-hotspot-layer {
   position: absolute;
   inset: 0;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 2;
   /* Always visible, subtle fade during flip to feel "under paper" */
   opacity: 1;
