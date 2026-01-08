@@ -26,26 +26,43 @@ const Shop = ({ params }) => {
         setLoading(true);
         const productId = params.id || params.sku;
         if (!productId) throw new Error("Product ID not found in URL parameters");
-        // Fetch both endpoints in parallel
+        
+        // Fetch product data with timeout (5 seconds)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
         const [standardRes, mergedRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`),
-          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}/merged`)
-        ]);
-        if (!standardRes.ok) throw new Error(`Failed to fetch product: ${standardRes.status}`);
-        if (!mergedRes.ok) throw new Error(`Failed to fetch price: ${mergedRes.status}`);
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}`, { signal: controller.signal }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products/${productId}/merged`, { signal: controller.signal })
+        ]).catch(err => {
+          if (err.name === 'AbortError') {
+            console.warn('Product fetch timeout - falling back to cached data');
+            return [null, null];
+          }
+          throw err;
+        }).finally(() => clearTimeout(timeoutId));
+        
+        if (!standardRes?.ok || !mergedRes?.ok) {
+          throw new Error(`Failed to fetch product: ${standardRes?.status || 'unknown'}`);
+        }
+        
         const standardText = await standardRes.text();
         const mergedText = await mergedRes.text();
         if (!standardText) throw new Error('No product data returned');
         if (!mergedText) throw new Error('No price data returned');
+        
         let standardData, mergedData;
         try { standardData = JSON.parse(standardText); } catch (e) { throw new Error('Invalid product data received'); }
         try { mergedData = JSON.parse(mergedText); } catch (e) { throw new Error('Invalid price data received'); }
+        
         // Use merged data for name, description, images, price, fallback to standard if needed
-        setProduct({
+        const productData = {
           ...standardData,
           ...mergedData,
           price: mergedData.price != null ? mergedData.price : standardData.price,
-        });
+        };
+        setProduct(productData);
+        
         // Set the default slider image to the first merged image if available
         if (mergedData.images && mergedData.images.length > 0) {
           setSliderImg(mergedData.images[0]);
@@ -56,27 +73,38 @@ const Shop = ({ params }) => {
         } else {
           setSliderImg("/images/products/product1.jpg");
         }
-        // Fetch related products (same categoryCode)
+        
+        // Fetch related products in parallel with main product (don't wait for it to complete)
         if (standardData.categoryCode) {
-          const relatedResponse = await fetch(
+          fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/api/products/filters/by-category/${standardData.categoryCode}?limit=4`
-          );
-          if (relatedResponse.ok) {
-            const relatedData = await relatedResponse.json();
-            let filteredProducts = relatedData.items
-              ? relatedData.items.filter(
-                  (item) => item.id !== standardData.id && item.sku !== standardData.sku
-                )
-              : [];
-            const seen = new Set();
-            filteredProducts = filteredProducts.filter((item) => {
-              const key = item.sku || item.id;
-              if (seen.has(key)) return false;
-              seen.add(key);
-              return true;
+          )
+            .then(relatedResponse => {
+              if (relatedResponse.ok) {
+                return relatedResponse.json();
+              }
+              return null;
+            })
+            .then(relatedData => {
+              if (!relatedData) return;
+              let filteredProducts = relatedData.items
+                ? relatedData.items.filter(
+                    (item) => item.id !== standardData.id && item.sku !== standardData.sku
+                  )
+                : [];
+              const seen = new Set();
+              filteredProducts = filteredProducts.filter((item) => {
+                const key = item.sku || item.id;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+              });
+              setRelatedProducts(filteredProducts.slice(0, 3));
+            })
+            .catch(err => {
+              console.warn('Failed to fetch related products:', err);
+              // Don't block main product display if related products fail
             });
-            setRelatedProducts(filteredProducts.slice(0, 3));
-          }
         }
       } catch (err) {
         console.error("Error fetching product:", err);
