@@ -922,15 +922,12 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
             <img
               src={page.src}
               alt={page.alt || `Page ${index + 1}`}
-              className="w-auto h-auto transition-opacity duration-300"
+              className="w-full h-full transition-opacity duration-300"
               style={{
-                width: 'auto',
+                width: '100%',
                 height: '100%',
-                maxWidth: '100%',
-                maxHeight: '100%',
-                objectFit: 'contain',
+                objectFit: 'cover',
                 display: 'block',
-                margin: 'auto',
                 pointerEvents: 'none',
                 opacity: hasLoaded ? 1 : 0
               }}
