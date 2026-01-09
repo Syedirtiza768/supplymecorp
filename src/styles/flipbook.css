@@ -93,8 +93,11 @@
 .flipbook-page img {
   width: 100% !important;
   height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
   object-fit: cover !important;
   display: block !important;
+  margin: auto !important;
   /* Prevent blur during transforms */
   will-change: transform;
   backface-visibility: hidden;
