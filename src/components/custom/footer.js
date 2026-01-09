@@ -15,11 +15,9 @@ const categories = [
 
 const quickLinks = [
   { name: "About Us", href: "/about" },
-  { name: "Services", href: "/services" },
-  { name: "News", href: "/news" },
   { name: "Contact", href: "/contact" },
-  { name: "Privacy Policy", href: "/privacy" },
-  { name: "Terms of Service", href: "/terms" },
+  { name: "Shop", href: "/shop" },
+  { name: "Catalogue", href: "/flipbooks" },
 ];
   import { selectedStaticCategories } from "@/data";
 

@@ -525,6 +525,12 @@
     font-size: 0.625rem;
     padding: 0.125rem 0.375rem;
   }
+
+  /* Hide spine elements on mobile (single page view) */
+  .flipbook-canvas-container .stf__wrapper::before,
+  .flipbook-canvas-container .stf__wrapper::after {
+    display: none !important;
+  }
 }
 
 /* Small mobile devices */

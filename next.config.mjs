@@ -7,9 +7,14 @@ const FLIPBOOK_ID = '2025-26-Fall-Winter-Catalogue';
 // Generate Link headers for HTTP/2 Server Push (first 5 pages)
 const generatePushHeaders = () => {
   const headers = [];
-  for (let i = 0; i < 5; i++) {
+  // First page: preload (used immediately)
+  headers.push(
+    `<${API_URL}/uploads/flipbooks/${FLIPBOOK_ID}/page-0.webp>; rel=preload; as=image; type=image/webp`
+  );
+  // Remaining pages: prefetch (used soon, but not immediately)
+  for (let i = 1; i < 5; i++) {
     headers.push(
-      `<${API_URL}/uploads/flipbooks/${FLIPBOOK_ID}/page-${i}.webp>; rel=preload; as=image; type=image/webp`
+      `<${API_URL}/uploads/flipbooks/${FLIPBOOK_ID}/page-${i}.webp>; rel=prefetch; as=image; type=image/webp`
     );
   }
   return headers.join(', ');

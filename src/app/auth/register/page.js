@@ -26,20 +26,7 @@ export default function RegisterPage() {
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            By creating an account, you agree to our{" "}
-            <Link
-              href="/terms"
-              className="font-medium text-gray-900 hover:underline"
-            >
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link
-              href="/privacy"
-              className="font-medium text-gray-900 hover:underline"
-            >
-              Privacy Policy
-            </Link>
+            By continuing, you agree to our terms of service and privacy policy.
           </p>
         </div>
       </div>
