@@ -54,6 +54,45 @@ export function FeaturedFlipbook() {
     return 0;
   }, [searchParams]);
   
+  // Calculate responsive flipbook dimensions based on available viewport
+  const flipbookDimensions = useMemo(() => {
+    if (typeof window === 'undefined') {
+      return { width: 380, height: 500 }; // Default for SSR
+    }
+    
+    // Available height calculation:
+    // viewport - navbar (120px) - hero (350px) - section padding (48px) - title (~100px) - safety margin (50px)
+    const navbarHeight = 120;
+    const heroHeight = 350;
+    const sectionPadding = 48;
+    const titleHeight = 100;
+    const safetyMargin = 50;
+    const availableHeight = window.innerHeight - navbarHeight - heroHeight - sectionPadding - titleHeight - safetyMargin;
+    
+    // Book aspect ratio (3:4 for single page)
+    const aspectRatio = 0.75; // width/height for single page
+    
+    // Start with available height but cap at reasonable max
+    let height = Math.min(availableHeight, 550); // Max 550px to ensure fit
+    let width = height * aspectRatio;
+    
+    // Ensure minimum dimensions for usability
+    if (height < 350) height = 350;
+    if (width < 260) width = 260;
+    
+    // Ensure it fits viewport width (account for spread = 2x width + padding + controls)
+    const maxWidth = (window.innerWidth - 200) / 2; // Spread view needs 2x + controls
+    if (width > maxWidth) {
+      width = maxWidth;
+      height = width / aspectRatio;
+    }
+    
+    return {
+      width: Math.floor(width),
+      height: Math.floor(height),
+    };
+  }, []);
+  
   /**
    * Lazy Loading Configuration:
    * - Preload first 5 pages only for fast initial load
@@ -244,13 +283,13 @@ export function FeaturedFlipbook() {
 
   return (
     <>
-      <div className="bg-white text-black text-center py-2 px-6 mb-0">
+      <div className="bg-white text-black text-center py-2 px-6 mb-4">
         <h1 className="text-4xl font-bold">{flipbook.title}</h1>
         {flipbook.description && (
           <p className="text-sm text-gray-700 mt-1">{flipbook.description}</p>
         )}
       </div>
-      <div className="flipbook-canvas-container m-0 p-0 border-0 relative">
+      <div className="flipbook-canvas-container border-0 relative">
         {/* Show loader overlay until ready */}
         {loaderState !== 'READY' && (
           <FlipbookLoader 
@@ -268,8 +307,8 @@ export function FeaturedFlipbook() {
             initialPage={initialPage}
             onMount={handleFlipbookMount}
             config={{
-              width: 420,
-              height: 560,
+              width: flipbookDimensions.width,
+              height: flipbookDimensions.height,
               minWidth: 300,
               maxWidth: 700,
               minHeight: 400,

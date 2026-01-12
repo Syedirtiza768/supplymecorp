@@ -51,11 +51,18 @@ export default async function Home() {
       </div>
 
       {/* FlipBook */}
-      <section className="container">
-        <div className="m-0 p-0">
+      <section className="w-full py-6 mb-16">
+        <div className="w-full max-w-7xl mx-auto px-4">
           {/* Removed 2025 Catalog heading as requested */}
           {/* Show the featured flipbook on the homepage */}
-          <Suspense fallback={<div className="h-[600px] flex items-center justify-center">Loading catalog...</div>}>
+          <Suspense fallback={
+            <div className="flex items-center justify-center" style={{ height: 'calc(100vh - 520px)' }}>
+              <div className="text-center">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-muted-foreground">Loading catalog...</p>
+              </div>
+            </div>
+          }>
             <FeaturedFlipbookClient />
           </Suspense>
         </div>

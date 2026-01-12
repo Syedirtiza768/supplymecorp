@@ -50,10 +50,14 @@ const ProductItem2 = ({
             <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug group-hover:text-primary transition-colors">{title}</h3>
             {!hidePrice && (
               <div className="flex items-center gap-3 w-full justify-center">
-                {oldPrice && (
-                  <span className="text-gray-400 line-through text-sm">${oldPrice}</span>
+                {oldPrice && oldPrice > 0 && (
+                  <span className="text-gray-400 line-through text-sm">${Number(oldPrice).toFixed(2)}</span>
                 )}
-                <span className="text-2xl font-bold text-primary">${price}</span>
+                {price && price > 0 ? (
+                  <span className="text-2xl font-bold text-primary">${Number(price).toFixed(2)}</span>
+                ) : (
+                  <span className="text-gray-500 text-sm">Contact for pricing</span>
+                )}
               </div>
             )}
             <Button className="w-full bg-primary hover:bg-primary-700 text-white shadow-md hover:shadow-lg transition-all" onClick={(e) => { e.preventDefault(); window.location.href = link || url; }}>

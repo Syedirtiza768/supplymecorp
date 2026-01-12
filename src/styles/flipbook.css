@@ -5,9 +5,13 @@
 /* Flipbook Canvas Container - Main background with aesthetic image */
 .flipbook-canvas-container {
   height: auto;
+  min-height: 600px; /* Ensure minimum height for stability */
   width: 100%;
   padding: 0;
   margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .flipbook-stage {
@@ -837,5 +841,38 @@
   .flipbook-page,
   .stf__item {
     transform: translateZ(0);
+  }
+}
+
+/* ============================================
+   RESPONSIVE VIEWPORT ADJUSTMENTS
+   Ensure flipbook fits without scrolling
+   ============================================ */
+
+/* Tablets and smaller screens */
+@media (max-width: 1024px) {
+  .flipbook-canvas-container {
+    max-height: calc(100vh - 450px); /* navbar + hero + reduced padding */
+  }
+}
+
+/* Mobile devices */
+@media (max-width: 768px) {
+  .flipbook-canvas-container {
+    max-height: calc(100vh - 400px); /* Compact layout */
+    padding: 0.5rem;
+  }
+  
+  /* Single page view on mobile for better UX */
+  .flipbook-stage {
+    max-width: 100vw;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .flipbook-canvas-container {
+    max-height: calc(100vh - 350px);
+    padding: 0.25rem;
   }
 }

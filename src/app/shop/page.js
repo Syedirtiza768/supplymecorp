@@ -260,7 +260,7 @@ const ShopContent = () => {
                           product.itemImage1 ||
                           "/images/shop/no-image.png"
                         }
-                        price={product.price || 59.99}
+                        price={product.price}
                         title={
                           product.onlineTitleDescription ||
                           product.brandName ||
@@ -268,7 +268,7 @@ const ShopContent = () => {
                         }
                         rating={4}
                         discount={product.discount}
-                        oldPrice={product.oldPrice}
+                        oldPrice={product.regularPrice > product.price ? product.regularPrice : product.oldPrice}
                         url={`/shop/${product.id || product.sku}`}
                       />
                     ))}
@@ -289,7 +289,9 @@ const ShopContent = () => {
                           product.brandName ||
                           "Product Name"
                         }
-                        rating={4} // Default rating as it's not in the API response
+                        price={product.price}
+                        oldPrice={product.regularPrice > product.price ? product.regularPrice : product.oldPrice}
+                        rating={4}
                         description={
                           product.onlineLongDescription ||
                           "No description available."
