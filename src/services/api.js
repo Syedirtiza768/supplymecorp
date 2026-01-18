@@ -1,5 +1,8 @@
 // src/services/api.js
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+// IMPORTANT: NEXT_PUBLIC_API_URL is the base URL (e.g., http://localhost:3000)
+// All NestJS backend routes have /api prefix (set in main.ts)
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const API_URL = `${API_BASE}/api`;
 
 /**
  * Base API service for product-related endpoints
