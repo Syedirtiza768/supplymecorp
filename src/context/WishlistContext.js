@@ -4,6 +4,12 @@ import { v4 as uuidv4 } from "uuid";
 
 const WishlistContext = createContext();
 
+// Helper to get normalized API URL (remove trailing slash)
+function getApiUrl() {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
 export const useWishlist = () => {
   const context = useContext(WishlistContext);
   if (!context) {
@@ -33,7 +39,7 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return;
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/wishlist?t=${Date.now()}`, {
         headers: {
           "x-session-id": sessionId,
@@ -63,7 +69,7 @@ export const WishlistProvider = ({ children }) => {
     if (!sessionId) return;
     
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const res = await fetch(`${apiUrl}/api/wishlist/count?t=${Date.now()}`, {
         headers: {
           "x-session-id": sessionId,
@@ -99,7 +105,7 @@ export const WishlistProvider = ({ children }) => {
     setWishlistCount(prev => prev + 1);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/wishlist/items`, {
         method: "POST",
         headers: {
@@ -141,7 +147,7 @@ export const WishlistProvider = ({ children }) => {
     setWishlistCount(prev => Math.max(0, prev - 1));
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const response = await fetch(
         `${apiUrl}/api/wishlist/items/${productId}`,
         {
@@ -184,7 +190,7 @@ export const WishlistProvider = ({ children }) => {
     setWishlistCount(0);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/wishlist`, {
         method: "DELETE",
         headers: {

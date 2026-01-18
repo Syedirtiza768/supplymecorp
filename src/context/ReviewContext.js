@@ -4,6 +4,12 @@ import { v4 as uuidv4 } from "uuid";
 
 const ReviewContext = createContext();
 
+// Helper to get normalized API URL (remove trailing slash)
+function getApiUrl() {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
 export const useReview = () => {
   const context = useContext(ReviewContext);
   if (!context) {
@@ -28,7 +34,7 @@ export const ReviewProvider = ({ children }) => {
   // Fetch all reviews for a product
   const getProductReviews = useCallback(async (productId) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const res = await fetch(
         `${apiUrl}/api/reviews/product/${productId}`
       );
@@ -48,7 +54,7 @@ export const ReviewProvider = ({ children }) => {
   // Get average rating for a product
   const getAverageRating = useCallback(async (productId) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const res = await fetch(
         `${apiUrl}/api/reviews/product/${productId}/average`
       );
@@ -101,7 +107,7 @@ export const ReviewProvider = ({ children }) => {
     if (!sessionId) return { success: false, error: "No session ID" };
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       const response = await fetch(`${apiUrl}/api/reviews`, {
         method: "POST",
         headers: {

@@ -74,10 +74,18 @@ self.addEventListener('fetch', (event) => {
   // Strategy: Stale-while-revalidate for API responses
   if (API_URL_PATTERN.test(url.pathname)) {
     event.respondWith(
-      staleWhileRevalidate(event.request, API_CACHE).catch(err => {
-        console.warn('[SW] Network error:', err.message);
-        return new Response(null, { status: 503, statusText: 'Service Unavailable' });
-      })
+      (async () => {
+        try {
+          return await staleWhileRevalidate(event.request, API_CACHE);
+        } catch (err) {
+          console.warn('[SW] API fetch failed:', err.message);
+          return new Response(JSON.stringify({ error: 'Service unavailable' }), {
+            status: 503,
+            statusText: 'Service Unavailable',
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      })()
     );
     return;
   }

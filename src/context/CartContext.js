@@ -4,6 +4,12 @@ import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
 
+// Helper to get normalized API URL (remove trailing slash)
+function getApiUrl() {
+  const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  return url.endsWith('/') ? url.slice(0, -1) : url;
+}
+
 function getCartKey(custNo) {
   // Always use a UUID for the cart key (required by backend)
   if (custNo) {
@@ -93,7 +99,7 @@ export const CartProvider = ({ children }) => {
       setCartItems(prev => [...prev, tempItem]);
       
       const cartKey = getCartKey(user?.custNo);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const apiUrl = getApiUrl();
       
       const response = await fetch(`${apiUrl}/api/cart/items`, {
         method: 'POST',
