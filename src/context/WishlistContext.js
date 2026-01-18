@@ -1,7 +1,6 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { cachedFetch, mutate, invalidateCache } from "@/lib/apiCache";
 
 const WishlistContext = createContext();
 
@@ -18,7 +17,6 @@ export const WishlistProvider = ({ children }) => {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState(null);
-  const fetchingRef = useRef(false);
 
   // Initialize session ID
   useEffect(() => {
@@ -30,43 +28,56 @@ export const WishlistProvider = ({ children }) => {
     setSessionId(sid);
   }, []);
 
-  // Fetch wishlist items with caching
-  const fetchWishlist = useCallback(async (skipCache = false) => {
+  // Fetch wishlist items
+  const fetchWishlist = useCallback(async () => {
     if (!sessionId) return;
-    if (fetchingRef.current) return;
-    
-    fetchingRef.current = true;
     
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await cachedFetch(
-        `${apiUrl}/api/wishlist`,
-        { headers: { "x-session-id": sessionId } },
-        { skip: skipCache }
-      );
-      
-      setWishlistItems(data.items || []);
-      setWishlistCount(data.items?.length || 0);
+      const res = await fetch(`${apiUrl}/api/wishlist?t=${Date.now()}`, {
+        headers: {
+          "x-session-id": sessionId,
+          'Cache-Control': 'no-cache'
+        },
+      }).catch(err => {
+        console.warn('Wishlist API unavailable:', err.message);
+        return null;
+      });
+
+      if (res && res.ok) {
+        const data = await res.json();
+        setWishlistItems(data.items || []);
+        setWishlistCount(data.items?.length || 0);
+      } else if (res) {
+        console.error('Failed to fetch wishlist:', res.status);
+      }
     } catch (error) {
       console.error("Error fetching wishlist:", error);
     } finally {
       setLoading(false);
-      fetchingRef.current = false;
     }
   }, [sessionId]);
 
-  // Fetch wishlist count with caching
+  // Fetch wishlist count
   const fetchWishlistCount = useCallback(async () => {
     if (!sessionId) return;
     
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await cachedFetch(
-        `${apiUrl}/api/wishlist/count`,
-        { headers: { "x-session-id": sessionId } }
-      );
-      
-      setWishlistCount(data.count || 0);
+      const res = await fetch(`${apiUrl}/api/wishlist/count?t=${Date.now()}`, {
+        headers: {
+          "x-session-id": sessionId,
+          'Cache-Control': 'no-cache'
+        },
+      }).catch(err => {
+        console.warn('Wishlist count API unavailable:', err.message);
+        return null;
+      });
+
+      if (res && res.ok) {
+        const data = await res.json();
+        setWishlistCount(data.count || 0);
+      }
     } catch (error) {
       console.error("Error fetching wishlist count:", error);
     }
@@ -78,7 +89,7 @@ export const WishlistProvider = ({ children }) => {
     }
   }, [sessionId, fetchWishlist]);
 
-  // Add item to wishlist with optimistic update
+  // Add item to wishlist
   const addToWishlist = useCallback(async (productId) => {
     if (!sessionId) return { success: false, error: "No session ID" };
 
@@ -89,19 +100,20 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await mutate(
-        `${apiUrl}/api/wishlist/items`,
-        {
-          method: "POST",
-          headers: { "x-session-id": sessionId },
-          body: JSON.stringify({ productId: String(productId) }),
+      const response = await fetch(`${apiUrl}/api/wishlist/items`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-session-id": sessionId,
         },
-        ['/api/wishlist']
-      );
+        body: JSON.stringify({ productId: String(productId) }),
+      });
+
+      const data = await response.json();
       
       if (data.ok) {
-        // Background refresh
-        fetchWishlist(true);
+        // Refresh wishlist
+        await fetchWishlist();
         return { success: true };
       } else {
         // Rollback
@@ -118,7 +130,7 @@ export const WishlistProvider = ({ children }) => {
     }
   }, [sessionId, fetchWishlist]);
 
-  // Remove item from wishlist with optimistic update
+  // Remove item from wishlist
   const removeFromWishlist = useCallback(async (productId) => {
     if (!sessionId) return { success: false };
 
@@ -130,18 +142,21 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await mutate(
+      const response = await fetch(
         `${apiUrl}/api/wishlist/items/${productId}`,
         {
           method: "DELETE",
-          headers: { "x-session-id": sessionId },
-        },
-        ['/api/wishlist']
+          headers: {
+            "x-session-id": sessionId,
+          },
+        }
       );
+
+      const data = await response.json();
       
       if (data.ok) {
-        // Background refresh
-        fetchWishlist(true);
+        // Refresh wishlist
+        await fetchWishlist();
         return { success: true };
       } else {
         // Rollback
@@ -158,7 +173,7 @@ export const WishlistProvider = ({ children }) => {
     }
   }, [sessionId, wishlistItems, wishlistCount, fetchWishlist]);
 
-  // Clear entire wishlist with optimistic update
+  // Clear entire wishlist
   const clearWishlist = useCallback(async () => {
     if (!sessionId) return { success: false };
 
@@ -170,14 +185,14 @@ export const WishlistProvider = ({ children }) => {
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await mutate(
-        `${apiUrl}/api/wishlist`,
-        {
-          method: "DELETE",
-          headers: { "x-session-id": sessionId },
+      const response = await fetch(`${apiUrl}/api/wishlist`, {
+        method: "DELETE",
+        headers: {
+          "x-session-id": sessionId,
         },
-        ['/api/wishlist']
-      );
+      });
+
+      const data = await response.json();
       
       if (data.ok) {
         return { success: true };

@@ -1,7 +1,6 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { cachedFetch, mutate, invalidateCache } from "@/lib/apiCache";
 
 const ReviewContext = createContext();
 
@@ -26,78 +25,98 @@ export const ReviewProvider = ({ children }) => {
     setSessionId(sid);
   }, []);
 
-  // Fetch all reviews for a product with caching
+  // Fetch all reviews for a product
   const getProductReviews = useCallback(async (productId) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await cachedFetch(
+      const res = await fetch(
         `${apiUrl}/api/reviews/product/${productId}`
       );
-      
-      return { success: true, reviews: data.reviews || [] };
+
+      if (res.ok) {
+        const data = await res.json();
+        return { success: true, reviews: data.reviews || [] };
+      } else {
+        return { success: false, reviews: [], error: "Failed to fetch reviews" };
+      }
     } catch (error) {
       console.error("Error fetching reviews:", error);
       return { success: false, reviews: [], error: "Failed to fetch reviews" };
     }
   }, []);
 
-  // Get average rating for a product with caching
+  // Get average rating for a product
   const getAverageRating = useCallback(async (productId) => {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await cachedFetch(
+      const res = await fetch(
         `${apiUrl}/api/reviews/product/${productId}/average`
       );
-      
-      return {
-        success: true,
-        averageRating: data.averageRating || 0,
-        totalReviews: data.totalReviews || 0,
-      };
+
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          success: true,
+          averageRating: data.averageRating || 0,
+          totalReviews: data.totalReviews || 0,
+        };
+      } else {
+        return { success: false, averageRating: 0, totalReviews: 0 };
+      }
     } catch (error) {
       console.error("Error fetching average rating:", error);
       return { success: false, averageRating: 0, totalReviews: 0 };
     }
   }, []);
 
-  // Get user's review for a product with caching
+  // Get user's review for a product
   const getUserReview = useCallback(async (productId) => {
     if (!sessionId) return { success: false, review: null };
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await cachedFetch(
+      const res = await fetch(
         `${apiUrl}/api/reviews/product/${productId}/user`,
-        { headers: { "x-session-id": sessionId } }
+        {
+          headers: {
+            "x-session-id": sessionId,
+          },
+        }
       );
-      
-      return { success: true, review: data.review };
+
+      if (res.ok) {
+        const data = await res.json();
+        return { success: true, review: data.review };
+      } else {
+        return { success: false, review: null };
+      }
     } catch (error) {
       console.error("Error fetching user review:", error);
       return { success: false, review: null };
     }
   }, [sessionId]);
 
-  // Add a new review with cache invalidation
+  // Add a new review
   const addReview = useCallback(async (productId, rating, comment, userName) => {
     if (!sessionId) return { success: false, error: "No session ID" };
 
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const data = await mutate(
-        `${apiUrl}/api/reviews`,
-        {
-          method: "POST",
-          headers: { "x-session-id": sessionId },
-          body: JSON.stringify({
-            productId: String(productId),
-            rating,
-            comment: comment || "",
-            userName: userName || "Anonymous",
-          }),
+      const response = await fetch(`${apiUrl}/api/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-session-id": sessionId,
         },
-        [`/api/reviews/product/${productId}`]
-      );
+        body: JSON.stringify({
+          productId: String(productId),
+          rating,
+          comment: comment || "",
+          userName: userName || "Anonymous",
+        }),
+      });
+
+      const data = await response.json();
 
       if (data.ok) {
         return { success: true, review: data.review };

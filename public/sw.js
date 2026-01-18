@@ -73,7 +73,12 @@ self.addEventListener('fetch', (event) => {
   
   // Strategy: Stale-while-revalidate for API responses
   if (API_URL_PATTERN.test(url.pathname)) {
-    event.respondWith(staleWhileRevalidate(event.request, API_CACHE));
+    event.respondWith(
+      staleWhileRevalidate(event.request, API_CACHE).catch(err => {
+        console.warn('[SW] Network error:', err.message);
+        return new Response(null, { status: 503, statusText: 'Service Unavailable' });
+      })
+    );
     return;
   }
 });
@@ -146,6 +151,7 @@ async function staleWhileRevalidate(request, cacheName) {
     return cachedResponse;
   }
   
+  // No cache, wait for network (will throw if network fails, caught by caller)
   return fetchPromise;
 }
 

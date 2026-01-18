@@ -1,7 +1,6 @@
 "use client";
-import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { useAuth } from './AuthContext';
-import { cachedFetch, invalidateCache, mutate } from '@/lib/apiCache';
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { useAuth } from "./AuthContext";
 
 const CartContext = createContext();
 
@@ -34,53 +33,43 @@ function getCartKey(custNo) {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const fetchingRef = useRef(false); // Prevent duplicate fetches
   const { user } = useAuth();
 
-  // Fetch cart items from backend with caching
-  const fetchCart = useCallback(async (skipCache = false) => {
-    // Prevent duplicate concurrent fetches (but allow forced refresh)
-    if (fetchingRef.current && !skipCache) {
-      console.log('⏳ Cart fetch already in progress, skipping');
-      return;
-    }
-    
-    // Wait for any pending fetch to complete if we're forcing a refresh
-    if (fetchingRef.current && skipCache) {
-      console.log('⏳ Waiting for pending fetch to complete before refresh...');
-      await new Promise(resolve => {
-        const interval = setInterval(() => {
-          if (!fetchingRef.current) {
-            clearInterval(interval);
-            resolve(true);
-          }
-        }, 50);
-      });
-    }
-    
-    fetchingRef.current = true;
+  // Fetch cart items from backend
+  const fetchCart = useCallback(async () => {
     setLoading(true);
-    
     try {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
-      console.log(`🔍 Fetching cart (skipCache=${skipCache})...`);
+      const res = await fetch(`${apiUrl}/api/cart?t=${Date.now()}`, {
+        headers: { 
+          'x-session-id': cartKey,
+          'Cache-Control': 'no-cache'
+        },
+      }).catch(err => {
+        console.warn('Cart API unavailable:', err.message);
+        return null;
+      });
       
-      const data = await cachedFetch(
-        `${apiUrl}/api/cart`,
-        { headers: { 'x-session-id': cartKey } },
-        { skip: skipCache }
-      );
+      if (!res) {
+        setCartItems([]);
+        return;
+      }
       
-      console.log(`📦 Cart fetched: ${data.items?.length || 0} items`);
+      if (!res.ok) {
+        console.error('Failed to fetch cart:', res.status);
+        setCartItems([]);
+        return;
+      }
+      
+      const data = await res.json();
       setCartItems(data.items || []);
     } catch (error) {
-      console.error('❌ Error fetching cart:', error);
+      console.error('Error fetching cart:', error);
       setCartItems([]);
     } finally {
       setLoading(false);
-      fetchingRef.current = false;
     }
   }, [user?.custNo]);
 
@@ -92,10 +81,8 @@ export const CartProvider = ({ children }) => {
 
   // Add to cart
   const addToCart = useCallback(async (productId, qty = 1) => {
-    console.log('🛒 Adding to cart:', { productId, qty, type: typeof productId });
-    
     try {
-      // Optimistic update - add to UI immediately
+      // Optimistic update
       const tempItem = {
         id: `temp-${Date.now()}`,
         productId: String(productId),
@@ -108,30 +95,24 @@ export const CartProvider = ({ children }) => {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
-      console.log('📤 Sending cart request:', { url: `${apiUrl}/api/cart/items`, productId: String(productId), qty, sessionId: cartKey });
-      
-      const result = await mutate(
-        `${apiUrl}/api/cart/items`,
-        {
-          method: 'POST',
-          headers: { 'x-session-id': cartKey },
-          body: JSON.stringify({ productId: String(productId), qty }),
+      const response = await fetch(`${apiUrl}/api/cart/items`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': cartKey,
         },
-        ['/api/cart'] // Invalidate cart cache
-      );
+        body: JSON.stringify({ productId: String(productId), qty }),
+      });
       
-      console.log('✅ Cart API response:', result);
-      
-      if (!result || !result.ok) {
-        throw new Error(result?.error || 'Failed to add to cart');
+      if (!response.ok) {
+        throw new Error('Failed to add item to cart');
       }
       
-      // Refresh cart with real data (skip cache to get fresh data)
-      await fetchCart(true);
-      console.log('🔄 Cart refreshed after add');
+      // Refresh cart with real data
+      await fetchCart();
       return { success: true };
     } catch (error) {
-      console.error('❌ Error adding to cart:', error);
+      console.error('Error adding to cart:', error);
       // Rollback optimistic update
       setCartItems(prev => prev.filter(item => !item._optimistic));
       return { success: false, error: error.message };
@@ -140,7 +121,6 @@ export const CartProvider = ({ children }) => {
 
   // Update quantity
   const updateQuantity = useCallback(async (productId, qty) => {
-    // Optimistic update
     const previousItems = [...cartItems];
     setCartItems(prev => 
       prev.map(item => 
@@ -152,22 +132,24 @@ export const CartProvider = ({ children }) => {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
-      await mutate(
-        `${apiUrl}/api/cart/items/${productId}`,
-        {
-          method: 'PUT',
-          headers: { 'x-session-id': cartKey },
-          body: JSON.stringify({ qty }),
+      const response = await fetch(`${apiUrl}/api/cart/items/${productId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-session-id': cartKey,
         },
-        ['/api/cart'] // Invalidate cart cache
-      );
+        body: JSON.stringify({ qty }),
+      });
       
-      // Background refresh (don't await)
-      fetchCart(true);
+      if (!response.ok) {
+        throw new Error('Failed to update quantity');
+      }
+      
+      // Background refresh
+      fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error updating quantity:', error);
-      // Rollback on error
       setCartItems(previousItems);
       return { success: false, error: error.message };
     }
@@ -175,7 +157,6 @@ export const CartProvider = ({ children }) => {
 
   // Remove from cart
   const removeFromCart = useCallback(async (productId) => {
-    // Optimistic update
     const previousItems = [...cartItems];
     setCartItems(prev => prev.filter(item => item.productId !== productId));
     
@@ -183,17 +164,19 @@ export const CartProvider = ({ children }) => {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
-      await mutate(
-        `${apiUrl}/api/cart/items/${productId}`,
-        {
-          method: 'DELETE',
-          headers: { 'x-session-id': cartKey },
+      const response = await fetch(`${apiUrl}/api/cart/items/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'x-session-id': cartKey,
         },
-        ['/api/cart'] // Invalidate cart cache
-      );
+      });
       
-      // Background refresh (don't await)
-      fetchCart(true);
+      if (!response.ok) {
+        throw new Error('Failed to remove item');
+      }
+      
+      // Background refresh
+      fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error removing from cart:', error);
@@ -205,7 +188,6 @@ export const CartProvider = ({ children }) => {
 
   // Clear cart
   const clearCart = useCallback(async () => {
-    // Optimistic update
     const previousItems = [...cartItems];
     setCartItems([]);
     setLoading(true);
@@ -214,16 +196,18 @@ export const CartProvider = ({ children }) => {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
-      await mutate(
-        `${apiUrl}/api/cart`,
-        {
-          method: 'DELETE',
-          headers: { 'x-session-id': cartKey },
+      const response = await fetch(`${apiUrl}/api/cart`, {
+        method: 'DELETE',
+        headers: {
+          'x-session-id': cartKey,
         },
-        ['/api/cart'] // Invalidate cart cache
-      );
+      });
       
-      setLoading(false);
+      if (!response.ok) {
+        throw new Error('Failed to clear cart');
+      }
+      
+      await fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error clearing cart:', error);
@@ -231,7 +215,7 @@ export const CartProvider = ({ children }) => {
       setLoading(false);
       return { success: false, error: error.message };
     }
-  }, [cartItems, user?.custNo]);
+  }, [cartItems, user?.custNo, fetchCart]);
 
   return (
     <CartContext.Provider value={{ 
