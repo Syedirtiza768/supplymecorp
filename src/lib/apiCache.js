@@ -229,14 +229,26 @@ export function getCacheStats() {
  * Mutation helper - performs action and invalidates related cache
  */
 export async function mutate(url, options, invalidatePatterns = []) {
-  const result = await rawFetch(url, options);
+  const startTime = performance.now();
+  const method = options.method || 'POST';
   
-  // Invalidate related cache entries
-  for (const pattern of invalidatePatterns) {
-    invalidateCache(pattern);
+  try {
+    const result = await rawFetch(url, options);
+    const duration = Math.round(performance.now() - startTime);
+    
+    // Invalidate related cache entries
+    for (const pattern of invalidatePatterns) {
+      invalidateCache(pattern);
+    }
+    
+    console.log(`✏️ Mutate ${method}: ${new URL(url, window.location.origin).pathname} (${duration}ms)`);
+    
+    return result;
+  } catch (error) {
+    const duration = Math.round(performance.now() - startTime);
+    console.error(`❌ Mutate ${method} failed: ${new URL(url, window.location.origin).pathname} (${duration}ms)`, error);
+    throw error;
   }
-  
-  return result;
 }
 
 export default {

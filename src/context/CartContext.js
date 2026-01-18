@@ -39,10 +39,23 @@ export const CartProvider = ({ children }) => {
 
   // Fetch cart items from backend with caching
   const fetchCart = useCallback(async (skipCache = false) => {
-    // Prevent duplicate concurrent fetches
-    if (fetchingRef.current) {
+    // Prevent duplicate concurrent fetches (but allow forced refresh)
+    if (fetchingRef.current && !skipCache) {
       console.log('⏳ Cart fetch already in progress, skipping');
       return;
+    }
+    
+    // Wait for any pending fetch to complete if we're forcing a refresh
+    if (fetchingRef.current && skipCache) {
+      console.log('⏳ Waiting for pending fetch to complete before refresh...');
+      await new Promise(resolve => {
+        const interval = setInterval(() => {
+          if (!fetchingRef.current) {
+            clearInterval(interval);
+            resolve(true);
+          }
+        }, 50);
+      });
     }
     
     fetchingRef.current = true;
@@ -52,15 +65,18 @@ export const CartProvider = ({ children }) => {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
+      console.log(`🔍 Fetching cart (skipCache=${skipCache})...`);
+      
       const data = await cachedFetch(
         `${apiUrl}/api/cart`,
         { headers: { 'x-session-id': cartKey } },
         { skip: skipCache }
       );
       
+      console.log(`📦 Cart fetched: ${data.items?.length || 0} items`);
       setCartItems(data.items || []);
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      console.error('❌ Error fetching cart:', error);
       setCartItems([]);
     } finally {
       setLoading(false);
@@ -76,13 +92,15 @@ export const CartProvider = ({ children }) => {
 
   // Add to cart
   const addToCart = useCallback(async (productId, qty = 1) => {
+    console.log('🛒 Adding to cart:', { productId, qty, type: typeof productId });
+    
     try {
       // Optimistic update - add to UI immediately
       const tempItem = {
         id: `temp-${Date.now()}`,
-        productId,
+        productId: String(productId),
         qty,
-        product: { id: productId }, // Minimal product data
+        product: { id: productId },
         _optimistic: true
       };
       setCartItems(prev => [...prev, tempItem]);
@@ -90,21 +108,30 @@ export const CartProvider = ({ children }) => {
       const cartKey = getCartKey(user?.custNo);
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
       
-      await mutate(
+      console.log('📤 Sending cart request:', { url: `${apiUrl}/api/cart/items`, productId: String(productId), qty, sessionId: cartKey });
+      
+      const result = await mutate(
         `${apiUrl}/api/cart/items`,
         {
           method: 'POST',
           headers: { 'x-session-id': cartKey },
-          body: JSON.stringify({ productId, qty }),
+          body: JSON.stringify({ productId: String(productId), qty }),
         },
         ['/api/cart'] // Invalidate cart cache
       );
       
+      console.log('✅ Cart API response:', result);
+      
+      if (!result || !result.ok) {
+        throw new Error(result?.error || 'Failed to add to cart');
+      }
+      
       // Refresh cart with real data (skip cache to get fresh data)
       await fetchCart(true);
+      console.log('🔄 Cart refreshed after add');
       return { success: true };
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('❌ Error adding to cart:', error);
       // Rollback optimistic update
       setCartItems(prev => prev.filter(item => !item._optimistic));
       return { success: false, error: error.message };

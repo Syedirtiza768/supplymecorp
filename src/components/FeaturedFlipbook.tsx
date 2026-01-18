@@ -26,8 +26,14 @@ function cacheUpcomingPages(currentPage: number, pages: any[], apiUrl: string) {
   // Cache next 2 pages ahead of current position
   const pagesToCache = pages
     .slice(currentPage, currentPage + 2)
-    .map(p => `${apiUrl}${p.imageUrl}`)
-    .filter(url => url.startsWith('http'));
+    .map(p => {
+      // Fix: Only prepend apiUrl if imageUrl doesn't already start with http
+      const url = p.imageUrl;
+      if (url?.startsWith('http')) return url;
+      const path = url?.startsWith('/') ? url : `/${url}`;
+      return `${apiUrl}${path}`;
+    })
+    .filter(url => url?.startsWith('http'));
   
   if (pagesToCache.length > 0) {
     navigator.serviceWorker.controller.postMessage({

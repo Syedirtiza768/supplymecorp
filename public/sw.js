@@ -214,7 +214,14 @@ async function preCacheFirstPages({ apiUrl, flipbookId, count = 10 }) {
     const sorted = (pages || []).sort((a, b) => (a.pageNumber || 0) - (b.pageNumber || 0));
     const first = sorted.slice(0, count);
     
-    const resolveUrl = (u) => (typeof u === 'string' && u.startsWith('http')) ? u : `${apiUrl}${u}`;
+    // Fix: Only prepend apiUrl if URL doesn't already start with http
+    const resolveUrl = (u) => {
+      if (!u) return null;
+      if (typeof u === 'string' && u.startsWith('http')) return u;
+      // Remove leading slash if present to avoid double slashes
+      const path = u.startsWith('/') ? u : `/${u}`;
+      return `${apiUrl}${path}`;
+    };
     const urls = first.map(p => resolveUrl(p.imageUrl)).filter(Boolean);
     
     await Promise.allSettled(
