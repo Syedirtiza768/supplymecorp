@@ -42,14 +42,12 @@ const ProductItem3 = ({
       </div>
       <div className="mt-5 w-full">
         <h3 className="text-gray2">{title}</h3>
-        <div className='space-x-3 py-3'>
-          {oldPrice && oldPrice > price && <span className='text-gray-400 line-through'>${oldPrice}</span>}
-          {price && price > 0 ? (
+        {price && price > 0 && (
+          <div className='space-x-3 py-3'>
+            {oldPrice && oldPrice > price && <span className='text-gray-400 line-through'>${oldPrice}</span>}
             <span className='text-primary font-semibold text-xl'>${price}</span>
-          ) : (
-            <span className='text-gray-500 text-sm'>Contact for pricing</span>
-          )}
-        </div>
+          </div>
+        )}
         <p className="text-gray2 py-5">{description}</p>
         {(!price || price === 0 || price === "0.00" || price === "0") ? (
           <Button disabled className="w-full bg-gray-300 text-gray-600 cursor-not-allowed">Get a Quote</Button>

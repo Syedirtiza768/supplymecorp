@@ -239,10 +239,12 @@ const Shop = ({ params }) => {
               <div className="w-full pl-10 lg:w-[70%]">
                 {/* Product details */}
                 <ProductDataItem product={product} />
-                {/* Display the price or 'Contact for pricing' if price is null */}
-                <p className="py-3 font-bold text-red text-lg">
-                  {product && product.price != null ? `$${product.price}` : 'Contact for pricing'}
-                </p>
+                {/* Display the price only if available */}
+                {product && product.price != null && product.price > 0 && (
+                  <p className="py-3 font-bold text-red text-lg">
+                    ${product.price}
+                  </p>
+                )}
                 {/* Add to Cart button below price */}
                 <AddToCartSection product={product} />
 
