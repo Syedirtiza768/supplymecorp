@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 
 const mainNavItems = [
   { name: "HOME", href: "/" },
@@ -35,7 +36,7 @@ const mainNavItems = [
 export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const pathname = usePathname();
-  const [cartCount, setCartCount] = useState(0);
+  const { cartCount } = useCart();
   const { isLoggedIn, user } = useAuth();
   const [showCategoriesMenu, setShowCategoriesMenu] = useState(false);
 
