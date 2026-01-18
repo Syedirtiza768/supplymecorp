@@ -87,7 +87,7 @@
   align-items: center !important;
   justify-content: center !important;
   /* Inner shadow for depth within page */
-  box-shadow: 
+  box-shadow:
     inset 0 0 30px rgba(0, 0, 0, 0.03),
     inset 0 0 10px rgba(0, 0, 0, 0.02);
 }
@@ -117,65 +117,46 @@
   overflow: visible;
 }
 
-/* Create visual spine/gutter effect in spread mode */
-.stf__wrapper::before {
+/* Create visual spine/gutter effect in spread mode - Concave Shadow + Solid Spine */
+.flipbook-enhanced .stf__wrapper::before {
   content: '';
   position: absolute;
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 24px;
+  width: 20px;
   transform: translateX(-50%);
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, 0.25) 0%,
-    rgba(0, 0, 0, 0.18) 20%,
-    rgba(0, 0, 0, 0.05) 45%,
-    rgba(0, 0, 0, 0) 50%,
-    rgba(0, 0, 0, 0.05) 55%,
-    rgba(0, 0, 0, 0.18) 80%,
-    rgba(0, 0, 0, 0.25) 100%
-  );
+  /* Concave shadow effect on top of solid white spine to block background */
+  background:
+    linear-gradient(to right,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.03) 20%,
+      rgba(0, 0, 0, 0.15) 45%,
+      rgba(0, 0, 0, 0.2) 50%,
+      rgba(0, 0, 0, 0.15) 55%,
+      rgba(0, 0, 0, 0.03) 80%,
+      rgba(0, 0, 0, 0) 100%),
+    #ffffff;
   pointer-events: none;
-  z-index: 10;
-  box-shadow: 
-    inset 2px 0 4px rgba(0, 0, 0, 0.2),
-    inset -2px 0 4px rgba(0, 0, 0, 0.2);
+  z-index: 0;
+  /* Below pages */
+  opacity: 1;
 }
 
-/* Add visible center divider line along the spine for depth */
-.stf__wrapper::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 2px;
-  transform: translateX(-50%);
-  background: #FFD700;
-  box-shadow: none;
-  pointer-events: none;
-  z-index: 11;
-}
+
+
+
 
 /* Ensure all pages fill container completely */
 .stf__item {
   width: 100% !important;
   height: 100% !important;
   overflow: hidden !important;
+  position: relative;
+  z-index: 2;
 }
 
-/* Left page (even) styling - borders only, no padding */
-.stf__item:nth-child(2n) {
-  border-right: 4px solid #FFD700;
-  border-left: 4px solid #FFD700;
-}
 
-/* Right page (odd) styling - borders only, no padding */
-.stf__item:nth-child(2n+1) {
-  border-left: 4px solid #FFD700;
-  border-right: 4px solid #FFD700;
-}
 
 /* Ensure content inside pages is centered */
 .flipbook-page {
@@ -202,14 +183,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: 
-    repeating-linear-gradient(
-      45deg,
+  background-image:
+    repeating-linear-gradient(45deg,
       transparent,
       transparent 2px,
       rgba(255, 255, 255, 0.02) 2px,
-      rgba(255, 255, 255, 0.02) 4px
-    );
+      rgba(255, 255, 255, 0.02) 4px);
   pointer-events: none;
   z-index: 1;
 }
@@ -222,14 +201,12 @@
   right: 0;
   width: 60px;
   height: 60px;
-  background: linear-gradient(
-    -45deg,
-    transparent 30%,
-    rgba(0, 0, 0, 0.05) 45%,
-    rgba(0, 0, 0, 0.15) 55%,
-    rgba(0, 0, 0, 0.08) 70%,
-    transparent 80%
-  );
+  background: linear-gradient(-45deg,
+      transparent 30%,
+      rgba(0, 0, 0, 0.05) 45%,
+      rgba(0, 0, 0, 0.15) 55%,
+      rgba(0, 0, 0, 0.08) 70%,
+      transparent 80%);
   pointer-events: none;
   z-index: 2;
   opacity: 0.8;
@@ -242,16 +219,16 @@
     padding-bottom: 2rem;
     min-height: 100vh;
   }
-  
+
   .stf__parent {
     max-width: 100vw !important;
   }
-  
+
   /* Hide spine divider on mobile (single page view) */
   .stf__wrapper::before {
     display: none;
   }
-  
+
   /* Hide yellow spine line on mobile (single page view) */
   .stf__wrapper::after {
     display: none;
@@ -304,4 +281,9 @@
 .stf__hardShadow,
 .stf__hardInnerShadow {
   pointer-events: none !important;
+}
+
+.flipbook-enhanced.flipbook-title-page-visible .stf__wrapper::before {
+  display: none !important;
+  opacity: 0 !important;
 }

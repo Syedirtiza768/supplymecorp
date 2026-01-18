@@ -244,10 +244,10 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
     // Navigate to initial page from URL once after flipbook is ready
     useEffect(() => {
       if (!isClient || !bookRef.current || hasInitializedFromURL.current) return;
-      
+
       // Set flipbook ref for auto-play animated flips
       actions.setFlipbookRef(bookRef.current);
-      
+
       if (initialPage === 0) {
         hasInitializedFromURL.current = true;
         return;
@@ -578,190 +578,191 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
 
     return (
       <>
-      <div
-        id="flipbook-container"
-        ref={containerRef}
-        role="application"
-        aria-label={`Flipbook viewer, page ${currentDisplayPage} of ${maxDisplayPage}`}
-        aria-roledescription="flipbook"
-        className={`flipbook-enhanced flipbook-canvas-texture w-full h-full ${state.isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''} ${flipAnim.active ? 'flipbook-animating' : ''} ${className}`}
-        style={{
-          ['--flip-progress' as any]: flipAnim.active ? flipAnim.progress : 0,
-          ['--flip-direction' as any]: flipAnim.direction === 'forward' ? 1 : -1,
-          ['--active-page' as any]: flipAnim.activePageIndex ?? -1,
-          ['--drag-x' as any]: flipAnim.dragX,
-          ['--drag-y' as any]: flipAnim.dragY,
-        }}
-        onFocus={() => actions.setFocused(true)}
-        onBlur={() => actions.setFocused(false)}
-        onMouseMove={handleMouseMove}
-        onTouchMove={handleTouchMove}
-        tabIndex={0}
-      >
-        {/* Live region for screen reader announcements */}
         <div
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          className="sr-only"
+          id="flipbook-container"
+          ref={containerRef}
+          role="application"
+          aria-label={`Flipbook viewer, page ${currentDisplayPage} of ${maxDisplayPage}`}
+          aria-roledescription="flipbook"
+          className={`flipbook-enhanced flipbook-canvas-texture w-full h-full ${state.isFullscreen ? 'fixed inset-0 z-50 bg-white' : ''} ${flipAnim.active ? 'flipbook-animating' : ''} ${state.currentPage === 0 ? 'flipbook-title-page-visible' : ''} ${className}`}
+          style={{
+            ['--flip-progress' as any]: flipAnim.active ? flipAnim.progress : 0,
+            ['--flip-direction' as any]: flipAnim.direction === 'forward' ? 1 : -1,
+            ['--active-page' as any]: flipAnim.activePageIndex ?? -1,
+            ['--drag-x' as any]: flipAnim.dragX,
+            ['--drag-y' as any]: flipAnim.dragY,
+          }}
+          onFocus={() => actions.setFocused(true)}
+          onBlur={() => actions.setFocused(false)}
+          onMouseMove={handleMouseMove}
+          onTouchMove={handleTouchMove}
+          tabIndex={0}
         >
-          Page {currentDisplayPage} of {maxDisplayPage}
-        </div>
-
-        {/* Keyboard handler */}
-        <FlipbookKeyboardHandler
-          actions={actions}
-          enabled={config.enableKeyboard ?? true}
-          isFocused={state.isFocused}
-          state={state}
-        />
-
-        <div className="flex flex-col h-full m-0 p-0">
-          {/* Toolbar - always on top */}
-          <div className="relative z-[100] m-0 p-0 border-0">
-            <FlipbookToolbar
-              state={state}
-              actions={actions}
-              pageNumbers={pageNumbers}
-              showThumbnailsToggle={config.showThumbnails}
-              showTOCToggle={config.showTOC && toc.length > 0}
-              onDownload={handleDownload}
-              // onPrint removed
-              onShare={handleShare}
-            />
+          {/* Live region for screen reader announcements */}
+          <div
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            className="sr-only"
+          >
+            Page {currentDisplayPage} of {maxDisplayPage}
           </div>
 
-          {/* Main content area - Relative positioning for navigation buttons */}
-          <div className="flex-1 flex min-h-0 overflow-hidden m-0 p-0 border-0 bg-white relative">
-            {/* TOC Sidebar */}
-            {state.showTOC && toc.length > 0 && (
-              <div className="w-64 flex-shrink-0 overflow-hidden">
-                <FlipbookTOC
-                  entries={toc}
-                  currentPage={state.currentPage}
-                  onPageSelect={actions.goToPage}
-                  onClose={isMobile ? actions.toggleTOC : undefined}
-                  className="h-full"
-                />
-              </div>
-            )}
+          {/* Keyboard handler */}
+          <FlipbookKeyboardHandler
+            actions={actions}
+            enabled={config.enableKeyboard ?? true}
+            isFocused={state.isFocused}
+            state={state}
+          />
 
-            {/* Flipbook viewer */}
-            <div className="flex-1 flex flex-col items-center min-w-0 m-0 p-0">
-              <div
-                ref={contentRef}
-                className={`relative flex items-center justify-center w-full flex-1`}
-                style={{
-                  backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('/images/flipbook/winter-background.webp')",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center center",
-                  backgroundRepeat: "no-repeat",
-                  backgroundColor: "#ffffff",
-                  cursor: state.zoomLevel > 1 ? panAndZoom.cursor : undefined,
-                  height: 'calc(100% - 20px)'
-                }}
-                onClick={handleCoverClick}
-                onMouseDown={(e) => {
-                  // Consume mousedown to prevent drag start when stabilizing
-                  if (state.needsStabilization) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                  }
-                  // Handle pan and zoom when zoomed in
-                  if (state.zoomLevel > 1) {
-                    panAndZoom.handleMouseDown(e);
-                  }
-                }}
-                onTouchStart={(e) => {
-                  // Handle double-tap to zoom
-                  handleDoubleTap(e);
-                  // Handle pan and zoom when zoomed in
-                  if (state.zoomLevel > 1) {
-                    panAndZoom.handleTouchStart(e);
-                  }
-                }}
-                onTouchMove={(e) => {
-                  // Handle pinch-to-zoom
-                  if (e.touches.length === 2) {
-                    e.preventDefault();
-                    handlePinchZoom(e);
-                  }
-                }}
-                onTouchEnd={handlePinchEnd}
-              >
-                {isClient && (
-                  <div
-                    className="flipbook-stage"
-                    style={{
-                      transform: `translate(${state.panOffset.x}px, ${state.panOffset.y}px) scale(${state.zoomLevel})`,
-                      transformOrigin: 'center center',
-                      transition: panAndZoom.isDragging ? 'none' : 'transform 0.2s ease-out',
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    {/* @ts-ignore - react-pageflip has complex typing */}
-                    <HTMLFlipBook
-                      width={config.width ?? 1200}
-                      height={config.height ?? 1600}
-                      size={config.size ?? 'stretch'}
-                      minWidth={config.minWidth ?? 600}
-                      maxWidth={config.maxWidth ?? 1200}
-                      minHeight={config.minHeight ?? 800}
-                      maxHeight={config.maxHeight ?? 1600}
-                      maxShadowOpacity={0}
-                      flippingTime={950} // Slower, more natural page turn timing
-                      disableFlipByClick={state.needsStabilization || isOnCoverPage} // Disable click flipping when stabilizing or on cover
-                      useMouseEvents={state.zoomLevel === 1 && !isTransitioning} // Disable mouse flipping when zoomed or transitioning
-                      showCover={config.showCover ?? false}
-                      startPage={initialPage}
-                      usePortrait={isMobile}
-                      mobileScrollSupport={isMobile}
-                      className=""
-                      ref={bookRef}
-                      onFlip={handleFlip}
-                      onChangeState={handleChangeState}
+          <div className="flex flex-col h-full m-0 p-0">
+            {/* Toolbar - always on top */}
+            <div className="relative z-[100] m-0 p-0 border-0">
+              <FlipbookToolbar
+                state={state}
+                actions={actions}
+                pageNumbers={pageNumbers}
+                showThumbnailsToggle={config.showThumbnails}
+                showTOCToggle={config.showTOC && toc.length > 0}
+                onDownload={handleDownload}
+                // onPrint removed
+                onShare={handleShare}
+              />
+            </div>
+
+            {/* Main content area - Relative positioning for navigation buttons */}
+            <div className="flex-1 flex min-h-0 overflow-hidden m-0 p-0 border-0 bg-white relative">
+              {/* TOC Sidebar */}
+              {state.showTOC && toc.length > 0 && (
+                <div className="w-64 flex-shrink-0 overflow-hidden">
+                  <FlipbookTOC
+                    entries={toc}
+                    currentPage={state.currentPage}
+                    onPageSelect={actions.goToPage}
+                    onClose={isMobile ? actions.toggleTOC : undefined}
+                    className="h-full"
+                  />
+                </div>
+              )}
+
+              {/* Flipbook viewer */}
+              <div className="flex-1 flex flex-col items-center min-w-0 m-0 p-0">
+                <div
+                  ref={contentRef}
+                  className={`relative flex items-center justify-center w-full flex-1`}
+                  style={{
+                    backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.25)), url('/images/flipbook/winter-background.webp')",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center center",
+                    backgroundRepeat: "no-repeat",
+                    backgroundColor: "#ffffff",
+                    cursor: state.zoomLevel > 1 ? panAndZoom.cursor : undefined,
+                    height: 'calc(100% - 20px)',
+                    padding: '30px'
+                  }}
+                  onClick={handleCoverClick}
+                  onMouseDown={(e) => {
+                    // Consume mousedown to prevent drag start when stabilizing
+                    if (state.needsStabilization) {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      return;
+                    }
+                    // Handle pan and zoom when zoomed in
+                    if (state.zoomLevel > 1) {
+                      panAndZoom.handleMouseDown(e);
+                    }
+                  }}
+                  onTouchStart={(e) => {
+                    // Handle double-tap to zoom
+                    handleDoubleTap(e);
+                    // Handle pan and zoom when zoomed in
+                    if (state.zoomLevel > 1) {
+                      panAndZoom.handleTouchStart(e);
+                    }
+                  }}
+                  onTouchMove={(e) => {
+                    // Handle pinch-to-zoom
+                    if (e.touches.length === 2) {
+                      e.preventDefault();
+                      handlePinchZoom(e);
+                    }
+                  }}
+                  onTouchEnd={handlePinchEnd}
+                >
+                  {isClient && (
+                    <div
+                      className="flipbook-stage"
+                      style={{
+                        transform: `translate(${state.panOffset.x}px, ${state.panOffset.y}px) scale(${state.zoomLevel})`,
+                        transformOrigin: 'center center',
+                        transition: panAndZoom.isDragging ? 'none' : 'transform 0.2s ease-out',
+                        width: '100%',
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
                     >
-                      {pages.map((page, index) => (
-                        <FlipbookPageComponent
-                          key={page.id}
-                          page={page}
-                          index={index}
-                          currentPage={state.currentPage}
-                          preloadPages={config.preloadPages ?? 3}
-                          flipbookId={flipbookId}
-                          isActiveFlippingPage={flipAnim.active && flipAnim.activePageIndex === index}
-                        />
-                      ))}
-                    </HTMLFlipBook>
-                  </div>
-                )}
+                      {/* @ts-ignore - react-pageflip has complex typing */}
+                      <HTMLFlipBook
+                        width={config.width ?? 1200}
+                        height={config.height ?? 1600}
+                        size={config.size ?? 'stretch'}
+                        minWidth={config.minWidth ?? 600}
+                        maxWidth={config.maxWidth ?? 1200}
+                        minHeight={config.minHeight ?? 800}
+                        maxHeight={config.maxHeight ?? 1600}
+                        maxShadowOpacity={0}
+                        flippingTime={950} // Slower, more natural page turn timing
+                        disableFlipByClick={state.needsStabilization || isOnCoverPage} // Disable click flipping when stabilizing or on cover
+                        useMouseEvents={state.zoomLevel === 1 && !isTransitioning} // Disable mouse flipping when zoomed or transitioning
+                        showCover={config.showCover ?? false}
+                        startPage={initialPage}
+                        usePortrait={isMobile}
+                        mobileScrollSupport={isMobile}
+                        className=""
+                        ref={bookRef}
+                        onFlip={handleFlip}
+                        onChangeState={handleChangeState}
+                      >
+                        {pages.map((page, index) => (
+                          <FlipbookPageComponent
+                            key={page.id}
+                            page={page}
+                            index={index}
+                            currentPage={state.currentPage}
+                            preloadPages={config.preloadPages ?? 3}
+                            flipbookId={flipbookId}
+                            isActiveFlippingPage={flipAnim.active && flipAnim.activePageIndex === index}
+                          />
+                        ))}
+                      </HTMLFlipBook>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Floating Navigation Corner Buttons - Positioned outside overflow container */}
-          <div className="absolute inset-0 z-[60] pointer-events-none">
-            {/* Left Arrow - Previous Page */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (state.currentPage > 0 && bookRef.current?.pageFlip) {
-                  triggerFlipAnimation('backward');
-                  const flipInstance = bookRef.current.pageFlip();
-                  if (flipInstance?.flipPrev && typeof flipInstance.flipPrev === 'function') {
-                    flipInstance.flipPrev();
-                  } else {
-                    actions.previousPage();
+            {/* Floating Navigation Corner Buttons - Positioned outside overflow container */}
+            <div className="absolute inset-0 z-[60] pointer-events-none">
+              {/* Left Arrow - Previous Page */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (state.currentPage > 0 && bookRef.current?.pageFlip) {
+                    triggerFlipAnimation('backward');
+                    const flipInstance = bookRef.current.pageFlip();
+                    if (flipInstance?.flipPrev && typeof flipInstance.flipPrev === 'function') {
+                      flipInstance.flipPrev();
+                    } else {
+                      actions.previousPage();
+                    }
                   }
-                }
-              }}
-              disabled={state.currentPage === 0}
-              className={`
+                }}
+                disabled={state.currentPage === 0}
+                className={`
                 pointer-events-auto absolute bottom-8 left-4 md:bottom-10 md:left-8
                 w-14 h-14 md:w-16 md:h-16 rounded-full
                 flex items-center justify-center
@@ -774,31 +775,31 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                 border-2 border-gray-900/30
                 ${state.currentPage === 0 ? 'opacity-40 cursor-not-allowed' : 'opacity-100 cursor-pointer hover:scale-110 active:scale-95'}
               `}
-              style={{ zIndex: 60 }}
-              aria-label="Previous page"
-              title="Previous page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 md:h-8 md:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+                style={{ zIndex: 60 }}
+                aria-label="Previous page"
+                title="Previous page"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 md:h-8 md:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
 
-            {/* Right Arrow - Next Page */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (state.currentPage < pages.length - 1 && bookRef.current?.pageFlip) {
-                  triggerFlipAnimation('forward');
-                  const flipInstance = bookRef.current.pageFlip();
-                  if (flipInstance?.flipNext && typeof flipInstance.flipNext === 'function') {
-                    flipInstance.flipNext();
-                  } else {
-                    actions.nextPage();
+              {/* Right Arrow - Next Page */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (state.currentPage < pages.length - 1 && bookRef.current?.pageFlip) {
+                    triggerFlipAnimation('forward');
+                    const flipInstance = bookRef.current.pageFlip();
+                    if (flipInstance?.flipNext && typeof flipInstance.flipNext === 'function') {
+                      flipInstance.flipNext();
+                    } else {
+                      actions.nextPage();
+                    }
                   }
-                }
-              }}
-              disabled={state.currentPage >= pages.length - 1}
-              className={`
+                }}
+                disabled={state.currentPage >= pages.length - 1}
+                className={`
                 pointer-events-auto absolute bottom-8 right-4 md:bottom-10 md:right-8
                 w-14 h-14 md:w-16 md:h-16 rounded-full
                 flex items-center justify-center
@@ -811,29 +812,29 @@ export const EnhancedFlipBook = forwardRef<FlipbookRef, EnhancedFlipBookProps & 
                 border-2 border-gray-900/30
                 ${state.currentPage >= pages.length - 1 ? 'opacity-40 cursor-not-allowed' : 'opacity-100 cursor-pointer hover:scale-110 active:scale-95'}
               `}
-              style={{ zIndex: 60 }}
-              aria-label="Next page"
-              title="Next page"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 md:h-8 md:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Thumbnails */}
-          {state.showThumbnails && (
-            <div className="mt-4">
-              <FlipbookThumbnails
-                pages={pages}
-                currentPage={state.currentPage}
-                onPageSelect={actions.goToPage}
-                onClose={isMobile ? actions.toggleThumbnails : undefined}
-              />
+                style={{ zIndex: 60 }}
+                aria-label="Next page"
+                title="Next page"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 md:h-8 md:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
             </div>
-          )}
+
+            {/* Thumbnails */}
+            {state.showThumbnails && (
+              <div className="mt-4">
+                <FlipbookThumbnails
+                  pages={pages}
+                  currentPage={state.currentPage}
+                  onPageSelect={actions.goToPage}
+                  onClose={isMobile ? actions.toggleThumbnails : undefined}
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
 
       </>
     );
@@ -999,73 +1000,73 @@ const FlipbookPageComponent = React.forwardRef<HTMLDivElement, FlipbookPageCompo
               className={`absolute inset-0 flipbook-hotspot-layer ${isActiveFlippingPage ? 'flipping' : ''}`}
               style={{ zIndex: isActiveFlippingPage ? 30 : 12, pointerEvents: 'auto' }}
             >
-                <div className="relative w-full h-full">
-                  {(() => {
-                    const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img') as HTMLImageElement;
-                    const renderWidth = imgEl?.clientWidth || imgEl?.naturalWidth || 1200;
-                    const renderHeight = imgEl?.clientHeight || imgEl?.naturalHeight || 1600;
+              <div className="relative w-full h-full">
+                {(() => {
+                  const imgEl = (ref as React.RefObject<HTMLDivElement>)?.current?.querySelector('img') as HTMLImageElement;
+                  const renderWidth = imgEl?.clientWidth || imgEl?.naturalWidth || 1200;
+                  const renderHeight = imgEl?.clientHeight || imgEl?.naturalHeight || 1600;
 
-                    // Normalize data hotspots to percent and cap z-index below active flip layer
-                    const rawHotspots = (page.hotspots?.length ? page.hotspots : hotspotsFetched) || [];
-                    const normalizedHotspots = rawHotspots
-                      .filter((h: any) => h && (h.linkUrl || h.productSku))
-                      .map((h: any, idx: number) => {
-                        const isPercent = h.x <= 100 && h.y <= 100 && h.width <= 100 && h.height <= 100;
-                        const xPct = isPercent ? h.x : (h.x / renderWidth) * 100;
-                        const yPct = isPercent ? h.y : (h.y / renderHeight) * 100;
-                        const wPct = isPercent ? h.width : (h.width / renderWidth) * 100;
-                        const hPct = isPercent ? h.height : (h.height / renderHeight) * 100;
-                        const hotspotZ = Math.min((h.zIndex ?? 0) + 8, 12);
-                        return { ...h, x: xPct, y: yPct, width: wPct, height: hPct, _z: hotspotZ, _key: h.id || `hs-${idx}` };
-                      });
+                  // Normalize data hotspots to percent and cap z-index below active flip layer
+                  const rawHotspots = (page.hotspots?.length ? page.hotspots : hotspotsFetched) || [];
+                  const normalizedHotspots = rawHotspots
+                    .filter((h: any) => h && (h.linkUrl || h.productSku))
+                    .map((h: any, idx: number) => {
+                      const isPercent = h.x <= 100 && h.y <= 100 && h.width <= 100 && h.height <= 100;
+                      const xPct = isPercent ? h.x : (h.x / renderWidth) * 100;
+                      const yPct = isPercent ? h.y : (h.y / renderHeight) * 100;
+                      const wPct = isPercent ? h.width : (h.width / renderWidth) * 100;
+                      const hPct = isPercent ? h.height : (h.height / renderHeight) * 100;
+                      const hotspotZ = Math.min((h.zIndex ?? 0) + 8, 12);
+                      return { ...h, x: xPct, y: yPct, width: wPct, height: hPct, _z: hotspotZ, _key: h.id || `hs-${idx}` };
+                    });
 
-                    return (
-                      <>
-                        {normalizedHotspots.map((hotspot: any) => {
-                          // Preserve hotspot clicks even near corners; nav buttons are compact
-                          const isInCorner = false;
+                  return (
+                    <>
+                      {normalizedHotspots.map((hotspot: any) => {
+                        // Preserve hotspot clicks even near corners; nav buttons are compact
+                        const isInCorner = false;
 
-                          return (
-                            <button
-                              key={hotspot._key}
-                              type="button"
-                              className={`flipbook-hotspot ${isActiveFlippingPage ? 'flipping' : ''} ${isInCorner ? 'defer' : ''}`}
-                              style={{
-                                left: `${hotspot.x}%`,
-                                top: `${hotspot.y}%`,
-                                width: `${hotspot.width}%`,
-                                height: `${hotspot.height}%`,
-                                zIndex: hotspot._z,
-                              }}
-                              title={isInCorner ? '' : (hotspot.label || hotspot.productSku || '')}
-                              aria-label={isInCorner ? '' : `Product: ${hotspot.label || hotspot.productSku || 'View details'}`}
-                              tabIndex={isInCorner ? -1 : 0}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
+                        return (
+                          <button
+                            key={hotspot._key}
+                            type="button"
+                            className={`flipbook-hotspot ${isActiveFlippingPage ? 'flipping' : ''} ${isInCorner ? 'defer' : ''}`}
+                            style={{
+                              left: `${hotspot.x}%`,
+                              top: `${hotspot.y}%`,
+                              width: `${hotspot.width}%`,
+                              height: `${hotspot.height}%`,
+                              zIndex: hotspot._z,
+                            }}
+                            title={isInCorner ? '' : (hotspot.label || hotspot.productSku || '')}
+                            aria-label={isInCorner ? '' : `Product: ${hotspot.label || hotspot.productSku || 'View details'}`}
+                            tabIndex={isInCorner ? -1 : 0}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
 
-                                // Immediate response - no drag detection needed for buttons
-                                const clickTime = performance.now();
-                                if (hotspot.linkUrl) {
-                                  console.log(`🔗 Hotspot clicked - opening linkUrl: ${hotspot.linkUrl}`);
-                                  window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
-                                } else if (hotspot.productSku) {
-                                  const url = `/shop/${encodeURIComponent(hotspot.productSku)}`;
-                                  console.log(`🔗 Hotspot clicked (${hotspot.productSku}) - opening: ${url} at ${clickTime}ms`);
-                                  window.open(url, '_blank', 'noopener,noreferrer');
-                                }
-                                return false;
-                              }}
-                            >
-                              <span className="flipbook-hotspot-highlight" />
-                            </button>
-                          );
-                        })}
-                      </>
-                    );
-                  })()}
-                </div>
+                              // Immediate response - no drag detection needed for buttons
+                              const clickTime = performance.now();
+                              if (hotspot.linkUrl) {
+                                console.log(`🔗 Hotspot clicked - opening linkUrl: ${hotspot.linkUrl}`);
+                                window.open(hotspot.linkUrl, '_blank', 'noopener,noreferrer');
+                              } else if (hotspot.productSku) {
+                                const url = `/shop/${encodeURIComponent(hotspot.productSku)}`;
+                                console.log(`🔗 Hotspot clicked (${hotspot.productSku}) - opening: ${url} at ${clickTime}ms`);
+                                window.open(url, '_blank', 'noopener,noreferrer');
+                              }
+                              return false;
+                            }}
+                          >
+                            <span className="flipbook-hotspot-highlight" />
+                          </button>
+                        );
+                      })}
+                    </>
+                  );
+                })()}
               </div>
+            </div>
           </>
         ) : (
           // Placeholder for unloaded pages

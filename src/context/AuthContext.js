@@ -31,34 +31,65 @@ export function AuthProvider({ children }) {
         throw new Error('Invalid password');
       }
 
-
-      // Fetch customers from local proxy API
-      const response = await fetch('/api/customers');
+      // Fetch customer by email using query parameter (much faster than loading all 599)
+      // Using relative URL ensures it works regardless of which port we're on
+      console.log('🔍 Fetching customer for email:', email);
+      const startTime = performance.now();
+      
+      const response = await fetch(`/api/customers?email=${encodeURIComponent(email)}`, {
+        cache: 'no-store', // Prevent caching issues
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+      
+      const fetchTime = Math.round(performance.now() - startTime);
+      console.log('📡 API Response status:', response.status, response.ok ? '✓' : '✗', `(${fetchTime}ms)`);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch customers');
+        let errorData = {};
+        let errorText = '';
+        
+        try {
+          const contentType = response.headers.get('content-type');
+          if (contentType && contentType.includes('application/json')) {
+            errorData = await response.json();
+          } else {
+            errorText = await response.text();
+          }
+        } catch (parseError) {
+          errorText = 'Unable to parse error response';
+          console.error('Error parsing API response:', parseError);
+        }
+        
+        console.error('❌ Customer API error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorData,
+          errorText: errorText.substring(0, 200),
+        });
+        
+        const errorMessage = errorData.error || errorData.details || errorText || 
+          `Failed to fetch customers (HTTP ${response.status})`;
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
+      console.log('✅ API Response received');
       
-      // Handle different response formats (array or object with results)
-      // API returns { Customers: [...], ErrorCode: ... }
+      // Handle different response formats
+      // Email query returns { Customers: [single customer], ErrorCode: ... }
       const customers = Array.isArray(data) ? data : (data.Customers || data.customers || data.results || data.data || []);
       
-      console.log('Total customers:', customers.length);
-      console.log('Looking for email:', email);
-      
-      // Find customer by email (case-insensitive, trim whitespace)
-      const customer = customers.find(
-        (c) => c.EMAIL_ADRS_1 && c.EMAIL_ADRS_1.trim().toLowerCase() === email.trim().toLowerCase()
-      );
-
-      if (!customer) {
-        console.error('Customer not found. Searched for:', email);
-        console.error('Available emails:', customers.filter(c => c.EMAIL_ADRS_1).map(c => c.EMAIL_ADRS_1).slice(0, 10));
+      if (!Array.isArray(customers) || customers.length === 0) {
+        console.error('❌ No customers found in response');
         throw new Error('Customer not found with this email address');
       }
       
-      console.log('Found customer:', customer.CUST_NO, customer.NAM);
+      // Should only be one customer when querying by email
+      const customer = customers[0];
+      console.log('✓ Found customer:', customer.CUST_NO, customer.NAM);
 
       // Create user object with customer data
       const userData = {

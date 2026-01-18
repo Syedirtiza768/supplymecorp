@@ -61,24 +61,24 @@ export function FeaturedFlipbook() {
     }
     
     // Available height calculation:
-    // viewport - navbar (120px) - hero (350px) - section padding (48px) - title (~100px) - safety margin (50px)
+    // viewport - navbar (120px) - section padding (48px) - title (~100px) - safety margin (50px)
+    // We assume the user scrolls to the section, so we don't subtract heroHeight
     const navbarHeight = 120;
-    const heroHeight = 350;
     const sectionPadding = 48;
     const titleHeight = 100;
     const safetyMargin = 50;
-    const availableHeight = window.innerHeight - navbarHeight - heroHeight - sectionPadding - titleHeight - safetyMargin;
+    const availableHeight = window.innerHeight - navbarHeight - sectionPadding - titleHeight - safetyMargin;
     
     // Book aspect ratio (3:4 for single page)
     const aspectRatio = 0.75; // width/height for single page
     
-    // Start with available height but cap at reasonable max
-    let height = Math.min(availableHeight, 550); // Max 550px to ensure fit
+    // Start with available height but cap at reasonable max (scaled 90% for safety buffer)
+    let height = Math.min(availableHeight * 0.9, 800);
     let width = height * aspectRatio;
     
     // Ensure minimum dimensions for usability
-    if (height < 350) height = 350;
-    if (width < 260) width = 260;
+    if (height < 400) height = 400;
+    if (width < 300) width = 300;
     
     // Ensure it fits viewport width (account for spread = 2x width + padding + controls)
     const maxWidth = (window.innerWidth - 200) / 2; // Spread view needs 2x + controls

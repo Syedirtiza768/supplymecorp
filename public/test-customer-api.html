@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        button {
+            background: #0070f3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0051cc;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .log {
+            margin-top: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Customer API Test Page</h1>
+    <p class="info">Use this page to test the customer API independently from the Next.js app.</p>
+
+    <div class="test-section">
+        <h2>Test 1: Environment Variables</h2>
+        <button onclick="testEnv()">Check Environment</button>
+        <div id="env-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Customer API (Diagnostic)</h2>
+        <button onclick="testCustomersDiagnostic()">Test Diagnostic Endpoint</button>
+        <div id="diag-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Customer API (Production)</h2>
+        <button onclick="testCustomersProduction()">Test Production Endpoint</button>
+        <div id="prod-result" class="log"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Clear Cache & Retry</h2>
+        <button onclick="testWithNoCache()">Test with Cache Disabled</button>
+        <div id="cache-result" class="log"></div>
+    </div>
+
+    <script>
+        async function testEnv() {
+            const result = document.getElementById('env-result');
+            result.innerHTML = '<p class="info">Testing...</p>';
+            
+            try {
+                const response = await fetch('/api/debug-env');
+                const data = await response.json();
+                
+                result.innerHTML = `
+                    <p class="success">✓ Status: ${response.status}</p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testCustomersDiagnostic() {
+            const result = document.getElementById('diag-result');
+            result.innerHTML = '<p class="info">Testing...</p>';
+            
+            try {
+                console.log('🔍 Testing diagnostic endpoint...');
+                const response = await fetch('/api/test-customers');
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                console.log('📊 Response data:', data);
+                
+                result.innerHTML = `
+                    <p class="${response.ok ? 'success' : 'error'}">
+                        ${response.ok ? '✓' : '✗'} Status: ${response.status}
+                    </p>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('❌ Error:', error);
+                result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testCustomersProduction() {
+            const result = document.getElementById('prod-result');
+            result.innerHTML = '<p class="info">Testing...</p>';
+            
+            try {
+                console.log('🔍 Testing production endpoint...');
+                const response = await fetch('/api/customers');
+                console.log('📡 Response status:', response.status);
+                
+                if (!response.ok) {
+                    let errorData = {};
+                    try {
+                        const contentType = response.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            errorData = await response.json();
+                        } else {
+                            errorData = { text: await response.text() };
+                        }
+                    } catch (e) {
+                        errorData = { parseError: e.message };
+                    }
+                    
+                    result.innerHTML = `
+                        <p class="error">✗ Status: ${response.status}</p>
+                        <p>Status Text: ${response.statusText}</p>
+                        <pre>${JSON.stringify(errorData, null, 2)}</pre>
+                    `;
+                    return;
+                }
+                
+                const data = await response.json();
+                console.log('📊 Response data type:', typeof data);
+                console.log('📊 Has Customers:', !!data.Customers);
+                console.log('📊 Customer count:', data.Customers ? data.Customers.length : 0);
+                
+                const summary = {
+                    type: typeof data,
+                    hasCustomers: !!data.Customers,
+                    customerCount: data.Customers ? data.Customers.length : 0,
+                    errorCode: data.ErrorCode || null,
+                    firstCustomer: data.Customers && data.Customers[0] ? {
+                        custNo: data.Customers[0].CUST_NO,
+                        name: data.Customers[0].NAM,
+                        email: data.Customers[0].EMAIL_ADRS_1
+                    } : null
+                };
+                
+                result.innerHTML = `
+                    <p class="success">✓ Status: ${response.status}</p>
+                    <h3>Summary:</h3>
+                    <pre>${JSON.stringify(summary, null, 2)}</pre>
+                    <details>
+                        <summary>Full Response (first 2 customers)</summary>
+                        <pre>${JSON.stringify({
+                            ...data,
+                            Customers: data.Customers ? data.Customers.slice(0, 2) : []
+                        }, null, 2)}</pre>
+                    </details>
+                `;
+            } catch (error) {
+                console.error('❌ Error:', error);
+                result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+        }
+
+        async function testWithNoCache() {
+            const result = document.getElementById('cache-result');
+            result.innerHTML = '<p class="info">Testing with cache disabled...</p>';
+            
+            try {
+                console.log('🔍 Testing with no-cache headers...');
+                const response = await fetch('/api/customers', {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    }
+                });
+                console.log('📡 Response status:', response.status);
+                
+                const data = await response.json();
+                
+                result.innerHTML = `
+                    <p class="${response.ok ? 'success' : 'error'}">
+                        ${response.ok ? '✓' : '✗'} Status: ${response.status}
+                    </p>
+                    <p>Customer Count: ${data.Customers ? data.Customers.length : 0}</p>
+                    <p class="info">✓ Cache bypassed successfully</p>
+                `;
+            } catch (error) {
+                console.error('❌ Error:', error);
+                result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+            }
+        }
+
+        // Auto-run all tests on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 Customer API Test Page Loaded');
+            console.log('Run tests manually by clicking the buttons');
+        });
+    </script>
+</body>
+</html>

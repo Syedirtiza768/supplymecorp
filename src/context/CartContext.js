@@ -69,8 +69,17 @@ export const CartProvider = ({ children }) => {
 
   // Add to cart
   const addToCart = async (productId, qty = 1) => {
-    setLoading(true);
     try {
+      // Optimistic update - add to UI immediately
+      const tempItem = {
+        id: `temp-${Date.now()}`,
+        productId,
+        qty,
+        product: { id: productId }, // Minimal product data
+        _optimistic: true
+      };
+      setCartItems(prev => [...prev, tempItem]);
+      
       const cartKey = getCartKey(user?.custNo);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/items`, {
         method: 'POST',
@@ -82,22 +91,31 @@ export const CartProvider = ({ children }) => {
       });
       
       if (!response.ok) {
+        // Rollback optimistic update
+        setCartItems(prev => prev.filter(item => item.id !== tempItem.id));
         throw new Error('Failed to add item to cart');
       }
       
+      // Refresh cart with real data
       await fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error adding to cart:', error);
-      setLoading(false);
       return { success: false, error: error.message };
     }
   };
 
   // Update quantity
   const updateQuantity = async (productId, qty) => {
-    setLoading(true);
     try {
+      // Optimistic update
+      const previousItems = [...cartItems];
+      setCartItems(prev => 
+        prev.map(item => 
+          item.productId === productId ? { ...item, qty } : item
+        )
+      );
+      
       const cartKey = getCartKey(user?.custNo);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/items/${productId}`, {
         method: 'PUT',
@@ -109,22 +127,27 @@ export const CartProvider = ({ children }) => {
       });
       
       if (!response.ok) {
+        // Rollback on error
+        setCartItems(previousItems);
         throw new Error('Failed to update quantity');
       }
       
-      await fetchCart();
+      // Refresh with real data in background
+      fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error updating quantity:', error);
-      setLoading(false);
       return { success: false, error: error.message };
     }
   };
 
   // Remove from cart
   const removeFromCart = async (productId) => {
-    setLoading(true);
     try {
+      // Optimistic update
+      const previousItems = [...cartItems];
+      setCartItems(prev => prev.filter(item => item.productId !== productId));
+      
       const cartKey = getCartKey(user?.custNo);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cart/items/${productId}`, {
         method: 'DELETE',
@@ -134,14 +157,16 @@ export const CartProvider = ({ children }) => {
       });
       
       if (!response.ok) {
+        // Rollback on error
+        setCartItems(previousItems);
         throw new Error('Failed to remove item');
       }
       
-      await fetchCart();
+      // Refresh with real data in background
+      fetchCart();
       return { success: true };
     } catch (error) {
       console.error('Error removing from cart:', error);
-      setLoading(false);
       return { success: false, error: error.message };
     }
   };
