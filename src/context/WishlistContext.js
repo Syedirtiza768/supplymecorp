@@ -1,6 +1,7 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
+import { cachedFetch, mutate, invalidateCache } from "@/lib/apiCache";
 
 const WishlistContext = createContext();
 
@@ -17,6 +18,7 @@ export const WishlistProvider = ({ children }) => {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [sessionId, setSessionId] = useState(null);
+  const fetchingRef = useRef(false);
 
   // Initialize session ID
   useEffect(() => {
@@ -28,45 +30,43 @@ export const WishlistProvider = ({ children }) => {
     setSessionId(sid);
   }, []);
 
-  // Fetch wishlist items
-  const fetchWishlist = useCallback(async () => {
+  // Fetch wishlist items with caching
+  const fetchWishlist = useCallback(async (skipCache = false) => {
     if (!sessionId) return;
+    if (fetchingRef.current) return;
+    
+    fetchingRef.current = true;
     
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-      const res = await fetch(`${apiUrl}/api/wishlist`, {
-        headers: {
-          "x-session-id": sessionId,
-        },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setWishlistItems(data.items || []);
-        setWishlistCount(data.items?.length || 0);
-      }
+      const data = await cachedFetch(
+        `${apiUrl}/api/wishlist`,
+        { headers: { "x-session-id": sessionId } },
+        { skip: skipCache }
+      );
+      
+      setWishlistItems(data.items || []);
+      setWishlistCount(data.items?.length || 0);
     } catch (error) {
       console.error("Error fetching wishlist:", error);
     } finally {
       setLoading(false);
+      fetchingRef.current = false;
     }
   }, [sessionId]);
 
-  // Fetch wishlist count
+  // Fetch wishlist count with caching
   const fetchWishlistCount = useCallback(async () => {
     if (!sessionId) return;
     
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist/count`, {
-        headers: {
-          "x-session-id": sessionId,
-        },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setWishlistCount(data.count || 0);
-      }
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const data = await cachedFetch(
+        `${apiUrl}/api/wishlist/count`,
+        { headers: { "x-session-id": sessionId } }
+      );
+      
+      setWishlistCount(data.count || 0);
     } catch (error) {
       console.error("Error fetching wishlist count:", error);
     }
@@ -78,89 +78,123 @@ export const WishlistProvider = ({ children }) => {
     }
   }, [sessionId, fetchWishlist]);
 
-  // Add item to wishlist
-  const addToWishlist = async (productId) => {
+  // Add item to wishlist with optimistic update
+  const addToWishlist = useCallback(async (productId) => {
     if (!sessionId) return { success: false, error: "No session ID" };
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist/items`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-session-id": sessionId,
-        },
-        body: JSON.stringify({ productId: String(productId) }),
-      });
+    // Optimistic update
+    const tempItem = { productId: String(productId), _optimistic: true };
+    setWishlistItems(prev => [...prev, tempItem]);
+    setWishlistCount(prev => prev + 1);
 
-      const data = await response.json();
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const data = await mutate(
+        `${apiUrl}/api/wishlist/items`,
+        {
+          method: "POST",
+          headers: { "x-session-id": sessionId },
+          body: JSON.stringify({ productId: String(productId) }),
+        },
+        ['/api/wishlist']
+      );
       
       if (data.ok) {
-        await fetchWishlist();
+        // Background refresh
+        fetchWishlist(true);
         return { success: true };
       } else {
+        // Rollback
+        setWishlistItems(prev => prev.filter(item => !item._optimistic));
+        setWishlistCount(prev => prev - 1);
         return { success: false, error: data.error };
       }
     } catch (error) {
       console.error("Error adding to wishlist:", error);
+      // Rollback
+      setWishlistItems(prev => prev.filter(item => !item._optimistic));
+      setWishlistCount(prev => prev - 1);
       return { success: false, error: "Failed to add to wishlist" };
     }
-  };
+  }, [sessionId, fetchWishlist]);
 
-  // Remove item from wishlist
-  const removeFromWishlist = async (productId) => {
+  // Remove item from wishlist with optimistic update
+  const removeFromWishlist = useCallback(async (productId) => {
     if (!sessionId) return { success: false };
 
+    // Optimistic update
+    const previousItems = [...wishlistItems];
+    const previousCount = wishlistCount;
+    setWishlistItems(prev => prev.filter(item => String(item.productId) !== String(productId)));
+    setWishlistCount(prev => Math.max(0, prev - 1));
+
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/wishlist/items/${productId}`,
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const data = await mutate(
+        `${apiUrl}/api/wishlist/items/${productId}`,
         {
           method: "DELETE",
-          headers: {
-            "x-session-id": sessionId,
-          },
-        }
+          headers: { "x-session-id": sessionId },
+        },
+        ['/api/wishlist']
       );
-
-      const data = await response.json();
       
       if (data.ok) {
-        await fetchWishlist();
+        // Background refresh
+        fetchWishlist(true);
         return { success: true };
       } else {
+        // Rollback
+        setWishlistItems(previousItems);
+        setWishlistCount(previousCount);
         return { success: false, error: data.error };
       }
     } catch (error) {
       console.error("Error removing from wishlist:", error);
+      // Rollback
+      setWishlistItems(previousItems);
+      setWishlistCount(previousCount);
       return { success: false };
     }
-  };
+  }, [sessionId, wishlistItems, wishlistCount, fetchWishlist]);
 
-  // Clear entire wishlist
-  const clearWishlist = async () => {
+  // Clear entire wishlist with optimistic update
+  const clearWishlist = useCallback(async () => {
     if (!sessionId) return { success: false };
 
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/wishlist`, {
-        method: "DELETE",
-        headers: {
-          "x-session-id": sessionId,
-        },
-      });
+    // Optimistic update
+    const previousItems = [...wishlistItems];
+    const previousCount = wishlistCount;
+    setWishlistItems([]);
+    setWishlistCount(0);
 
-      const data = await response.json();
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+      const data = await mutate(
+        `${apiUrl}/api/wishlist`,
+        {
+          method: "DELETE",
+          headers: { "x-session-id": sessionId },
+        },
+        ['/api/wishlist']
+      );
       
       if (data.ok) {
-        setWishlistItems([]);
-        setWishlistCount(0);
         return { success: true };
       } else {
+        // Rollback
+        setWishlistItems(previousItems);
+        setWishlistCount(previousCount);
         return { success: false, error: data.error };
       }
     } catch (error) {
       console.error("Error clearing wishlist:", error);
+      // Rollback
+      setWishlistItems(previousItems);
+      setWishlistCount(previousCount);
       return { success: false };
     }
-  };
+  }, [sessionId, wishlistItems, wishlistCount]);
 
   // Check if item is in wishlist
   const isInWishlist = useCallback((productId) => {
