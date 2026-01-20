@@ -8,7 +8,7 @@
  * - Static assets: Cache-first
  */
 
-const CACHE_VERSION = 'flipbook-v2-yellow-borders';
+const CACHE_VERSION = 'flipbook-v4-2026-01-20-symmetric';
 const FLIPBOOK_CACHE = `${CACHE_VERSION}-flipbook`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const STATIC_CACHE = `${CACHE_VERSION}-static`;

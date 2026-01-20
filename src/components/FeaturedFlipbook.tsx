@@ -153,6 +153,16 @@ export function FeaturedFlipbook() {
 
       setFlipbook(data);
 
+      // If the featured flipbook changed, clear SW caches to avoid stale pages
+      if (typeof window !== 'undefined') {
+        const lastFeaturedId = window.localStorage.getItem('featuredFlipbookId');
+        if (lastFeaturedId && lastFeaturedId !== data.id && 'serviceWorker' in navigator && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
+          console.log('Clearing service worker cache due to featured flipbook change');
+        }
+        window.localStorage.setItem('featuredFlipbookId', data.id);
+      }
+
       // Hotspots are already included in data.pages[].hotspots from the API response
       // No need to re-fetch them separately
 
