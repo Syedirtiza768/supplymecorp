@@ -83,7 +83,7 @@ const Navbar = () => {
             <SimpleNavbarItem
               mobileNavbar={mobileNavbar}
               title="Shop"
-              link="/shop?category=Building&page=1&limit=10&sortBy=id&sortOrder=DESC"
+              link="/shop?category=Tools&page=1&limit=10&sortBy=id&sortOrder=DESC"
             />
             <SimpleNavbarItem
               mobileNavbar={mobileNavbar}
