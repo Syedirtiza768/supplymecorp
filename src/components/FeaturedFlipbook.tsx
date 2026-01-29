@@ -302,7 +302,7 @@ export function FeaturedFlipbook() {
       <div className="bg-white text-black text-center py-2 px-6 mb-4">
         <h1 className="text-4xl font-bold">{flipbook.title}</h1>
         {flipbook.description && (
-          <p className="text-sm text-gray-700 mt-1">{flipbook.description}</p>
+          <p className="text-base text-gray-700 mt-1">{flipbook.description}</p>
         )}
       </div>
       <div className="flipbook-canvas-container border-0 relative">

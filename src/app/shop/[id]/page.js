@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 import ProductSlider2 from "./ProductsSlider2";
 import ProductDataItem from "./ProductDataItem";
@@ -18,6 +19,7 @@ const Shop = ({ params }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const { isLoggedIn } = useAuth();
   params = use(params);
 
   useEffect(() => {
@@ -239,8 +241,8 @@ const Shop = ({ params }) => {
               <div className="w-full pl-10 lg:w-[70%]">
                 {/* Product details */}
                 <ProductDataItem product={product} />
-                {/* Display the price only if available */}
-                {product && product.price != null && product.price > 0 && (
+                {/* Display the price only if available and user is logged in */}
+                {isLoggedIn && product && product.price != null && product.price > 0 && (
                   <p className="py-3 font-bold text-red text-lg">
                     ${product.price}
                   </p>

@@ -5,6 +5,7 @@ import { AiOutlineStar, AiFillStar } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 const ProductItem3 = ({
   id,
@@ -18,6 +19,7 @@ const ProductItem3 = ({
   url,
 }) => {
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
   const stars = [1, 2, 3, 4, 5];
 
   return (
@@ -42,14 +44,14 @@ const ProductItem3 = ({
       </div>
       <div className="mt-5 w-full">
         <h3 className="text-gray2">{title}</h3>
-        {price && price > 0 && (
+        {isLoggedIn && price && price > 0 && (
           <div className='space-x-3 py-3'>
             {oldPrice && oldPrice > price && <span className='text-gray-400 line-through'>${oldPrice}</span>}
             <span className='text-primary font-semibold text-xl'>${price}</span>
           </div>
         )}
         <p className="text-gray2 py-5">{description}</p>
-        {(!price || price === 0 || price === "0.00" || price === "0") ? (
+        {(!isLoggedIn || !price || price === 0 || price === "0.00" || price === "0") ? (
           <Button disabled className="w-full bg-gray-300 text-gray-600 cursor-not-allowed">Get a Quote</Button>
         ) : (
           <Button>Add To Cart</Button>

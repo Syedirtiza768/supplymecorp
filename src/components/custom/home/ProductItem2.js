@@ -7,6 +7,7 @@ import Rating from "../Rating";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import WishlistButton from "../WishlistButton";
+import { useAuth } from "@/context/AuthContext";
 
 const ProductItem2 = ({
   title,
@@ -22,6 +23,7 @@ const ProductItem2 = ({
   hidePrice,
 }) => {
   const router = useRouter();
+  const { isLoggedIn } = useAuth();
 
   return (
     (link || url) ? (
@@ -48,7 +50,7 @@ const ProductItem2 = ({
           </div>
           <div className="mt-auto w-full flex flex-col items-center gap-3">
             <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug group-hover:text-primary transition-colors">{title}</h3>
-            {!hidePrice && price && price > 0 && (
+            {!hidePrice && isLoggedIn && price && price > 0 && (
               <div className="flex items-center gap-3 w-full justify-center">
                 {oldPrice && oldPrice > 0 && (
                   <span className="text-gray-400 line-through text-sm">${Number(oldPrice).toFixed(2)}</span>
@@ -85,7 +87,7 @@ const ProductItem2 = ({
         </div>
         <div className="mt-auto w-full flex flex-col items-center gap-3">
           <h3 className="text-gray-800 font-semibold text-center w-full px-2 line-clamp-2 min-h-[3em] leading-snug">{title}</h3>
-          {!hidePrice && (
+          {!hidePrice && isLoggedIn && (
             <div className="flex items-center gap-3 w-full justify-center">
               {oldPrice && (
                 <span className="text-gray-400 line-through text-sm">${oldPrice}</span>

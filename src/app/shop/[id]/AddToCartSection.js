@@ -1,12 +1,14 @@
 "use client";
 import React, { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 const AddToCartSection = ({ product }) => {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [error, setError] = useState(null);
   const { addToCart, loading } = useCart();
+  const { isLoggedIn } = useAuth();
   if (!product) return null;
 
   return (
@@ -26,7 +28,7 @@ const AddToCartSection = ({ product }) => {
           +
         </p>
       </div>
-      {(!product.price || product.price === 0 || product.price === "0.00" || product.price === "0") ? (
+      {(!isLoggedIn || !product.price || product.price === 0 || product.price === "0.00" || product.price === "0") ? (
         <button
           disabled
           className={`inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-3 transition-all duration-300 ${added ? 'bg-green-600' : ''} ${error ? 'bg-red-600' : ''}`}

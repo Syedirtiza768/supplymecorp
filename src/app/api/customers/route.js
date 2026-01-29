@@ -37,10 +37,13 @@ export async function GET(req) {
       console.log('🔍 Fetching customers from Counterpoint API...');
       const startTime = Date.now();
       
+      const cookie = process.env.COUNTERPOINT_COOKIE || '';
+      
       const response = await fetch('https://utility.rrgeneralsupply.com/customers', {
         headers: {
           'APIKey': apiKey,
           'Authorization': auth,
+          ...(cookie ? { 'Cookie': cookie } : {}),
         },
       });
       
