@@ -3,50 +3,59 @@ import Container1 from "@/components/custom/Container1";
 import ProductSlider1 from "@/components/custom/sliders/ProductsSlider1";
 import { selectedStaticCategories, mergeCategoryWithCounts } from "@/data"; // Import from data.js
 
-// Function to fetch category counts directly from the API
+// Function to fetch category counts and price info from the API
 async function getCategoryProductCounts() {
   try {
-    // Backend runs on port 3000 with /api prefix
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-    const response = await fetch(
+    // Fetch counts (required)
+    const countsResponse = await fetch(
       `${apiUrl}/api/products/filters/specific-categories/counts`,
       {
-        next: { revalidate: 60 }, // Revalidate every 60 seconds
-        headers: {
-          Accept: "application/json",
-        },
+        next: { revalidate: 60 },
+        headers: { Accept: "application/json" },
       }
     );
 
-    if (!response.ok) {
-      console.error(
-        "API response not OK:",
-        response.status,
-        response.statusText
-      );
-      throw new Error(
-        `Failed to fetch category counts: ${response.status} ${response.statusText}`
-      );
+    if (!countsResponse.ok) {
+      console.error("Failed to fetch counts");
+      return { counts: null, priceInfo: null };
     }
 
-    // Parse response
-    const data = await response.json();
-    return data;
+    const counts = await countsResponse.json();
+    
+    // Fetch price info (optional - don't fail if this errors)
+    let priceInfo = null;
+    try {
+      const priceInfoResponse = await fetch(
+        `${apiUrl}/api/products/filters/specific-categories/price-info`,
+        {
+          next: { revalidate: 60 },
+          headers: { Accept: "application/json" },
+        }
+      );
+      
+      if (priceInfoResponse.ok) {
+        priceInfo = await priceInfoResponse.json();
+      }
+    } catch (priceError) {
+      console.error("Price info fetch failed, continuing without it:", priceError);
+    }
+
+    return { counts, priceInfo };
   } catch (error) {
-    console.error("Error fetching category counts:", error);
-    return null;
+    console.error("Error fetching category data:", error);
+    return { counts: null, priceInfo: null };
   }
 }
 
 // Server component
 async function ProductsByCategorySection() {
-  // Fetch the category counts from the API
-  const categoryCounts = await getCategoryProductCounts();
+  // Fetch the category counts and price info from the API
+  const { counts: categoryCounts, priceInfo } = await getCategoryProductCounts();
 
   // Use the helper function from data.js to merge static data with API counts
-  const sliderData = mergeCategoryWithCounts(categoryCounts);
+  const sliderData = mergeCategoryWithCounts(categoryCounts, priceInfo);
 
   return (
     <section className="mt-[50px]">

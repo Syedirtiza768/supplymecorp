@@ -125,7 +125,7 @@ export const constructApiUrl = (
 };
 
 // Helper function to merge static data with dynamic counts from API
-export const mergeCategoryWithCounts = (categoryCounts) => {
+export const mergeCategoryWithCounts = (categoryCounts, priceInfo) => {
   if (!categoryCounts) {
     // Return the static data with default quantity "0" if API call failed
     return selectedStaticCategories.map((category) => ({
@@ -138,21 +138,33 @@ export const mergeCategoryWithCounts = (categoryCounts) => {
   const mergedCategories = selectedStaticCategories.map((category) => {
     // Get the count from the API response
     const count = categoryCounts[category.title];
+    const categoryPriceInfo = priceInfo ? priceInfo[category.title] : null;
 
     return {
       ...category,
       quantity: count !== undefined ? count.toString() : "0",
+      withPrice: categoryPriceInfo ? categoryPriceInfo.withPrice : 0,
     };
   });
   
-  // Sort: categories with items (count > 0) first, then those with no items
-  return mergedCategories.sort((a, b) => {
-    const countA = parseInt(a.quantity) || 0;
-    const countB = parseInt(b.quantity) || 0;
+  // Filter out Building, Materials, and Workwear categories
+  const filtered = mergedCategories.filter(
+    category => category.title !== 'Building' && category.title !== 'Materials' && category.title !== 'Workwear'
+  );
+  
+  // Only sort if we have price info, otherwise maintain original order
+  if (!priceInfo) {
+    return filtered;
+  }
+  
+  // Sort: categories with items that have prices first, then those without
+  return filtered.sort((a, b) => {
+    const priceCountA = a.withPrice || 0;
+    const priceCountB = b.withPrice || 0;
     
-    // Categories with items come first
-    if (countA > 0 && countB === 0) return -1;
-    if (countA === 0 && countB > 0) return 1;
+    // Categories with priced items come first
+    if (priceCountA > 0 && priceCountB === 0) return -1;
+    if (priceCountA === 0 && priceCountB > 0) return 1;
     
     // Maintain original order within same category
     return 0;
