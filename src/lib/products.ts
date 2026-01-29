@@ -1,5 +1,17 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000';
 
+// Sort products by price (items with price > 0 first)
+function sortProductsByPrice(products: any[]): any[] {
+  if (!Array.isArray(products)) return products;
+  return [...products].sort((a, b) => {
+    const priceA = parseFloat(a.price) || 0;
+    const priceB = parseFloat(b.price) || 0;
+    if (priceA > 0 && priceB === 0) return -1;
+    if (priceA === 0 && priceB > 0) return 1;
+    return 0;
+  });
+}
+
 export async function fetchNewProductsByCategory(): Promise<Product[]> {
   const url = new URL(`${API_BASE}/api/products/new-by-category`);
   const response = await fetch(url.toString(), {
@@ -8,7 +20,8 @@ export async function fetchNewProductsByCategory(): Promise<Product[]> {
   if (!response.ok) {
     throw new Error(`Failed to fetch new products by category: ${response.status}`);
   }
-  return response.json();
+  const products = await response.json();
+  return sortProductsByPrice(products);
 }
 
 export interface Product {
@@ -42,7 +55,8 @@ export async function fetchNewProducts(limit = 12): Promise<Product[]> {
     throw new Error(`Failed to fetch new products: ${response.status}`);
   }
   
-  return response.json();
+  const products = await response.json();
+  return sortProductsByPrice(products);
 }
 
 export async function fetchMostViewed(limit = 12, days?: number): Promise<Product[]> {
@@ -58,7 +72,8 @@ export async function fetchMostViewed(limit = 12, days?: number): Promise<Produc
     throw new Error(`Failed to fetch most viewed products: ${response.status}`);
   }
   
-  return response.json();
+  const products = await response.json();
+  return sortProductsByPrice(products);
 }
 
 export async function fetchFeaturedProducts(limit = 12): Promise<Product[]> {
@@ -73,5 +88,6 @@ export async function fetchFeaturedProducts(limit = 12): Promise<Product[]> {
     throw new Error(`Failed to fetch featured products: ${response.status}`);
   }
   
-  return response.json();
+  const products = await response.json();
+  return sortProductsByPrice(products);
 }

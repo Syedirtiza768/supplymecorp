@@ -6,6 +6,7 @@ import ProductItem2 from "@/components/custom/home/ProductItem2";
 import Link from "next/link";
 import ProductItem3 from "@/components/custom/home/ProductItem3";
 import { useRouter } from "next/navigation";
+import { sortProductsByPrice } from "@/lib/sortProducts";
 
 // Loading component for Suspense fallback
 const ShopLoading = () => (
@@ -66,7 +67,8 @@ const ShopContent = () => {
         }
 
         const data = await response.json();
-        setProducts(data.items || []);
+        const sortedProducts = sortProductsByPrice(data.items || []);
+        setProducts(sortedProducts);
 
         // Set pagination data
         if (data.meta) {

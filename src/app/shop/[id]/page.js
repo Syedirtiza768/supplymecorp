@@ -2,6 +2,7 @@
 import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { sortProductsByPrice } from "@/lib/sortProducts";
 
 import ProductSlider2 from "./ProductsSlider2";
 import ProductDataItem from "./ProductDataItem";
@@ -101,7 +102,8 @@ const Shop = ({ params }) => {
                 seen.add(key);
                 return true;
               });
-              setRelatedProducts(filteredProducts.slice(0, 3));
+              const sortedProducts = sortProductsByPrice(filteredProducts);
+              setRelatedProducts(sortedProducts.slice(0, 3));
             })
             .catch(err => {
               console.warn('Failed to fetch related products:', err);

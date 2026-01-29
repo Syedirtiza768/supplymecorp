@@ -135,7 +135,7 @@ export const mergeCategoryWithCounts = (categoryCounts) => {
   }
 
   // Map through static data and add quantities from API response
-  return selectedStaticCategories.map((category) => {
+  const mergedCategories = selectedStaticCategories.map((category) => {
     // Get the count from the API response
     const count = categoryCounts[category.title];
 
@@ -143,5 +143,18 @@ export const mergeCategoryWithCounts = (categoryCounts) => {
       ...category,
       quantity: count !== undefined ? count.toString() : "0",
     };
+  });
+  
+  // Sort: categories with items (count > 0) first, then those with no items
+  return mergedCategories.sort((a, b) => {
+    const countA = parseInt(a.quantity) || 0;
+    const countB = parseInt(b.quantity) || 0;
+    
+    // Categories with items come first
+    if (countA > 0 && countB === 0) return -1;
+    if (countA === 0 && countB > 0) return 1;
+    
+    // Maintain original order within same category
+    return 0;
   });
 };
